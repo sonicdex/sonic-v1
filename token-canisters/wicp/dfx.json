@@ -1,0 +1,17 @@
+{
+  "canisters": {
+    "wicp": {
+      "build": "./build.sh",
+      "candid": "wicp/wicp.did",
+      "wasm": "target/wasm32-unknown-unknown/release/wicp-opt.wasm",
+      "type": "custom"
+    }
+  },
+  "networks": {
+    "local": {
+      "bind": "127.0.0.1:8000",
+      "type": "ephemeral"
+    }
+  },
+  "version": 1
+}
