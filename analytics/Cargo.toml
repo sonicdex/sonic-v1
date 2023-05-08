@@ -1,0 +1,41 @@
+[package]
+name = "soinc-analytics"
+version = "0.1.0"
+authors = ["Sonic Team"]
+edition = "2018"
+
+[dependencies]
+actix-web = "3.3.3"
+actix-cors = "0.5.4"
+log = "0.4"
+env_logger = "0.7"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+serde_derive = "1.0"
+juniper = "0.15.9"
+candid = "0.7.4"
+ic-agent = "0.12"
+hex = "0.4.3"
+rand = "0.8.4"
+ic-kit = "0.4.8"
+ic-cdk = "0.5.0"
+# ic-cdk = "0.3.1"
+num-bigint = "0.4.2"
+num-traits = "0.2.12"
+bigdecimal = "0.3.0"
+ring = { version = "0.16.11", features = ["std"] }
+tokio = { version = "1.8.1", features = ["full"] }
+cap-sdk = { git = "https://github.com/Psychedelic/cap.git", branch = "main" }
+cap-sdk-core = { git = "https://github.com/Psychedelic/cap.git", branch = "main" }
+diesel = { version = "1.4.8", features = ["sqlite", "r2d2"] }
+dotenv = "0.15.0"
+lazy_static = "1.4.0"
+reqwest = "0.11.9"
+tokio-retry = "0.3.0"
+log4rs = "1.0.0"
+
+[[bin]]
+name = "server"
+
+[[bin]]
+name = "sync"
