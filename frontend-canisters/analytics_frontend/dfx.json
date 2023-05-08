@@ -1,0 +1,17 @@
+{
+  "canisters": {
+    "analytics_frontend": {
+      "source": [
+        "src/frontend/assets"
+      ],
+      "type": "assets"
+    }
+  },
+  "defaults": {
+    "build": {
+      "packtool": "vessel sources",
+      "args": "--hide-warnings"
+    }
+  },
+  "version": 1
+}

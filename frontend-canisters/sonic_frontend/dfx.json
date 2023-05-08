@@ -1,0 +1,17 @@
+{
+  "canisters": {
+    "sonic_frontend": {
+      "source": [
+        "src/sonic_frontend_frontend/assets"
+      ],
+      "type": "assets"
+    }
+  },
+  "defaults": {
+    "build": {
+      "packtool": "vessel sources",
+      "args": "--hide-warnings"
+    }
+  },
+  "version": 1
+}
