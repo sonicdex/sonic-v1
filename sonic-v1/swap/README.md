@@ -2,7 +2,7 @@
 
 Two canisters:
 
-* swap: main canister holding user assets, swap main logic （goeik-taaaa-aaaah-qcduq-cai）
+* swap: main canister holding user assets, swap main logic （3xwpq-ziaaa-aaaah-qcn4a-cai）
 * storage: using CAP for history transaction storage
 
 
