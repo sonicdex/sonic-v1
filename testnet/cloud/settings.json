@@ -1,0 +1,14 @@
+{
+	"local": {
+		"ServicePort": 3232,
+		"DashboardPort": 3233,
+		"HttpHost": "http://localhost:3232",
+		"WebsocketHost": "ws://localhost:3232"
+	},
+	"remote": {
+		"ServicePort": 3232,
+		"DashboardPort": 3233,
+		"HttpHost": "https://testnet.sonic.ooo/service-http",
+		"WebsocketHost": "wss://testnet.sonic.ooo/service-ws"
+	}
+}
