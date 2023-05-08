@@ -96,7 +96,7 @@ Two canisters:
 4. getSupportedTokenList(): async [TokenInfoExt] // get supported tokens/assets
 5. getUserLPBalances(user: Principal): async [(Text, Nat)] // (lptoken id, balance)
 6. getUserInfo(user: Principal): async UserInfo // get user info
-7. getDSwapInfo(): async DSwapInfo // get dswap info
+7. getSwapInfo(): async SwapInfo // get dswap info
 ```
 
 #### 
