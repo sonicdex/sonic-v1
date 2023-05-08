@@ -1,0 +1,14 @@
+{
+	"name": "sonic-testnet-service",
+	"version": "0.0.1",
+	"description": "Sonic Testnet HTTP service",
+	"main": "index.js",
+	"type": "module",
+	"dependencies": {
+		"express": "^4.18.1",
+		"ws": "^8.8.1"
+	},
+	"scripts": {
+		"start": "node index.js"
+	}
+}
