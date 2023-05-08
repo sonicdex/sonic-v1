@@ -114,7 +114,6 @@ Two canisters:
 7. withdrawTo(tokenId: Principal, to: Principal, value: Nat) : async TxReceipt // withdraw token from swap to user `to`
 8. swapExactTokensForTokens(amountIn: Nat, amountOutMin: Nat, path: [Text], to: Principal, deadline: Int): async TxReceipt
 9. swapTokensForExactTokens(amountOut: Nat, amountInMax: Nat, path: [Text], to: Principal, deadline: Int): async TxReceipt
-10. lazySwap(amountIn: Nat, amountOutMin: Nat, path[Text], to: Principal): async TxReceipt // aggregate deposit, swap & withdraw in one function
 
 // lp token & token related
 1. transfer(tokenId: Text, to: Principal, value: Nat) : async TxReceipt
