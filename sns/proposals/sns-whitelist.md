@@ -2,7 +2,7 @@ This proposal offers the Sonic Platform to the NNS to be turned into a decentral
 
 ### Who sent this proposal ?  
 
-This proposal is sent by the Sonic development team. Sonic is a [fully on-chain ](https://app.sonic.ooo) and [open source](https://github.com/sonicdex) Defi platform running end-to-end on the Internet Computer. The project is presented in [this whitepaper](https://sonicdex.gitbook.io/sonic-whitepaper/).
+This proposal is sent by the Sonic development team. Sonic is a [fully on-chain ](https://app.sonic.ooo) and [open source](https://github.com/sonicdex) Defi platform running end-to-end on the Internet Computer. The project is presented in [this whitepaper](https://sonicdex.gitbook.io/sonic-whitepaper/) and related technical docs can be found [here](https://docs.sonic.ooo/).
 
 ### What is the purpose of this proposal?  
 
