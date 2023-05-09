@@ -8,7 +8,9 @@ This proposal is sent by the Sonic development team. Sonic is a [fully on-chain 
 
 The Sonic development team offers the Sonic app to the NNS to be turned into a decentralized service by creation of a [Service Nervous System (SNS) DAO](https://internetcomputer.org/sns) to govern Sonic. The Sonic platform consists of 3 canisters. The following Sonic canisters would be directly controlled by the SNS: 
 
-sonic swap canister `3xwpq-ziaaa-aaaah-qcn4a-cai`  
+sonic swap canister `3xwpq-ziaaa-aaaah-qcn4a-cai`   
+sonic swap FE asset canister `eukbz-7iaaa-aaaah-ac5tq-cai`  
+sonic analytics FE asset canister `fxgi7-lqaaa-aaaah-ac5va-cai`  
 wicp canister `utozz-siaaa-aaaam-qaaxq-cai`  
 xtc canister `aanaa-xaaaa-aaaah-aaeiq-cai`  
 
