@@ -30,7 +30,7 @@ Max age bonus: 1.25x
 
 These parameters can be verified by querying the governance canister's get_nervous_system_parameters method [here](https://dashboard.internetcomputer.org/canister/24scz-zyaaa-aaaaq-aaapq-cai).  
 
-### Trading Fee  
+### Token Utility
 Trading fees are an important utility for $SOC native tokens because they provide a direct source of revenue for the platform. When users trade on Sonic, they pay a small fee for each transaction. This fee is typically a percentage of the total trade value and can range from 0.05% to 1%, depending on the category of trade.
 $SOC can be used to pay for these trading fees, they will also receive a discount on the trading fees if they pay in Sonic Token. This discount can vary depending on the amount of the token held or the user's trading volume. The discount rules are governed by the DAO and can be subject to change through proposal voting.  
 See our tokenomics to know more about fees & SOC utility [here](https://sonicdex.gitbook.io/sonic-whitepaper/token-utility).  
