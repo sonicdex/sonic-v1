@@ -254,1121 +254,1216 @@ initial_token_distribution:
     developer_distribution:
       developer_neurons:
       - controller: 6kkxa-lvvqy-u2vng-ynmzf-2jnko-s75fh-tbcuz-q5lwq-4hzjj-sqdeb-kqe  # initial developer voting neuron
-        stake_e8s: 50000000000000 # 500K
+        stake_e8s: 100000000000 # 1000
         memo: 0
         dissolve_delay_seconds: 31557600
         vesting_period_seconds: 0
-      - controller: pztrv-cxvtd-suxig-xxkro-xynhu-nuvfq-ccxob-otlye-xeh45-uvild-mqe # fleek team tokens for immediate release
+      - controller: pztrv-cxvtd-suxig-xxkro-xynhu-nuvfq-ccxob-otlye-xeh45-uvild-mqe # fleek team tokens with 1 month dissolve delay, vesting 0
         stake_e8s: 250000000000000 # 2.5M
         memo: 0
-        dissolve_delay_seconds: 60
+        dissolve_delay_seconds: 2629800
         vesting_period_seconds: 0
-      - controller: pztrv-cxvtd-suxig-xxkro-xynhu-nuvfq-ccxob-otlye-xeh45-uvild-mqe # fleek team tokens locked for 1 year
+      - controller: pztrv-cxvtd-suxig-xxkro-xynhu-nuvfq-ccxob-otlye-xeh45-uvild-mqe # fleek team tokens vested for 1 year with dissolve delay 1 month
         stake_e8s: 250000000000000 # 2.5M
         memo: 1
-        dissolve_delay_seconds: 31557600
+        dissolve_delay_seconds: 2629800
         vesting_period_seconds: 31557600
-        # 17.625M tokens for founding team allocated, vested over a period of 1 to 12 months
+      # 18.124M tokens for founding team allocated, vested over a period of 0, 6, 12, 18, 24, 30, 36, 42 to 48 months (4 years)
       - controller: 7chpc-2qaaa-aaaah-acurq-cai
-        stake_e8s: 48958333333333
+        stake_e8s: 201377777777777
         memo: 0
         dissolve_delay_seconds: 2629800
-        vesting_period_seconds: 2629800
+        vesting_period_seconds: 0
       - controller: 7chpc-2qaaa-aaaah-acurq-cai
-        stake_e8s: 48958333333333
+        stake_e8s: 201377777777777
         memo: 1
-        dissolve_delay_seconds: 2629800
-        vesting_period_seconds: 5259600
-      - controller: 7chpc-2qaaa-aaaah-acurq-cai
-        stake_e8s: 48958333333333
-        memo: 2
-        dissolve_delay_seconds: 2629800
-        vesting_period_seconds: 7889400
-      - controller: 7chpc-2qaaa-aaaah-acurq-cai
-        stake_e8s: 48958333333333
-        memo: 3
-        dissolve_delay_seconds: 2629800
-        vesting_period_seconds: 10519200
-      - controller: 7chpc-2qaaa-aaaah-acurq-cai
-        stake_e8s: 48958333333333
-        memo: 4
-        dissolve_delay_seconds: 2629800
-        vesting_period_seconds: 13149000
-      - controller: 7chpc-2qaaa-aaaah-acurq-cai
-        stake_e8s: 48958333333333
-        memo: 5
         dissolve_delay_seconds: 2629800
         vesting_period_seconds: 15778800
       - controller: 7chpc-2qaaa-aaaah-acurq-cai
-        stake_e8s: 48958333333333
-        memo: 6
-        dissolve_delay_seconds: 2629800
-        vesting_period_seconds: 18408600
-      - controller: 7chpc-2qaaa-aaaah-acurq-cai
-        stake_e8s: 48958333333333
-        memo: 7
-        dissolve_delay_seconds: 2629800
-        vesting_period_seconds: 21038400
-      - controller: 7chpc-2qaaa-aaaah-acurq-cai
-        stake_e8s: 48958333333333
-        memo: 8
-        dissolve_delay_seconds: 2629800
-        vesting_period_seconds: 23668200
-      - controller: 7chpc-2qaaa-aaaah-acurq-cai
-        stake_e8s: 48958333333333
-        memo: 9
-        dissolve_delay_seconds: 2629800
-        vesting_period_seconds: 26298000
-      - controller: 7chpc-2qaaa-aaaah-acurq-cai
-        stake_e8s: 48958333333333
-        memo: 10
-        dissolve_delay_seconds: 2629800
-        vesting_period_seconds: 28927800
-      - controller: 7chpc-2qaaa-aaaah-acurq-cai
-        stake_e8s: 48958333333333
-        memo: 11
+        stake_e8s: 201377777777777
+        memo: 2
         dissolve_delay_seconds: 2629800
         vesting_period_seconds: 31557600
       - controller: 7chpc-2qaaa-aaaah-acurq-cai
-        stake_e8s: 48958333333333
-        memo: 12
-        dissolve_delay_seconds: 2629800
-        vesting_period_seconds: 34187400
-      - controller: 7chpc-2qaaa-aaaah-acurq-cai
-        stake_e8s: 48958333333333
-        memo: 13
-        dissolve_delay_seconds: 2629800
-        vesting_period_seconds: 36817200
-      - controller: 7chpc-2qaaa-aaaah-acurq-cai
-        stake_e8s: 48958333333333
-        memo: 14
-        dissolve_delay_seconds: 2629800
-        vesting_period_seconds: 39447000
-      - controller: 7chpc-2qaaa-aaaah-acurq-cai
-        stake_e8s: 48958333333333
-        memo: 15
-        dissolve_delay_seconds: 2629800
-        vesting_period_seconds: 42076800
-      - controller: 7chpc-2qaaa-aaaah-acurq-cai
-        stake_e8s: 48958333333333
-        memo: 16
-        dissolve_delay_seconds: 2629800
-        vesting_period_seconds: 44706600
-      - controller: 7chpc-2qaaa-aaaah-acurq-cai
-        stake_e8s: 48958333333333
-        memo: 17
+        stake_e8s: 201377777777777
+        memo: 3
         dissolve_delay_seconds: 2629800
         vesting_period_seconds: 47336400
       - controller: 7chpc-2qaaa-aaaah-acurq-cai
-        stake_e8s: 48958333333333
-        memo: 18
-        dissolve_delay_seconds: 2629800
-        vesting_period_seconds: 49966200
-      - controller: 7chpc-2qaaa-aaaah-acurq-cai
-        stake_e8s: 48958333333333
-        memo: 19
-        dissolve_delay_seconds: 2629800
-        vesting_period_seconds: 52596000
-      - controller: 7chpc-2qaaa-aaaah-acurq-cai
-        stake_e8s: 48958333333333
-        memo: 20
-        dissolve_delay_seconds: 2629800
-        vesting_period_seconds: 55225800
-      - controller: 7chpc-2qaaa-aaaah-acurq-cai
-        stake_e8s: 48958333333333
-        memo: 21
-        dissolve_delay_seconds: 2629800
-        vesting_period_seconds: 57855600
-      - controller: 7chpc-2qaaa-aaaah-acurq-cai
-        stake_e8s: 48958333333333
-        memo: 22
-        dissolve_delay_seconds: 2629800
-        vesting_period_seconds: 60485400
-      - controller: 7chpc-2qaaa-aaaah-acurq-cai
-        stake_e8s: 48958333333333
-        memo: 23
+        stake_e8s: 201377777777777
+        memo: 4
         dissolve_delay_seconds: 2629800
         vesting_period_seconds: 63115200
       - controller: 7chpc-2qaaa-aaaah-acurq-cai
-        stake_e8s: 48958333333333
-        memo: 24
-        dissolve_delay_seconds: 2629800
-        vesting_period_seconds: 65745000
-      - controller: 7chpc-2qaaa-aaaah-acurq-cai
-        stake_e8s: 48958333333333
-        memo: 25
-        dissolve_delay_seconds: 2629800
-        vesting_period_seconds: 68374800
-      - controller: 7chpc-2qaaa-aaaah-acurq-cai
-        stake_e8s: 48958333333333
-        memo: 26
-        dissolve_delay_seconds: 2629800
-        vesting_period_seconds: 71004600
-      - controller: 7chpc-2qaaa-aaaah-acurq-cai
-        stake_e8s: 48958333333333
-        memo: 27
-        dissolve_delay_seconds: 2629800
-        vesting_period_seconds: 73634400
-      - controller: 7chpc-2qaaa-aaaah-acurq-cai
-        stake_e8s: 48958333333333
-        memo: 28
-        dissolve_delay_seconds: 2629800
-        vesting_period_seconds: 76264200
-      - controller: 7chpc-2qaaa-aaaah-acurq-cai
-        stake_e8s: 48958333333333
-        memo: 29
+        stake_e8s: 201377777777777
+        memo: 5
         dissolve_delay_seconds: 2629800
         vesting_period_seconds: 78894000
       - controller: 7chpc-2qaaa-aaaah-acurq-cai
-        stake_e8s: 48958333333333
-        memo: 30
-        dissolve_delay_seconds: 2629800
-        vesting_period_seconds: 81523800
-      - controller: 7chpc-2qaaa-aaaah-acurq-cai
-        stake_e8s: 48958333333333
-        memo: 31
-        dissolve_delay_seconds: 2629800
-        vesting_period_seconds: 84153600
-      - controller: 7chpc-2qaaa-aaaah-acurq-cai
-        stake_e8s: 48958333333333
-        memo: 32
-        dissolve_delay_seconds: 2629800
-        vesting_period_seconds: 86783400
-      - controller: 7chpc-2qaaa-aaaah-acurq-cai
-        stake_e8s: 48958333333333
-        memo: 33
-        dissolve_delay_seconds: 2629800
-        vesting_period_seconds: 89413200
-      - controller: 7chpc-2qaaa-aaaah-acurq-cai
-        stake_e8s: 48958333333333
-        memo: 34
-        dissolve_delay_seconds: 2629800
-        vesting_period_seconds: 92043000
-      - controller: 7chpc-2qaaa-aaaah-acurq-cai
-        stake_e8s: 48958333333345
-        memo: 35
+        stake_e8s: 201377777777777
+        memo: 6
         dissolve_delay_seconds: 2629800
         vesting_period_seconds: 94672800
+      - controller: 7chpc-2qaaa-aaaah-acurq-cai
+        stake_e8s: 201377777777777
+        memo: 7
+        dissolve_delay_seconds: 2629800
+        vesting_period_seconds: 110451600
+      - controller: 7chpc-2qaaa-aaaah-acurq-cai
+        stake_e8s: 201377777777784
+        memo: 8
+        dissolve_delay_seconds: 2629800
+        vesting_period_seconds: 126230400
       # Community seed funders allocation, 2.5M total tokens allocated for early investors who participated in our community fundraising in Q1 2022.
-      # the tokens are vested over a period of 0, 6, 9 and 12 months
+      # the tokens are vested over a period of 0, 3, 6, 9 and 12 months
       # first set of tokens are set to be released immediately by setting dissolve_delay_seconds as 60
       - controller: snuqi-abk2c-jgzep-c7pck-yiavv-mdqfi-o2x2g-h4wuc-kvmjn-7agtx-pae
-        stake_e8s: 11632200000000
+        stake_e8s: 9305760000000
         memo: 0
         dissolve_delay_seconds: 60
         vesting_period_seconds: 0
       - controller: snuqi-abk2c-jgzep-c7pck-yiavv-mdqfi-o2x2g-h4wuc-kvmjn-7agtx-pae
-        stake_e8s: 11632200000000
+        stake_e8s: 9305760000000
         memo: 1
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 7889400
+      - controller: snuqi-abk2c-jgzep-c7pck-yiavv-mdqfi-o2x2g-h4wuc-kvmjn-7agtx-pae
+        stake_e8s: 9305760000000
+        memo: 2
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 15778800
       - controller: snuqi-abk2c-jgzep-c7pck-yiavv-mdqfi-o2x2g-h4wuc-kvmjn-7agtx-pae
-        stake_e8s: 11632200000000
-        memo: 2
+        stake_e8s: 9305760000000
+        memo: 3
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 23668200
       - controller: snuqi-abk2c-jgzep-c7pck-yiavv-mdqfi-o2x2g-h4wuc-kvmjn-7agtx-pae
-        stake_e8s: 11632200000000
-        memo: 3
+        stake_e8s: 9305760000000
+        memo: 4
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 31557600
       - controller: wafik-3ibgo-e3dvl-zbnvc-7azle-5okej-i42b5-gvzi6-3bey6-mlil6-mae
-        stake_e8s: 625000000000
+        stake_e8s: 500000000000
         memo: 0
         dissolve_delay_seconds: 60
         vesting_period_seconds: 0
       - controller: wafik-3ibgo-e3dvl-zbnvc-7azle-5okej-i42b5-gvzi6-3bey6-mlil6-mae
-        stake_e8s: 625000000000
+        stake_e8s: 500000000000
         memo: 1
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 7889400
+      - controller: wafik-3ibgo-e3dvl-zbnvc-7azle-5okej-i42b5-gvzi6-3bey6-mlil6-mae
+        stake_e8s: 500000000000
+        memo: 2
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 15778800
       - controller: wafik-3ibgo-e3dvl-zbnvc-7azle-5okej-i42b5-gvzi6-3bey6-mlil6-mae
-        stake_e8s: 625000000000
-        memo: 2
+        stake_e8s: 500000000000
+        memo: 3
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 23668200
       - controller: wafik-3ibgo-e3dvl-zbnvc-7azle-5okej-i42b5-gvzi6-3bey6-mlil6-mae
-        stake_e8s: 625000000000
-        memo: 3
+        stake_e8s: 500000000000
+        memo: 4
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 31557600
       - controller: 6waub-jkdtz-im6uc-ojink-oojjl-66qqf-jrmgq-tpcpu-ugs2c-u27g5-4ae
-        stake_e8s: 625000000000
+        stake_e8s: 500000000000
         memo: 0
         dissolve_delay_seconds: 60
         vesting_period_seconds: 0
       - controller: 6waub-jkdtz-im6uc-ojink-oojjl-66qqf-jrmgq-tpcpu-ugs2c-u27g5-4ae
-        stake_e8s: 625000000000
+        stake_e8s: 500000000000
         memo: 1
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 7889400
+      - controller: 6waub-jkdtz-im6uc-ojink-oojjl-66qqf-jrmgq-tpcpu-ugs2c-u27g5-4ae
+        stake_e8s: 500000000000
+        memo: 2
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 15778800
       - controller: 6waub-jkdtz-im6uc-ojink-oojjl-66qqf-jrmgq-tpcpu-ugs2c-u27g5-4ae
-        stake_e8s: 625000000000
-        memo: 2
+        stake_e8s: 500000000000
+        memo: 3
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 23668200
       - controller: 6waub-jkdtz-im6uc-ojink-oojjl-66qqf-jrmgq-tpcpu-ugs2c-u27g5-4ae
-        stake_e8s: 625000000000
-        memo: 3
+        stake_e8s: 500000000000
+        memo: 4
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 31557600
       - controller: gk24j-rp4ue-otalt-dojqy-aff4v-zlpvd-ymdzu-v72ni-2wrkr-a37wf-fae
-        stake_e8s: 625000000000
+        stake_e8s: 500000000000
         memo: 0
         dissolve_delay_seconds: 60
         vesting_period_seconds: 0
       - controller: gk24j-rp4ue-otalt-dojqy-aff4v-zlpvd-ymdzu-v72ni-2wrkr-a37wf-fae
-        stake_e8s: 625000000000
+        stake_e8s: 500000000000
         memo: 1
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 7889400
+      - controller: gk24j-rp4ue-otalt-dojqy-aff4v-zlpvd-ymdzu-v72ni-2wrkr-a37wf-fae
+        stake_e8s: 500000000000
+        memo: 2
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 15778800
       - controller: gk24j-rp4ue-otalt-dojqy-aff4v-zlpvd-ymdzu-v72ni-2wrkr-a37wf-fae
-        stake_e8s: 625000000000
-        memo: 2
+        stake_e8s: 500000000000
+        memo: 3
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 23668200
       - controller: gk24j-rp4ue-otalt-dojqy-aff4v-zlpvd-ymdzu-v72ni-2wrkr-a37wf-fae
-        stake_e8s: 625000000000
-        memo: 3
+        stake_e8s: 500000000000
+        memo: 4
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 31557600
       - controller: zosil-ho5ev-kgqrp-ybnjd-lbrgh-brv4q-dnj2v-lj7sb-ijsqu-o65qw-qae
-        stake_e8s: 1265000000000
+        stake_e8s: 1012000000000
         memo: 0
         dissolve_delay_seconds: 60
         vesting_period_seconds: 0
       - controller: zosil-ho5ev-kgqrp-ybnjd-lbrgh-brv4q-dnj2v-lj7sb-ijsqu-o65qw-qae
-        stake_e8s: 1265000000000
+        stake_e8s: 1012000000000
         memo: 1
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 7889400
+      - controller: zosil-ho5ev-kgqrp-ybnjd-lbrgh-brv4q-dnj2v-lj7sb-ijsqu-o65qw-qae
+        stake_e8s: 1012000000000
+        memo: 2
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 15778800
       - controller: zosil-ho5ev-kgqrp-ybnjd-lbrgh-brv4q-dnj2v-lj7sb-ijsqu-o65qw-qae
-        stake_e8s: 1265000000000
-        memo: 2
+        stake_e8s: 1012000000000
+        memo: 3
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 23668200
       - controller: zosil-ho5ev-kgqrp-ybnjd-lbrgh-brv4q-dnj2v-lj7sb-ijsqu-o65qw-qae
-        stake_e8s: 1265000000000
-        memo: 3
+        stake_e8s: 1012000000000
+        memo: 4
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 31557600
       - controller: all6m-dw35d-ogire-ri3gv-hd2t3-nhu64-zgmqe-u34sl-wrvak-7vhny-rqe
-        stake_e8s: 625000000000
+        stake_e8s: 500000000000
         memo: 0
         dissolve_delay_seconds: 60
         vesting_period_seconds: 0
       - controller: all6m-dw35d-ogire-ri3gv-hd2t3-nhu64-zgmqe-u34sl-wrvak-7vhny-rqe
-        stake_e8s: 625000000000
+        stake_e8s: 500000000000
         memo: 1
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 7889400
+      - controller: all6m-dw35d-ogire-ri3gv-hd2t3-nhu64-zgmqe-u34sl-wrvak-7vhny-rqe
+        stake_e8s: 500000000000
+        memo: 2
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 15778800
       - controller: all6m-dw35d-ogire-ri3gv-hd2t3-nhu64-zgmqe-u34sl-wrvak-7vhny-rqe
-        stake_e8s: 625000000000
-        memo: 2
+        stake_e8s: 500000000000
+        memo: 3
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 23668200
       - controller: all6m-dw35d-ogire-ri3gv-hd2t3-nhu64-zgmqe-u34sl-wrvak-7vhny-rqe
-        stake_e8s: 625000000000
-        memo: 3
+        stake_e8s: 500000000000
+        memo: 4
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 31557600
       - controller: 5pzsx-tcrmw-5ogf4-dwdcr-ojz2z-xqhrk-js33g-cqcw6-dnkg4-dld7w-hqe
-        stake_e8s: 312500000000
+        stake_e8s: 250000000000
         memo: 0
         dissolve_delay_seconds: 60
         vesting_period_seconds: 0
       - controller: 5pzsx-tcrmw-5ogf4-dwdcr-ojz2z-xqhrk-js33g-cqcw6-dnkg4-dld7w-hqe
-        stake_e8s: 312500000000
+        stake_e8s: 250000000000
         memo: 1
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 7889400
+      - controller: 5pzsx-tcrmw-5ogf4-dwdcr-ojz2z-xqhrk-js33g-cqcw6-dnkg4-dld7w-hqe
+        stake_e8s: 250000000000
+        memo: 2
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 15778800
       - controller: 5pzsx-tcrmw-5ogf4-dwdcr-ojz2z-xqhrk-js33g-cqcw6-dnkg4-dld7w-hqe
-        stake_e8s: 312500000000
-        memo: 2
+        stake_e8s: 250000000000
+        memo: 3
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 23668200
       - controller: 5pzsx-tcrmw-5ogf4-dwdcr-ojz2z-xqhrk-js33g-cqcw6-dnkg4-dld7w-hqe
-        stake_e8s: 312500000000
-        memo: 3
+        stake_e8s: 250000000000
+        memo: 4
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 31557600
       - controller: c6olb-xyr36-cb5wq-fzepc-xsrxd-vw3co-nwvlj-fwm2g-omwr7-paukk-yqe
-        stake_e8s: 625000000000
+        stake_e8s: 500000000000
         memo: 0
         dissolve_delay_seconds: 60
         vesting_period_seconds: 0
       - controller: c6olb-xyr36-cb5wq-fzepc-xsrxd-vw3co-nwvlj-fwm2g-omwr7-paukk-yqe
-        stake_e8s: 625000000000
+        stake_e8s: 500000000000
         memo: 1
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 7889400
+      - controller: c6olb-xyr36-cb5wq-fzepc-xsrxd-vw3co-nwvlj-fwm2g-omwr7-paukk-yqe
+        stake_e8s: 500000000000
+        memo: 2
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 15778800
       - controller: c6olb-xyr36-cb5wq-fzepc-xsrxd-vw3co-nwvlj-fwm2g-omwr7-paukk-yqe
-        stake_e8s: 625000000000
-        memo: 2
+        stake_e8s: 500000000000
+        memo: 3
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 23668200
       - controller: c6olb-xyr36-cb5wq-fzepc-xsrxd-vw3co-nwvlj-fwm2g-omwr7-paukk-yqe
-        stake_e8s: 625000000000
-        memo: 3
+        stake_e8s: 500000000000
+        memo: 4
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 31557600
       - controller: ww2jx-jrz3a-ycha4-3qvql-hgwim-juh2o-dquln-jrcie-s5wrl-xyims-aqe
-        stake_e8s: 6265625000000
+        stake_e8s: 5012500000000
         memo: 0
         dissolve_delay_seconds: 60
         vesting_period_seconds: 0
       - controller: ww2jx-jrz3a-ycha4-3qvql-hgwim-juh2o-dquln-jrcie-s5wrl-xyims-aqe
-        stake_e8s: 6265625000000
+        stake_e8s: 5012500000000
         memo: 1
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 7889400
+      - controller: ww2jx-jrz3a-ycha4-3qvql-hgwim-juh2o-dquln-jrcie-s5wrl-xyims-aqe
+        stake_e8s: 5012500000000
+        memo: 2
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 15778800
       - controller: ww2jx-jrz3a-ycha4-3qvql-hgwim-juh2o-dquln-jrcie-s5wrl-xyims-aqe
-        stake_e8s: 6265625000000
-        memo: 2
+        stake_e8s: 5012500000000
+        memo: 3
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 23668200
       - controller: ww2jx-jrz3a-ycha4-3qvql-hgwim-juh2o-dquln-jrcie-s5wrl-xyims-aqe
-        stake_e8s: 6265625000000
-        memo: 3
+        stake_e8s: 5012500000000
+        memo: 4
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 31557600
       - controller: mx54a-lbpre-rbl2i-rzgj7-55k2o-gbh2g-he7nq-b3kep-b2fnc-7n6wm-dqe
-        stake_e8s: 625000000000
+        stake_e8s: 500000000000
         memo: 0
         dissolve_delay_seconds: 60
         vesting_period_seconds: 0
       - controller: mx54a-lbpre-rbl2i-rzgj7-55k2o-gbh2g-he7nq-b3kep-b2fnc-7n6wm-dqe
-        stake_e8s: 625000000000
+        stake_e8s: 500000000000
         memo: 1
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 7889400
+      - controller: mx54a-lbpre-rbl2i-rzgj7-55k2o-gbh2g-he7nq-b3kep-b2fnc-7n6wm-dqe
+        stake_e8s: 500000000000
+        memo: 2
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 15778800
       - controller: mx54a-lbpre-rbl2i-rzgj7-55k2o-gbh2g-he7nq-b3kep-b2fnc-7n6wm-dqe
-        stake_e8s: 625000000000
-        memo: 2
+        stake_e8s: 500000000000
+        memo: 3
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 23668200
       - controller: mx54a-lbpre-rbl2i-rzgj7-55k2o-gbh2g-he7nq-b3kep-b2fnc-7n6wm-dqe
-        stake_e8s: 625000000000
-        memo: 3
+        stake_e8s: 500000000000
+        memo: 4
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 31557600
       - controller: vtjxv-twvir-otpuv-43re5-urhft-o6iyl-ageif-bid2k-xzl2z-ixkhf-oae
-        stake_e8s: 687500000000
+        stake_e8s: 550000000000
         memo: 0
         dissolve_delay_seconds: 60
         vesting_period_seconds: 0
       - controller: vtjxv-twvir-otpuv-43re5-urhft-o6iyl-ageif-bid2k-xzl2z-ixkhf-oae
-        stake_e8s: 687500000000
+        stake_e8s: 550000000000
         memo: 1
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 7889400
+      - controller: vtjxv-twvir-otpuv-43re5-urhft-o6iyl-ageif-bid2k-xzl2z-ixkhf-oae
+        stake_e8s: 550000000000
+        memo: 2
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 15778800
       - controller: vtjxv-twvir-otpuv-43re5-urhft-o6iyl-ageif-bid2k-xzl2z-ixkhf-oae
-        stake_e8s: 687500000000
-        memo: 2
+        stake_e8s: 550000000000
+        memo: 3
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 23668200
       - controller: vtjxv-twvir-otpuv-43re5-urhft-o6iyl-ageif-bid2k-xzl2z-ixkhf-oae
-        stake_e8s: 687500000000
-        memo: 3
+        stake_e8s: 550000000000
+        memo: 4
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 31557600
       - controller: mt4ed-alxoh-agqdg-xyafm-k47ex-epfms-sekyo-kc6mu-rtvez-4zw2n-aae
-        stake_e8s: 625000000000
+        stake_e8s: 500000000000
         memo: 0
         dissolve_delay_seconds: 60
         vesting_period_seconds: 0
       - controller: mt4ed-alxoh-agqdg-xyafm-k47ex-epfms-sekyo-kc6mu-rtvez-4zw2n-aae
-        stake_e8s: 625000000000
+        stake_e8s: 500000000000
         memo: 1
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 7889400
+      - controller: mt4ed-alxoh-agqdg-xyafm-k47ex-epfms-sekyo-kc6mu-rtvez-4zw2n-aae
+        stake_e8s: 500000000000
+        memo: 2
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 15778800
       - controller: mt4ed-alxoh-agqdg-xyafm-k47ex-epfms-sekyo-kc6mu-rtvez-4zw2n-aae
-        stake_e8s: 625000000000
-        memo: 2
+        stake_e8s: 500000000000
+        memo: 3
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 23668200
       - controller: mt4ed-alxoh-agqdg-xyafm-k47ex-epfms-sekyo-kc6mu-rtvez-4zw2n-aae
-        stake_e8s: 625000000000
-        memo: 3
+        stake_e8s: 500000000000
+        memo: 4
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 31557600
       - controller: saw7k-3vflg-gg6ci-plkdc-3lhsh-huley-llpjr-fqjfm-bhxl5-34evi-iae
-        stake_e8s: 625000000000
+        stake_e8s: 500000000000
         memo: 0
         dissolve_delay_seconds: 60
         vesting_period_seconds: 0
       - controller: saw7k-3vflg-gg6ci-plkdc-3lhsh-huley-llpjr-fqjfm-bhxl5-34evi-iae
-        stake_e8s: 625000000000
+        stake_e8s: 500000000000
         memo: 1
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 7889400
+      - controller: saw7k-3vflg-gg6ci-plkdc-3lhsh-huley-llpjr-fqjfm-bhxl5-34evi-iae
+        stake_e8s: 500000000000
+        memo: 2
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 15778800
       - controller: saw7k-3vflg-gg6ci-plkdc-3lhsh-huley-llpjr-fqjfm-bhxl5-34evi-iae
-        stake_e8s: 625000000000
-        memo: 2
+        stake_e8s: 500000000000
+        memo: 3
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 23668200
       - controller: saw7k-3vflg-gg6ci-plkdc-3lhsh-huley-llpjr-fqjfm-bhxl5-34evi-iae
-        stake_e8s: 625000000000
-        memo: 3
+        stake_e8s: 500000000000
+        memo: 4
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 31557600
       - controller: ydaf3-kn5th-c4lah-nvslv-gtcvz-uzlwz-o2l7l-25ldt-oxwwd-3pls5-pae
-        stake_e8s: 312500000000
+        stake_e8s: 250000000000
         memo: 0
         dissolve_delay_seconds: 60
         vesting_period_seconds: 0
       - controller: ydaf3-kn5th-c4lah-nvslv-gtcvz-uzlwz-o2l7l-25ldt-oxwwd-3pls5-pae
-        stake_e8s: 312500000000
+        stake_e8s: 250000000000
         memo: 1
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 7889400
+      - controller: ydaf3-kn5th-c4lah-nvslv-gtcvz-uzlwz-o2l7l-25ldt-oxwwd-3pls5-pae
+        stake_e8s: 250000000000
+        memo: 2
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 15778800
       - controller: ydaf3-kn5th-c4lah-nvslv-gtcvz-uzlwz-o2l7l-25ldt-oxwwd-3pls5-pae
-        stake_e8s: 312500000000
-        memo: 2
+        stake_e8s: 250000000000
+        memo: 3
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 23668200
       - controller: ydaf3-kn5th-c4lah-nvslv-gtcvz-uzlwz-o2l7l-25ldt-oxwwd-3pls5-pae
-        stake_e8s: 312500000000
-        memo: 3
+        stake_e8s: 250000000000
+        memo: 4
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 31557600
       - controller: ick2m-3xrt5-35pdj-nbiv7-26uo2-lcizt-tzbzf-ylkhj-7mpgv-kvscu-kae
-        stake_e8s: 1312500000000
+        stake_e8s: 1050000000000
         memo: 0
         dissolve_delay_seconds: 60
         vesting_period_seconds: 0
       - controller: ick2m-3xrt5-35pdj-nbiv7-26uo2-lcizt-tzbzf-ylkhj-7mpgv-kvscu-kae
-        stake_e8s: 1312500000000
+        stake_e8s: 1050000000000
         memo: 1
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 7889400
+      - controller: ick2m-3xrt5-35pdj-nbiv7-26uo2-lcizt-tzbzf-ylkhj-7mpgv-kvscu-kae
+        stake_e8s: 1050000000000
+        memo: 2
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 15778800
       - controller: ick2m-3xrt5-35pdj-nbiv7-26uo2-lcizt-tzbzf-ylkhj-7mpgv-kvscu-kae
-        stake_e8s: 1312500000000
-        memo: 2
+        stake_e8s: 1050000000000
+        memo: 3
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 23668200
       - controller: ick2m-3xrt5-35pdj-nbiv7-26uo2-lcizt-tzbzf-ylkhj-7mpgv-kvscu-kae
-        stake_e8s: 1312500000000
-        memo: 3
+        stake_e8s: 1050000000000
+        memo: 4
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 31557600
       - controller: 2axu7-czxyn-crrxs-uoom4-mvh5b-b3gj5-mxswl-jh6ur-kppzf-7dbmh-hqe
-        stake_e8s: 625000000000
+        stake_e8s: 500000000000
         memo: 0
         dissolve_delay_seconds: 60
         vesting_period_seconds: 0
       - controller: 2axu7-czxyn-crrxs-uoom4-mvh5b-b3gj5-mxswl-jh6ur-kppzf-7dbmh-hqe
-        stake_e8s: 625000000000
+        stake_e8s: 500000000000
         memo: 1
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 7889400
+      - controller: 2axu7-czxyn-crrxs-uoom4-mvh5b-b3gj5-mxswl-jh6ur-kppzf-7dbmh-hqe
+        stake_e8s: 500000000000
+        memo: 2
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 15778800
       - controller: 2axu7-czxyn-crrxs-uoom4-mvh5b-b3gj5-mxswl-jh6ur-kppzf-7dbmh-hqe
-        stake_e8s: 625000000000
-        memo: 2
+        stake_e8s: 500000000000
+        memo: 3
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 23668200
       - controller: 2axu7-czxyn-crrxs-uoom4-mvh5b-b3gj5-mxswl-jh6ur-kppzf-7dbmh-hqe
-        stake_e8s: 625000000000
-        memo: 3
+        stake_e8s: 500000000000
+        memo: 4
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 31557600
       - controller: 2gthi-zrgcu-agik2-wr4ab-lhkrj-uzfsy-bortt-qgw5x-vixpd-sccsm-bqe
-        stake_e8s: 625000000000
+        stake_e8s: 500000000000
         memo: 0
         dissolve_delay_seconds: 60
         vesting_period_seconds: 0
       - controller: 2gthi-zrgcu-agik2-wr4ab-lhkrj-uzfsy-bortt-qgw5x-vixpd-sccsm-bqe
-        stake_e8s: 625000000000
+        stake_e8s: 500000000000
         memo: 1
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 7889400
+      - controller: 2gthi-zrgcu-agik2-wr4ab-lhkrj-uzfsy-bortt-qgw5x-vixpd-sccsm-bqe
+        stake_e8s: 500000000000
+        memo: 2
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 15778800
       - controller: 2gthi-zrgcu-agik2-wr4ab-lhkrj-uzfsy-bortt-qgw5x-vixpd-sccsm-bqe
-        stake_e8s: 625000000000
-        memo: 2
+        stake_e8s: 500000000000
+        memo: 3
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 23668200
       - controller: 2gthi-zrgcu-agik2-wr4ab-lhkrj-uzfsy-bortt-qgw5x-vixpd-sccsm-bqe
-        stake_e8s: 625000000000
-        memo: 3
+        stake_e8s: 500000000000
+        memo: 4
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 31557600
       - controller: 3up6w-taamq-4mcvy-ol5ui-b2lhz-qwtw5-5aurp-fjrjb-4a57r-tpy44-fae
-        stake_e8s: 625000000000
+        stake_e8s: 500000000000
         memo: 0
         dissolve_delay_seconds: 60
         vesting_period_seconds: 0
       - controller: 3up6w-taamq-4mcvy-ol5ui-b2lhz-qwtw5-5aurp-fjrjb-4a57r-tpy44-fae
-        stake_e8s: 625000000000
+        stake_e8s: 500000000000
         memo: 1
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 7889400
+      - controller: 3up6w-taamq-4mcvy-ol5ui-b2lhz-qwtw5-5aurp-fjrjb-4a57r-tpy44-fae
+        stake_e8s: 500000000000
+        memo: 2
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 15778800
       - controller: 3up6w-taamq-4mcvy-ol5ui-b2lhz-qwtw5-5aurp-fjrjb-4a57r-tpy44-fae
-        stake_e8s: 625000000000
-        memo: 2
+        stake_e8s: 500000000000
+        memo: 3
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 23668200
       - controller: 3up6w-taamq-4mcvy-ol5ui-b2lhz-qwtw5-5aurp-fjrjb-4a57r-tpy44-fae
-        stake_e8s: 625000000000
-        memo: 3
+        stake_e8s: 500000000000
+        memo: 4
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 31557600
       - controller: absmb-a2x7z-zxga3-xsee4-4lf2n-w5cc6-ri3az-pqmpx-oerge-yrjrk-uae
-        stake_e8s: 634375000000
+        stake_e8s: 507500000000
         memo: 0
         dissolve_delay_seconds: 60
         vesting_period_seconds: 0
       - controller: absmb-a2x7z-zxga3-xsee4-4lf2n-w5cc6-ri3az-pqmpx-oerge-yrjrk-uae
-        stake_e8s: 634375000000
+        stake_e8s: 507500000000
         memo: 1
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 7889400
+      - controller: absmb-a2x7z-zxga3-xsee4-4lf2n-w5cc6-ri3az-pqmpx-oerge-yrjrk-uae
+        stake_e8s: 507500000000
+        memo: 2
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 15778800
       - controller: absmb-a2x7z-zxga3-xsee4-4lf2n-w5cc6-ri3az-pqmpx-oerge-yrjrk-uae
-        stake_e8s: 634375000000
-        memo: 2
+        stake_e8s: 507500000000
+        memo: 3
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 23668200
       - controller: absmb-a2x7z-zxga3-xsee4-4lf2n-w5cc6-ri3az-pqmpx-oerge-yrjrk-uae
-        stake_e8s: 634375000000
-        memo: 3
+        stake_e8s: 507500000000
+        memo: 4
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 31557600
       - controller: wgizu-oh3b7-dza6g-l6pcc-hjil3-pclmv-adeqn-k2god-z4omc-cgjzq-sae
-        stake_e8s: 625000000000
+        stake_e8s: 500000000000
         memo: 0
         dissolve_delay_seconds: 60
         vesting_period_seconds: 0
       - controller: wgizu-oh3b7-dza6g-l6pcc-hjil3-pclmv-adeqn-k2god-z4omc-cgjzq-sae
-        stake_e8s: 625000000000
+        stake_e8s: 500000000000
         memo: 1
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 7889400
+      - controller: wgizu-oh3b7-dza6g-l6pcc-hjil3-pclmv-adeqn-k2god-z4omc-cgjzq-sae
+        stake_e8s: 500000000000
+        memo: 2
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 15778800
       - controller: wgizu-oh3b7-dza6g-l6pcc-hjil3-pclmv-adeqn-k2god-z4omc-cgjzq-sae
-        stake_e8s: 625000000000
-        memo: 2
+        stake_e8s: 500000000000
+        memo: 3
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 23668200
       - controller: wgizu-oh3b7-dza6g-l6pcc-hjil3-pclmv-adeqn-k2god-z4omc-cgjzq-sae
-        stake_e8s: 625000000000
-        memo: 3
+        stake_e8s: 500000000000
+        memo: 4
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 31557600
       - controller: lcyeu-p6tby-i4uw5-mvkiy-rp3sb-5elnq-5xfiz-rsduf-7itwj-2d2wm-nae
-        stake_e8s: 676875000000
+        stake_e8s: 541500000000
         memo: 0
         dissolve_delay_seconds: 60
         vesting_period_seconds: 0
       - controller: lcyeu-p6tby-i4uw5-mvkiy-rp3sb-5elnq-5xfiz-rsduf-7itwj-2d2wm-nae
-        stake_e8s: 676875000000
+        stake_e8s: 541500000000
         memo: 1
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 7889400
+      - controller: lcyeu-p6tby-i4uw5-mvkiy-rp3sb-5elnq-5xfiz-rsduf-7itwj-2d2wm-nae
+        stake_e8s: 541500000000
+        memo: 2
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 15778800
       - controller: lcyeu-p6tby-i4uw5-mvkiy-rp3sb-5elnq-5xfiz-rsduf-7itwj-2d2wm-nae
-        stake_e8s: 676875000000
-        memo: 2
+        stake_e8s: 541500000000
+        memo: 3
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 23668200
       - controller: lcyeu-p6tby-i4uw5-mvkiy-rp3sb-5elnq-5xfiz-rsduf-7itwj-2d2wm-nae
-        stake_e8s: 676875000000
-        memo: 3
+        stake_e8s: 541500000000
+        memo: 4
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 31557600
       - controller: airdr-s3anz-vkwqu-3d77h-ccbwc-k5sfc-yjrfv-sdwc4-n5ijm-p37eq-fae
-        stake_e8s: 625000000000
+        stake_e8s: 500000000000
         memo: 0
         dissolve_delay_seconds: 60
         vesting_period_seconds: 0
       - controller: airdr-s3anz-vkwqu-3d77h-ccbwc-k5sfc-yjrfv-sdwc4-n5ijm-p37eq-fae
-        stake_e8s: 625000000000
+        stake_e8s: 500000000000
         memo: 1
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 7889400
+      - controller: airdr-s3anz-vkwqu-3d77h-ccbwc-k5sfc-yjrfv-sdwc4-n5ijm-p37eq-fae
+        stake_e8s: 500000000000
+        memo: 2
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 15778800
       - controller: airdr-s3anz-vkwqu-3d77h-ccbwc-k5sfc-yjrfv-sdwc4-n5ijm-p37eq-fae
-        stake_e8s: 625000000000
-        memo: 2
+        stake_e8s: 500000000000
+        memo: 3
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 23668200
       - controller: airdr-s3anz-vkwqu-3d77h-ccbwc-k5sfc-yjrfv-sdwc4-n5ijm-p37eq-fae
-        stake_e8s: 625000000000
-        memo: 3
+        stake_e8s: 500000000000
+        memo: 4
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 31557600
       - controller: lhynn-heral-nybs2-6pnwh-v4xfc-f24i5-2yufy-h6zus-oiijg-4xzyd-gae
-        stake_e8s: 625000000000
+        stake_e8s: 500000000000
         memo: 0
         dissolve_delay_seconds: 60
         vesting_period_seconds: 0
       - controller: lhynn-heral-nybs2-6pnwh-v4xfc-f24i5-2yufy-h6zus-oiijg-4xzyd-gae
-        stake_e8s: 625000000000
+        stake_e8s: 500000000000
         memo: 1
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 7889400
+      - controller: lhynn-heral-nybs2-6pnwh-v4xfc-f24i5-2yufy-h6zus-oiijg-4xzyd-gae
+        stake_e8s: 500000000000
+        memo: 2
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 15778800
       - controller: lhynn-heral-nybs2-6pnwh-v4xfc-f24i5-2yufy-h6zus-oiijg-4xzyd-gae
-        stake_e8s: 625000000000
-        memo: 2
+        stake_e8s: 500000000000
+        memo: 3
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 23668200
       - controller: lhynn-heral-nybs2-6pnwh-v4xfc-f24i5-2yufy-h6zus-oiijg-4xzyd-gae
-        stake_e8s: 625000000000
-        memo: 3
+        stake_e8s: 500000000000
+        memo: 4
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 31557600
       - controller: cczkc-2yxxs-5d25d-ffp4m-jag2i-5r4rt-dxsry-xrnu7-r3yr3-4oixq-sqe
-        stake_e8s: 762937500000
+        stake_e8s: 610350000000
         memo: 0
         dissolve_delay_seconds: 60
         vesting_period_seconds: 0
       - controller: cczkc-2yxxs-5d25d-ffp4m-jag2i-5r4rt-dxsry-xrnu7-r3yr3-4oixq-sqe
-        stake_e8s: 762937500000
+        stake_e8s: 610350000000
         memo: 1
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 7889400
+      - controller: cczkc-2yxxs-5d25d-ffp4m-jag2i-5r4rt-dxsry-xrnu7-r3yr3-4oixq-sqe
+        stake_e8s: 610350000000
+        memo: 2
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 15778800
       - controller: cczkc-2yxxs-5d25d-ffp4m-jag2i-5r4rt-dxsry-xrnu7-r3yr3-4oixq-sqe
-        stake_e8s: 762937500000
-        memo: 2
+        stake_e8s: 610350000000
+        memo: 3
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 23668200
       - controller: cczkc-2yxxs-5d25d-ffp4m-jag2i-5r4rt-dxsry-xrnu7-r3yr3-4oixq-sqe
-        stake_e8s: 762937500000
-        memo: 3
+        stake_e8s: 610350000000
+        memo: 4
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 31557600
       - controller: nxiqs-ture2-t73uf-mgvm6-sxytg-ylgmh-e6z6d-dw3jp-fcduw-7w72q-vqe
-        stake_e8s: 1562500000000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: nxiqs-ture2-t73uf-mgvm6-sxytg-ylgmh-e6z6d-dw3jp-fcduw-7w72q-vqe
-        stake_e8s: 1562500000000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: nxiqs-ture2-t73uf-mgvm6-sxytg-ylgmh-e6z6d-dw3jp-fcduw-7w72q-vqe
-        stake_e8s: 1562500000000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: nxiqs-ture2-t73uf-mgvm6-sxytg-ylgmh-e6z6d-dw3jp-fcduw-7w72q-vqe
-        stake_e8s: 1562500000000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: zlthp-jyed5-cou5n-zpymw-b46ud-4o6ul-j6vby-grwkw-ihwyi-psvep-rae
-        stake_e8s: 3125000000000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: zlthp-jyed5-cou5n-zpymw-b46ud-4o6ul-j6vby-grwkw-ihwyi-psvep-rae
-        stake_e8s: 3125000000000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: zlthp-jyed5-cou5n-zpymw-b46ud-4o6ul-j6vby-grwkw-ihwyi-psvep-rae
-        stake_e8s: 3125000000000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: zlthp-jyed5-cou5n-zpymw-b46ud-4o6ul-j6vby-grwkw-ihwyi-psvep-rae
-        stake_e8s: 3125000000000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: 7oppw-5ebmd-erxsk-ncwx3-2pnmf-4wdkh-5glsb-fmmb3-lmhvw-vrdgx-aae
-        stake_e8s: 625000000000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: 7oppw-5ebmd-erxsk-ncwx3-2pnmf-4wdkh-5glsb-fmmb3-lmhvw-vrdgx-aae
-        stake_e8s: 625000000000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: 7oppw-5ebmd-erxsk-ncwx3-2pnmf-4wdkh-5glsb-fmmb3-lmhvw-vrdgx-aae
-        stake_e8s: 625000000000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: 7oppw-5ebmd-erxsk-ncwx3-2pnmf-4wdkh-5glsb-fmmb3-lmhvw-vrdgx-aae
-        stake_e8s: 625000000000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: i4rub-bvxmi-wrcvv-4nl2q-bpuab-cflvh-7cwot-sa2bu-ajmlu-ufj7n-hae
-        stake_e8s: 740943750000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: i4rub-bvxmi-wrcvv-4nl2q-bpuab-cflvh-7cwot-sa2bu-ajmlu-ufj7n-hae
-        stake_e8s: 740943750000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: i4rub-bvxmi-wrcvv-4nl2q-bpuab-cflvh-7cwot-sa2bu-ajmlu-ufj7n-hae
-        stake_e8s: 740943750000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: i4rub-bvxmi-wrcvv-4nl2q-bpuab-cflvh-7cwot-sa2bu-ajmlu-ufj7n-hae
-        stake_e8s: 740943750000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: trag2-cpiwz-omz4t-h5hc2-ddwi2-j57h4-6nwql-luslo-esh5y-kw6wf-kae
-        stake_e8s: 625000000000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: trag2-cpiwz-omz4t-h5hc2-ddwi2-j57h4-6nwql-luslo-esh5y-kw6wf-kae
-        stake_e8s: 625000000000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: trag2-cpiwz-omz4t-h5hc2-ddwi2-j57h4-6nwql-luslo-esh5y-kw6wf-kae
-        stake_e8s: 625000000000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: trag2-cpiwz-omz4t-h5hc2-ddwi2-j57h4-6nwql-luslo-esh5y-kw6wf-kae
-        stake_e8s: 625000000000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: ipgdv-pf7j7-et34y-zrazs-aqnil-w2umz-offhu-gmsvr-u6pmx-klf53-2ae
-        stake_e8s: 937500000000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: ipgdv-pf7j7-et34y-zrazs-aqnil-w2umz-offhu-gmsvr-u6pmx-klf53-2ae
-        stake_e8s: 937500000000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: ipgdv-pf7j7-et34y-zrazs-aqnil-w2umz-offhu-gmsvr-u6pmx-klf53-2ae
-        stake_e8s: 937500000000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: ipgdv-pf7j7-et34y-zrazs-aqnil-w2umz-offhu-gmsvr-u6pmx-klf53-2ae
-        stake_e8s: 937500000000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: o2glf-b6pob-yk6l7-urxow-pswqi-ymrj5-xx6py-d5ts6-6m736-shf3l-3ae
-        stake_e8s: 937500000000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: o2glf-b6pob-yk6l7-urxow-pswqi-ymrj5-xx6py-d5ts6-6m736-shf3l-3ae
-        stake_e8s: 937500000000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: o2glf-b6pob-yk6l7-urxow-pswqi-ymrj5-xx6py-d5ts6-6m736-shf3l-3ae
-        stake_e8s: 937500000000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: o2glf-b6pob-yk6l7-urxow-pswqi-ymrj5-xx6py-d5ts6-6m736-shf3l-3ae
-        stake_e8s: 937500000000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: svpu3-n53nr-jwunj-6rplv-t2g2y-rbuib-35i4q-suhbk-vcudp-54xaw-lqe
-        stake_e8s: 2911518750000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: svpu3-n53nr-jwunj-6rplv-t2g2y-rbuib-35i4q-suhbk-vcudp-54xaw-lqe
-        stake_e8s: 2911518750000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: svpu3-n53nr-jwunj-6rplv-t2g2y-rbuib-35i4q-suhbk-vcudp-54xaw-lqe
-        stake_e8s: 2911518750000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: svpu3-n53nr-jwunj-6rplv-t2g2y-rbuib-35i4q-suhbk-vcudp-54xaw-lqe
-        stake_e8s: 2911518750000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: e4lte-v3vxs-e4hnj-tkilm-p6yw2-45jct-76lgw-fwdho-7pxy2-kqhlp-pqe
-        stake_e8s: 1875000000000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: e4lte-v3vxs-e4hnj-tkilm-p6yw2-45jct-76lgw-fwdho-7pxy2-kqhlp-pqe
-        stake_e8s: 1875000000000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: e4lte-v3vxs-e4hnj-tkilm-p6yw2-45jct-76lgw-fwdho-7pxy2-kqhlp-pqe
-        stake_e8s: 1875000000000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: e4lte-v3vxs-e4hnj-tkilm-p6yw2-45jct-76lgw-fwdho-7pxy2-kqhlp-pqe
-        stake_e8s: 1875000000000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: vqqbt-tu73k-rmm25-hyq5o-x5vug-rixzf-cfcf3-oicjz-xi6hr-im6mw-2qe
-        stake_e8s: 625000000000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: vqqbt-tu73k-rmm25-hyq5o-x5vug-rixzf-cfcf3-oicjz-xi6hr-im6mw-2qe
-        stake_e8s: 625000000000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: vqqbt-tu73k-rmm25-hyq5o-x5vug-rixzf-cfcf3-oicjz-xi6hr-im6mw-2qe
-        stake_e8s: 625000000000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: vqqbt-tu73k-rmm25-hyq5o-x5vug-rixzf-cfcf3-oicjz-xi6hr-im6mw-2qe
-        stake_e8s: 625000000000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: qxizu-u6ktn-ejgk5-pu6is-7sxpw-txme6-tta36-kccui-mfae4-vuigw-qqe
-        stake_e8s: 2485231250000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: qxizu-u6ktn-ejgk5-pu6is-7sxpw-txme6-tta36-kccui-mfae4-vuigw-qqe
-        stake_e8s: 2485231250000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: qxizu-u6ktn-ejgk5-pu6is-7sxpw-txme6-tta36-kccui-mfae4-vuigw-qqe
-        stake_e8s: 2485231250000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: qxizu-u6ktn-ejgk5-pu6is-7sxpw-txme6-tta36-kccui-mfae4-vuigw-qqe
-        stake_e8s: 2485231250000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: prnrn-t5fm4-ybwgo-wz6zq-ijo2h-3xve5-cac4e-bm7vu-2doxr-i7ep4-vae
-        stake_e8s: 625000000000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: prnrn-t5fm4-ybwgo-wz6zq-ijo2h-3xve5-cac4e-bm7vu-2doxr-i7ep4-vae
-        stake_e8s: 625000000000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: prnrn-t5fm4-ybwgo-wz6zq-ijo2h-3xve5-cac4e-bm7vu-2doxr-i7ep4-vae
-        stake_e8s: 625000000000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: prnrn-t5fm4-ybwgo-wz6zq-ijo2h-3xve5-cac4e-bm7vu-2doxr-i7ep4-vae
-        stake_e8s: 625000000000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: cjagz-jwiva-7pbld-2xjxo-5vip3-2jobb-3ivgn-xyxt7-7ekcm-qahxg-cae
-        stake_e8s: 625000000000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: cjagz-jwiva-7pbld-2xjxo-5vip3-2jobb-3ivgn-xyxt7-7ekcm-qahxg-cae
-        stake_e8s: 625000000000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: cjagz-jwiva-7pbld-2xjxo-5vip3-2jobb-3ivgn-xyxt7-7ekcm-qahxg-cae
-        stake_e8s: 625000000000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: cjagz-jwiva-7pbld-2xjxo-5vip3-2jobb-3ivgn-xyxt7-7ekcm-qahxg-cae
-        stake_e8s: 625000000000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: behqd-xscda-wivdg-si3oh-q3bbk-on72z-mmg6b-fyfmu-77xjy-5fwtj-lae
-        stake_e8s: 625000000000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: behqd-xscda-wivdg-si3oh-q3bbk-on72z-mmg6b-fyfmu-77xjy-5fwtj-lae
-        stake_e8s: 625000000000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: behqd-xscda-wivdg-si3oh-q3bbk-on72z-mmg6b-fyfmu-77xjy-5fwtj-lae
-        stake_e8s: 625000000000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: behqd-xscda-wivdg-si3oh-q3bbk-on72z-mmg6b-fyfmu-77xjy-5fwtj-lae
-        stake_e8s: 625000000000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: 27idm-mgbgp-66xea-62upg-ylw7p-vpxfy-xufbg-nkuj3-azt2s-qdd5i-hqe
-        stake_e8s: 753018750000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: 27idm-mgbgp-66xea-62upg-ylw7p-vpxfy-xufbg-nkuj3-azt2s-qdd5i-hqe
-        stake_e8s: 753018750000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: 27idm-mgbgp-66xea-62upg-ylw7p-vpxfy-xufbg-nkuj3-azt2s-qdd5i-hqe
-        stake_e8s: 753018750000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: 27idm-mgbgp-66xea-62upg-ylw7p-vpxfy-xufbg-nkuj3-azt2s-qdd5i-hqe
-        stake_e8s: 753018750000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: 6oboa-fqj3s-fvivx-llg2x-ngj3q-vpivp-vkhr3-mwpdm-236gj-ch2zk-sae
-        stake_e8s: 625000000000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: 6oboa-fqj3s-fvivx-llg2x-ngj3q-vpivp-vkhr3-mwpdm-236gj-ch2zk-sae
-        stake_e8s: 625000000000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: 6oboa-fqj3s-fvivx-llg2x-ngj3q-vpivp-vkhr3-mwpdm-236gj-ch2zk-sae
-        stake_e8s: 625000000000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: 6oboa-fqj3s-fvivx-llg2x-ngj3q-vpivp-vkhr3-mwpdm-236gj-ch2zk-sae
-        stake_e8s: 625000000000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: xe33t-j44bt-lgzwy-5b44d-m2qpp-fwayx-bf3vh-b7f7p-s5746-pvngp-vae
-        stake_e8s: 683325000000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: xe33t-j44bt-lgzwy-5b44d-m2qpp-fwayx-bf3vh-b7f7p-s5746-pvngp-vae
-        stake_e8s: 683325000000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: xe33t-j44bt-lgzwy-5b44d-m2qpp-fwayx-bf3vh-b7f7p-s5746-pvngp-vae
-        stake_e8s: 683325000000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: xe33t-j44bt-lgzwy-5b44d-m2qpp-fwayx-bf3vh-b7f7p-s5746-pvngp-vae
-        stake_e8s: 683325000000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: yxrec-lphu7-4cfmz-jhfu5-mbqib-kqxcu-xnbfj-unlgo-4d2uw-ycdjc-zqe
-        stake_e8s: 625000000000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: yxrec-lphu7-4cfmz-jhfu5-mbqib-kqxcu-xnbfj-unlgo-4d2uw-ycdjc-zqe
-        stake_e8s: 625000000000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: yxrec-lphu7-4cfmz-jhfu5-mbqib-kqxcu-xnbfj-unlgo-4d2uw-ycdjc-zqe
-        stake_e8s: 625000000000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: yxrec-lphu7-4cfmz-jhfu5-mbqib-kqxcu-xnbfj-unlgo-4d2uw-ycdjc-zqe
-        stake_e8s: 625000000000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: jwvyx-bkwm3-e62m7-ic3zy-avbb4-hc5ow-mq4yf-qdlff-v3b5d-3xlwe-hae
-        stake_e8s: 625000000000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: jwvyx-bkwm3-e62m7-ic3zy-avbb4-hc5ow-mq4yf-qdlff-v3b5d-3xlwe-hae
-        stake_e8s: 625000000000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: jwvyx-bkwm3-e62m7-ic3zy-avbb4-hc5ow-mq4yf-qdlff-v3b5d-3xlwe-hae
-        stake_e8s: 625000000000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: jwvyx-bkwm3-e62m7-ic3zy-avbb4-hc5ow-mq4yf-qdlff-v3b5d-3xlwe-hae
-        stake_e8s: 625000000000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: jn2lc-kk6vz-blly5-mmzsq-kpuuq-jw6ib-oghpo-ent2u-didrt-is2i6-3ae
         stake_e8s: 1250000000000
         memo: 0
         dissolve_delay_seconds: 60
         vesting_period_seconds: 0
-      - controller: jn2lc-kk6vz-blly5-mmzsq-kpuuq-jw6ib-oghpo-ent2u-didrt-is2i6-3ae
+      - controller: nxiqs-ture2-t73uf-mgvm6-sxytg-ylgmh-e6z6d-dw3jp-fcduw-7w72q-vqe
         stake_e8s: 1250000000000
         memo: 1
         dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: jn2lc-kk6vz-blly5-mmzsq-kpuuq-jw6ib-oghpo-ent2u-didrt-is2i6-3ae
+        vesting_period_seconds: 7889400
+      - controller: nxiqs-ture2-t73uf-mgvm6-sxytg-ylgmh-e6z6d-dw3jp-fcduw-7w72q-vqe
         stake_e8s: 1250000000000
         memo: 2
         dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: jn2lc-kk6vz-blly5-mmzsq-kpuuq-jw6ib-oghpo-ent2u-didrt-is2i6-3ae
+        vesting_period_seconds: 15778800
+      - controller: nxiqs-ture2-t73uf-mgvm6-sxytg-ylgmh-e6z6d-dw3jp-fcduw-7w72q-vqe
         stake_e8s: 1250000000000
         memo: 3
         dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 23668200
+      - controller: nxiqs-ture2-t73uf-mgvm6-sxytg-ylgmh-e6z6d-dw3jp-fcduw-7w72q-vqe
+        stake_e8s: 1250000000000
+        memo: 4
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 31557600
+      - controller: zlthp-jyed5-cou5n-zpymw-b46ud-4o6ul-j6vby-grwkw-ihwyi-psvep-rae
+        stake_e8s: 2500000000000
+        memo: 0
+        dissolve_delay_seconds: 60
+        vesting_period_seconds: 0
+      - controller: zlthp-jyed5-cou5n-zpymw-b46ud-4o6ul-j6vby-grwkw-ihwyi-psvep-rae
+        stake_e8s: 2500000000000
+        memo: 1
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 7889400
+      - controller: zlthp-jyed5-cou5n-zpymw-b46ud-4o6ul-j6vby-grwkw-ihwyi-psvep-rae
+        stake_e8s: 2500000000000
+        memo: 2
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 15778800
+      - controller: zlthp-jyed5-cou5n-zpymw-b46ud-4o6ul-j6vby-grwkw-ihwyi-psvep-rae
+        stake_e8s: 2500000000000
+        memo: 3
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 23668200
+      - controller: zlthp-jyed5-cou5n-zpymw-b46ud-4o6ul-j6vby-grwkw-ihwyi-psvep-rae
+        stake_e8s: 2500000000000
+        memo: 4
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 31557600
+      - controller: 7oppw-5ebmd-erxsk-ncwx3-2pnmf-4wdkh-5glsb-fmmb3-lmhvw-vrdgx-aae
+        stake_e8s: 500000000000
+        memo: 0
+        dissolve_delay_seconds: 60
+        vesting_period_seconds: 0
+      - controller: 7oppw-5ebmd-erxsk-ncwx3-2pnmf-4wdkh-5glsb-fmmb3-lmhvw-vrdgx-aae
+        stake_e8s: 500000000000
+        memo: 1
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 7889400
+      - controller: 7oppw-5ebmd-erxsk-ncwx3-2pnmf-4wdkh-5glsb-fmmb3-lmhvw-vrdgx-aae
+        stake_e8s: 500000000000
+        memo: 2
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 15778800
+      - controller: 7oppw-5ebmd-erxsk-ncwx3-2pnmf-4wdkh-5glsb-fmmb3-lmhvw-vrdgx-aae
+        stake_e8s: 500000000000
+        memo: 3
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 23668200
+      - controller: 7oppw-5ebmd-erxsk-ncwx3-2pnmf-4wdkh-5glsb-fmmb3-lmhvw-vrdgx-aae
+        stake_e8s: 500000000000
+        memo: 4
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 31557600
+      - controller: i4rub-bvxmi-wrcvv-4nl2q-bpuab-cflvh-7cwot-sa2bu-ajmlu-ufj7n-hae
+        stake_e8s: 592755000000
+        memo: 0
+        dissolve_delay_seconds: 60
+        vesting_period_seconds: 0
+      - controller: i4rub-bvxmi-wrcvv-4nl2q-bpuab-cflvh-7cwot-sa2bu-ajmlu-ufj7n-hae
+        stake_e8s: 592755000000
+        memo: 1
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 7889400
+      - controller: i4rub-bvxmi-wrcvv-4nl2q-bpuab-cflvh-7cwot-sa2bu-ajmlu-ufj7n-hae
+        stake_e8s: 592755000000
+        memo: 2
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 15778800
+      - controller: i4rub-bvxmi-wrcvv-4nl2q-bpuab-cflvh-7cwot-sa2bu-ajmlu-ufj7n-hae
+        stake_e8s: 592755000000
+        memo: 3
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 23668200
+      - controller: i4rub-bvxmi-wrcvv-4nl2q-bpuab-cflvh-7cwot-sa2bu-ajmlu-ufj7n-hae
+        stake_e8s: 592755000000
+        memo: 4
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 31557600
+      - controller: trag2-cpiwz-omz4t-h5hc2-ddwi2-j57h4-6nwql-luslo-esh5y-kw6wf-kae
+        stake_e8s: 500000000000
+        memo: 0
+        dissolve_delay_seconds: 60
+        vesting_period_seconds: 0
+      - controller: trag2-cpiwz-omz4t-h5hc2-ddwi2-j57h4-6nwql-luslo-esh5y-kw6wf-kae
+        stake_e8s: 500000000000
+        memo: 1
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 7889400
+      - controller: trag2-cpiwz-omz4t-h5hc2-ddwi2-j57h4-6nwql-luslo-esh5y-kw6wf-kae
+        stake_e8s: 500000000000
+        memo: 2
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 15778800
+      - controller: trag2-cpiwz-omz4t-h5hc2-ddwi2-j57h4-6nwql-luslo-esh5y-kw6wf-kae
+        stake_e8s: 500000000000
+        memo: 3
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 23668200
+      - controller: trag2-cpiwz-omz4t-h5hc2-ddwi2-j57h4-6nwql-luslo-esh5y-kw6wf-kae
+        stake_e8s: 500000000000
+        memo: 4
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 31557600
+      - controller: ipgdv-pf7j7-et34y-zrazs-aqnil-w2umz-offhu-gmsvr-u6pmx-klf53-2ae
+        stake_e8s: 750000000000
+        memo: 0
+        dissolve_delay_seconds: 60
+        vesting_period_seconds: 0
+      - controller: ipgdv-pf7j7-et34y-zrazs-aqnil-w2umz-offhu-gmsvr-u6pmx-klf53-2ae
+        stake_e8s: 750000000000
+        memo: 1
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 7889400
+      - controller: ipgdv-pf7j7-et34y-zrazs-aqnil-w2umz-offhu-gmsvr-u6pmx-klf53-2ae
+        stake_e8s: 750000000000
+        memo: 2
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 15778800
+      - controller: ipgdv-pf7j7-et34y-zrazs-aqnil-w2umz-offhu-gmsvr-u6pmx-klf53-2ae
+        stake_e8s: 750000000000
+        memo: 3
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 23668200
+      - controller: ipgdv-pf7j7-et34y-zrazs-aqnil-w2umz-offhu-gmsvr-u6pmx-klf53-2ae
+        stake_e8s: 750000000000
+        memo: 4
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 31557600
+      - controller: o2glf-b6pob-yk6l7-urxow-pswqi-ymrj5-xx6py-d5ts6-6m736-shf3l-3ae
+        stake_e8s: 750000000000
+        memo: 0
+        dissolve_delay_seconds: 60
+        vesting_period_seconds: 0
+      - controller: o2glf-b6pob-yk6l7-urxow-pswqi-ymrj5-xx6py-d5ts6-6m736-shf3l-3ae
+        stake_e8s: 750000000000
+        memo: 1
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 7889400
+      - controller: o2glf-b6pob-yk6l7-urxow-pswqi-ymrj5-xx6py-d5ts6-6m736-shf3l-3ae
+        stake_e8s: 750000000000
+        memo: 2
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 15778800
+      - controller: o2glf-b6pob-yk6l7-urxow-pswqi-ymrj5-xx6py-d5ts6-6m736-shf3l-3ae
+        stake_e8s: 750000000000
+        memo: 3
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 23668200
+      - controller: o2glf-b6pob-yk6l7-urxow-pswqi-ymrj5-xx6py-d5ts6-6m736-shf3l-3ae
+        stake_e8s: 750000000000
+        memo: 4
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 31557600
+      - controller: svpu3-n53nr-jwunj-6rplv-t2g2y-rbuib-35i4q-suhbk-vcudp-54xaw-lqe
+        stake_e8s: 2329215000000
+        memo: 0
+        dissolve_delay_seconds: 60
+        vesting_period_seconds: 0
+      - controller: svpu3-n53nr-jwunj-6rplv-t2g2y-rbuib-35i4q-suhbk-vcudp-54xaw-lqe
+        stake_e8s: 2329215000000
+        memo: 1
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 7889400
+      - controller: svpu3-n53nr-jwunj-6rplv-t2g2y-rbuib-35i4q-suhbk-vcudp-54xaw-lqe
+        stake_e8s: 2329215000000
+        memo: 2
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 15778800
+      - controller: svpu3-n53nr-jwunj-6rplv-t2g2y-rbuib-35i4q-suhbk-vcudp-54xaw-lqe
+        stake_e8s: 2329215000000
+        memo: 3
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 23668200
+      - controller: svpu3-n53nr-jwunj-6rplv-t2g2y-rbuib-35i4q-suhbk-vcudp-54xaw-lqe
+        stake_e8s: 2329215000000
+        memo: 4
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 31557600
+      - controller: e4lte-v3vxs-e4hnj-tkilm-p6yw2-45jct-76lgw-fwdho-7pxy2-kqhlp-pqe
+        stake_e8s: 1500000000000
+        memo: 0
+        dissolve_delay_seconds: 60
+        vesting_period_seconds: 0
+      - controller: e4lte-v3vxs-e4hnj-tkilm-p6yw2-45jct-76lgw-fwdho-7pxy2-kqhlp-pqe
+        stake_e8s: 1500000000000
+        memo: 1
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 7889400
+      - controller: e4lte-v3vxs-e4hnj-tkilm-p6yw2-45jct-76lgw-fwdho-7pxy2-kqhlp-pqe
+        stake_e8s: 1500000000000
+        memo: 2
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 15778800
+      - controller: e4lte-v3vxs-e4hnj-tkilm-p6yw2-45jct-76lgw-fwdho-7pxy2-kqhlp-pqe
+        stake_e8s: 1500000000000
+        memo: 3
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 23668200
+      - controller: e4lte-v3vxs-e4hnj-tkilm-p6yw2-45jct-76lgw-fwdho-7pxy2-kqhlp-pqe
+        stake_e8s: 1500000000000
+        memo: 4
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 31557600
+      - controller: vqqbt-tu73k-rmm25-hyq5o-x5vug-rixzf-cfcf3-oicjz-xi6hr-im6mw-2qe
+        stake_e8s: 500000000000
+        memo: 0
+        dissolve_delay_seconds: 60
+        vesting_period_seconds: 0
+      - controller: vqqbt-tu73k-rmm25-hyq5o-x5vug-rixzf-cfcf3-oicjz-xi6hr-im6mw-2qe
+        stake_e8s: 500000000000
+        memo: 1
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 7889400
+      - controller: vqqbt-tu73k-rmm25-hyq5o-x5vug-rixzf-cfcf3-oicjz-xi6hr-im6mw-2qe
+        stake_e8s: 500000000000
+        memo: 2
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 15778800
+      - controller: vqqbt-tu73k-rmm25-hyq5o-x5vug-rixzf-cfcf3-oicjz-xi6hr-im6mw-2qe
+        stake_e8s: 500000000000
+        memo: 3
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 23668200
+      - controller: vqqbt-tu73k-rmm25-hyq5o-x5vug-rixzf-cfcf3-oicjz-xi6hr-im6mw-2qe
+        stake_e8s: 500000000000
+        memo: 4
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 31557600
+      - controller: qxizu-u6ktn-ejgk5-pu6is-7sxpw-txme6-tta36-kccui-mfae4-vuigw-qqe
+        stake_e8s: 1988185000000
+        memo: 0
+        dissolve_delay_seconds: 60
+        vesting_period_seconds: 0
+      - controller: qxizu-u6ktn-ejgk5-pu6is-7sxpw-txme6-tta36-kccui-mfae4-vuigw-qqe
+        stake_e8s: 1988185000000
+        memo: 1
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 7889400
+      - controller: qxizu-u6ktn-ejgk5-pu6is-7sxpw-txme6-tta36-kccui-mfae4-vuigw-qqe
+        stake_e8s: 1988185000000
+        memo: 2
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 15778800
+      - controller: qxizu-u6ktn-ejgk5-pu6is-7sxpw-txme6-tta36-kccui-mfae4-vuigw-qqe
+        stake_e8s: 1988185000000
+        memo: 3
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 23668200
+      - controller: qxizu-u6ktn-ejgk5-pu6is-7sxpw-txme6-tta36-kccui-mfae4-vuigw-qqe
+        stake_e8s: 1988185000000
+        memo: 4
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 31557600
+      - controller: prnrn-t5fm4-ybwgo-wz6zq-ijo2h-3xve5-cac4e-bm7vu-2doxr-i7ep4-vae
+        stake_e8s: 500000000000
+        memo: 0
+        dissolve_delay_seconds: 60
+        vesting_period_seconds: 0
+      - controller: prnrn-t5fm4-ybwgo-wz6zq-ijo2h-3xve5-cac4e-bm7vu-2doxr-i7ep4-vae
+        stake_e8s: 500000000000
+        memo: 1
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 7889400
+      - controller: prnrn-t5fm4-ybwgo-wz6zq-ijo2h-3xve5-cac4e-bm7vu-2doxr-i7ep4-vae
+        stake_e8s: 500000000000
+        memo: 2
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 15778800
+      - controller: prnrn-t5fm4-ybwgo-wz6zq-ijo2h-3xve5-cac4e-bm7vu-2doxr-i7ep4-vae
+        stake_e8s: 500000000000
+        memo: 3
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 23668200
+      - controller: prnrn-t5fm4-ybwgo-wz6zq-ijo2h-3xve5-cac4e-bm7vu-2doxr-i7ep4-vae
+        stake_e8s: 500000000000
+        memo: 4
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 31557600
+      - controller: cjagz-jwiva-7pbld-2xjxo-5vip3-2jobb-3ivgn-xyxt7-7ekcm-qahxg-cae
+        stake_e8s: 500000000000
+        memo: 0
+        dissolve_delay_seconds: 60
+        vesting_period_seconds: 0
+      - controller: cjagz-jwiva-7pbld-2xjxo-5vip3-2jobb-3ivgn-xyxt7-7ekcm-qahxg-cae
+        stake_e8s: 500000000000
+        memo: 1
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 7889400
+      - controller: cjagz-jwiva-7pbld-2xjxo-5vip3-2jobb-3ivgn-xyxt7-7ekcm-qahxg-cae
+        stake_e8s: 500000000000
+        memo: 2
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 15778800
+      - controller: cjagz-jwiva-7pbld-2xjxo-5vip3-2jobb-3ivgn-xyxt7-7ekcm-qahxg-cae
+        stake_e8s: 500000000000
+        memo: 3
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 23668200
+      - controller: cjagz-jwiva-7pbld-2xjxo-5vip3-2jobb-3ivgn-xyxt7-7ekcm-qahxg-cae
+        stake_e8s: 500000000000
+        memo: 4
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 31557600
+      - controller: behqd-xscda-wivdg-si3oh-q3bbk-on72z-mmg6b-fyfmu-77xjy-5fwtj-lae
+        stake_e8s: 500000000000
+        memo: 0
+        dissolve_delay_seconds: 60
+        vesting_period_seconds: 0
+      - controller: behqd-xscda-wivdg-si3oh-q3bbk-on72z-mmg6b-fyfmu-77xjy-5fwtj-lae
+        stake_e8s: 500000000000
+        memo: 1
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 7889400
+      - controller: behqd-xscda-wivdg-si3oh-q3bbk-on72z-mmg6b-fyfmu-77xjy-5fwtj-lae
+        stake_e8s: 500000000000
+        memo: 2
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 15778800
+      - controller: behqd-xscda-wivdg-si3oh-q3bbk-on72z-mmg6b-fyfmu-77xjy-5fwtj-lae
+        stake_e8s: 500000000000
+        memo: 3
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 23668200
+      - controller: behqd-xscda-wivdg-si3oh-q3bbk-on72z-mmg6b-fyfmu-77xjy-5fwtj-lae
+        stake_e8s: 500000000000
+        memo: 4
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 31557600
+      - controller: 27idm-mgbgp-66xea-62upg-ylw7p-vpxfy-xufbg-nkuj3-azt2s-qdd5i-hqe
+        stake_e8s: 602415000000
+        memo: 0
+        dissolve_delay_seconds: 60
+        vesting_period_seconds: 0
+      - controller: 27idm-mgbgp-66xea-62upg-ylw7p-vpxfy-xufbg-nkuj3-azt2s-qdd5i-hqe
+        stake_e8s: 602415000000
+        memo: 1
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 7889400
+      - controller: 27idm-mgbgp-66xea-62upg-ylw7p-vpxfy-xufbg-nkuj3-azt2s-qdd5i-hqe
+        stake_e8s: 602415000000
+        memo: 2
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 15778800
+      - controller: 27idm-mgbgp-66xea-62upg-ylw7p-vpxfy-xufbg-nkuj3-azt2s-qdd5i-hqe
+        stake_e8s: 602415000000
+        memo: 3
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 23668200
+      - controller: 27idm-mgbgp-66xea-62upg-ylw7p-vpxfy-xufbg-nkuj3-azt2s-qdd5i-hqe
+        stake_e8s: 602415000000
+        memo: 4
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 31557600
+      - controller: 6oboa-fqj3s-fvivx-llg2x-ngj3q-vpivp-vkhr3-mwpdm-236gj-ch2zk-sae
+        stake_e8s: 500000000000
+        memo: 0
+        dissolve_delay_seconds: 60
+        vesting_period_seconds: 0
+      - controller: 6oboa-fqj3s-fvivx-llg2x-ngj3q-vpivp-vkhr3-mwpdm-236gj-ch2zk-sae
+        stake_e8s: 500000000000
+        memo: 1
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 7889400
+      - controller: 6oboa-fqj3s-fvivx-llg2x-ngj3q-vpivp-vkhr3-mwpdm-236gj-ch2zk-sae
+        stake_e8s: 500000000000
+        memo: 2
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 15778800
+      - controller: 6oboa-fqj3s-fvivx-llg2x-ngj3q-vpivp-vkhr3-mwpdm-236gj-ch2zk-sae
+        stake_e8s: 500000000000
+        memo: 3
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 23668200
+      - controller: 6oboa-fqj3s-fvivx-llg2x-ngj3q-vpivp-vkhr3-mwpdm-236gj-ch2zk-sae
+        stake_e8s: 500000000000
+        memo: 4
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 31557600
+      - controller: xe33t-j44bt-lgzwy-5b44d-m2qpp-fwayx-bf3vh-b7f7p-s5746-pvngp-vae
+        stake_e8s: 546660000000
+        memo: 0
+        dissolve_delay_seconds: 60
+        vesting_period_seconds: 0
+      - controller: xe33t-j44bt-lgzwy-5b44d-m2qpp-fwayx-bf3vh-b7f7p-s5746-pvngp-vae
+        stake_e8s: 546660000000
+        memo: 1
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 7889400
+      - controller: xe33t-j44bt-lgzwy-5b44d-m2qpp-fwayx-bf3vh-b7f7p-s5746-pvngp-vae
+        stake_e8s: 546660000000
+        memo: 2
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 15778800
+      - controller: xe33t-j44bt-lgzwy-5b44d-m2qpp-fwayx-bf3vh-b7f7p-s5746-pvngp-vae
+        stake_e8s: 546660000000
+        memo: 3
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 23668200
+      - controller: xe33t-j44bt-lgzwy-5b44d-m2qpp-fwayx-bf3vh-b7f7p-s5746-pvngp-vae
+        stake_e8s: 546660000000
+        memo: 4
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 31557600
+      - controller: yxrec-lphu7-4cfmz-jhfu5-mbqib-kqxcu-xnbfj-unlgo-4d2uw-ycdjc-zqe
+        stake_e8s: 500000000000
+        memo: 0
+        dissolve_delay_seconds: 60
+        vesting_period_seconds: 0
+      - controller: yxrec-lphu7-4cfmz-jhfu5-mbqib-kqxcu-xnbfj-unlgo-4d2uw-ycdjc-zqe
+        stake_e8s: 500000000000
+        memo: 1
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 7889400
+      - controller: yxrec-lphu7-4cfmz-jhfu5-mbqib-kqxcu-xnbfj-unlgo-4d2uw-ycdjc-zqe
+        stake_e8s: 500000000000
+        memo: 2
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 15778800
+      - controller: yxrec-lphu7-4cfmz-jhfu5-mbqib-kqxcu-xnbfj-unlgo-4d2uw-ycdjc-zqe
+        stake_e8s: 500000000000
+        memo: 3
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 23668200
+      - controller: yxrec-lphu7-4cfmz-jhfu5-mbqib-kqxcu-xnbfj-unlgo-4d2uw-ycdjc-zqe
+        stake_e8s: 500000000000
+        memo: 4
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 31557600
+      - controller: jwvyx-bkwm3-e62m7-ic3zy-avbb4-hc5ow-mq4yf-qdlff-v3b5d-3xlwe-hae
+        stake_e8s: 500000000000
+        memo: 0
+        dissolve_delay_seconds: 60
+        vesting_period_seconds: 0
+      - controller: jwvyx-bkwm3-e62m7-ic3zy-avbb4-hc5ow-mq4yf-qdlff-v3b5d-3xlwe-hae
+        stake_e8s: 500000000000
+        memo: 1
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 7889400
+      - controller: jwvyx-bkwm3-e62m7-ic3zy-avbb4-hc5ow-mq4yf-qdlff-v3b5d-3xlwe-hae
+        stake_e8s: 500000000000
+        memo: 2
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 15778800
+      - controller: jwvyx-bkwm3-e62m7-ic3zy-avbb4-hc5ow-mq4yf-qdlff-v3b5d-3xlwe-hae
+        stake_e8s: 500000000000
+        memo: 3
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 23668200
+      - controller: jwvyx-bkwm3-e62m7-ic3zy-avbb4-hc5ow-mq4yf-qdlff-v3b5d-3xlwe-hae
+        stake_e8s: 500000000000
+        memo: 4
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 31557600
+      - controller: jn2lc-kk6vz-blly5-mmzsq-kpuuq-jw6ib-oghpo-ent2u-didrt-is2i6-3ae
+        stake_e8s: 1000000000000
+        memo: 0
+        dissolve_delay_seconds: 60
+        vesting_period_seconds: 0
+      - controller: jn2lc-kk6vz-blly5-mmzsq-kpuuq-jw6ib-oghpo-ent2u-didrt-is2i6-3ae
+        stake_e8s: 1000000000000
+        memo: 1
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 7889400
+      - controller: jn2lc-kk6vz-blly5-mmzsq-kpuuq-jw6ib-oghpo-ent2u-didrt-is2i6-3ae
+        stake_e8s: 1000000000000
+        memo: 2
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 15778800
+      - controller: jn2lc-kk6vz-blly5-mmzsq-kpuuq-jw6ib-oghpo-ent2u-didrt-is2i6-3ae
+        stake_e8s: 1000000000000
+        memo: 3
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 23668200
+      - controller: jn2lc-kk6vz-blly5-mmzsq-kpuuq-jw6ib-oghpo-ent2u-didrt-is2i6-3ae
+        stake_e8s: 1000000000000
+        memo: 4
+        dissolve_delay_seconds: 7889400
         vesting_period_seconds: 31557600
       - controller: a773e-howz4-uevuv-obwvk-tsjhf-itbxp-zsvyh-rnnxa-6nqd2-ebcrn-qqe
-        stake_e8s: 272228625000
+        stake_e8s: 217782900000
         memo: 0
         dissolve_delay_seconds: 60
         vesting_period_seconds: 0
       - controller: a773e-howz4-uevuv-obwvk-tsjhf-itbxp-zsvyh-rnnxa-6nqd2-ebcrn-qqe
-        stake_e8s: 272228625000
+        stake_e8s: 217782900000
         memo: 1
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 7889400
+      - controller: a773e-howz4-uevuv-obwvk-tsjhf-itbxp-zsvyh-rnnxa-6nqd2-ebcrn-qqe
+        stake_e8s: 217782900000
+        memo: 2
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 15778800
       - controller: a773e-howz4-uevuv-obwvk-tsjhf-itbxp-zsvyh-rnnxa-6nqd2-ebcrn-qqe
-        stake_e8s: 272228625000
-        memo: 2
+        stake_e8s: 217782900000
+        memo: 3
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 23668200
       - controller: a773e-howz4-uevuv-obwvk-tsjhf-itbxp-zsvyh-rnnxa-6nqd2-ebcrn-qqe
-        stake_e8s: 272228625000
-        memo: 3
+        stake_e8s: 217782900000
+        memo: 4
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 31557600
       - controller: ml7ds-hp6pl-6lqoi-yryad-kkjmz-kctxl-dmknm-dw6kn-hofw7-h7ssy-vqe
-        stake_e8s: 6729221375000
+        stake_e8s: 5383377100000
         memo: 0
         dissolve_delay_seconds: 60
         vesting_period_seconds: 0
       - controller: ml7ds-hp6pl-6lqoi-yryad-kkjmz-kctxl-dmknm-dw6kn-hofw7-h7ssy-vqe
-        stake_e8s: 6729221375000
+        stake_e8s: 5383377100000
         memo: 1
+        dissolve_delay_seconds: 7889400
+        vesting_period_seconds: 7889400
+      - controller: ml7ds-hp6pl-6lqoi-yryad-kkjmz-kctxl-dmknm-dw6kn-hofw7-h7ssy-vqe
+        stake_e8s: 5383377100000
+        memo: 2
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 15778800
       - controller: ml7ds-hp6pl-6lqoi-yryad-kkjmz-kctxl-dmknm-dw6kn-hofw7-h7ssy-vqe
-        stake_e8s: 6729221375000
-        memo: 2
+        stake_e8s: 5383377100000
+        memo: 3
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 23668200
       - controller: ml7ds-hp6pl-6lqoi-yryad-kkjmz-kctxl-dmknm-dw6kn-hofw7-h7ssy-vqe
-        stake_e8s: 6729221375000
-        memo: 3
+        stake_e8s: 5383377100000
+        memo: 4
         dissolve_delay_seconds: 7889400
         vesting_period_seconds: 31557600
