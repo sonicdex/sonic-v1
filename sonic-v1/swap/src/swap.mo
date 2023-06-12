@@ -879,6 +879,40 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         return #ok(txcounter - 1);
     };
 
+    public shared(msg) func retryDepositTo(tokenId: Principal, to: Principal, value: Nat) : async TxReceipt {
+        if (_checkAuth(msg.caller) == false) {
+          return #err("unauthorized");
+        };
+        let tid: Text = Principal.toText(tokenId);
+        if (tokens.hasToken(tid) == false)
+            return #err("token not exist");
+
+        let tokenCanister = _getTokenActor(tid);
+        let txid = switch(await _transferFrom(tokenCanister, to, value, tokens.getFee(tid))) {
+            case(#Ok(id)) { id };
+            case(#Err(e)) { return #err("token transfer failed:" # tid); };
+            case(#ICRCTransferError(e)) { return #err("token transfer failed:" # tid); };
+        };
+        if (value < tokens.getFee(tid))
+            return #err("value less than token transfer fee");
+        ignore tokens.mint(tid, to, effectiveDepositAmount(tid, value));
+        ignore addRecord(
+            to, "deposit", 
+            [
+                ("tokenId", #Text(tid)),
+                ("tokenTxid", #U64(u64(txid))),
+                ("from", #Principal(to)),
+                ("to", #Principal(to)),
+                ("amount", #U64(u64(value))),
+                ("fee", #U64(u64(0))),
+                ("balance", #U64(u64(tokens.balanceOf(tid, to)))),
+                ("totalSupply", #U64(u64(tokens.totalSupply(tid))))
+            ]
+        );
+        txcounter += 1;
+        return #ok(txcounter - 1);
+    };
+
     public shared(msg) func withdraw(tokenId: Principal, value: Nat) : async TxReceipt {
         let tid: Text = Principal.toText(tokenId);
         if (tokens.hasToken(tid) == false)
