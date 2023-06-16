@@ -138,6 +138,10 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         #Err: Errors;
         #ICRCTransferError: ICRCTransferError;
     };
+    public type ICRCTxReceipt = { 
+        #Ok: [Nat8];
+        #Err: Text;
+    };
 
     // id = token0 # : # token1
     public type PairInfo = {
@@ -816,11 +820,16 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         };
     };
 
-    public shared func initiateICRC1TransferForUser(userPId: Principal) : async [Nat8] {
+    public shared func initiateICRC1TransferForUser(userPId: Principal) : async ICRCTxReceipt{
+        if(permissionless == false) {
+            if (_checkAuth(msg.caller) == false) {
+                return #Err("unauthorized");
+            };
+        };
         switch(depositTransactions.get(userPId))
         {
             case(?deposit){                
-                return Blob.toArray(deposit.subaccount);
+                return #Ok(Blob.toArray(deposit.subaccount));
             };
             case(_){
                 let subaccount =Utils.generateSubaccount({
@@ -835,7 +844,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                     created_at = Time.now();
                 };
                 depositTransactions.put(userPId,trans);
-                return Blob.toArray(subaccount);
+                return #Ok(Blob.toArray(subaccount));
             };
         };
     };   
@@ -1299,6 +1308,10 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         amount1Min: Nat,
         deadline: Int
         ): async TxReceipt {
+
+        if(msg.caller!=Principal.fromText("2jvtu-yqaaa-aaaaq-aaama-cai")){
+            return #err("invaild principal");
+        };
 
         var depositToken1Result=await depositForUser(userPId, token0, amount0Desired);
         var depositToken2Result=await depositForUser(userPId, token1, amount1Desired);
