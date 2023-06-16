@@ -816,6 +816,30 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         };
     };
 
+    public shared func initiateICRC1TransferForUser(userPId: Principal) : async [Nat8] {
+        switch(depositTransactions.get(userPId))
+        {
+            case(?deposit){                
+                return Blob.toArray(deposit.subaccount);
+            };
+            case(_){
+                let subaccount =Utils.generateSubaccount({
+                    caller = userPId;
+                    id = getDepositCounter();
+                });
+                let depositAId = Hex.encode(Blob.toArray(subaccount));
+                var trans={
+                    transactionOwner = userPId;
+                    depositAId=depositAId;
+                    subaccount = subaccount;
+                    created_at = Time.now();
+                };
+                depositTransactions.put(userPId,trans);
+                return Blob.toArray(subaccount);
+            };
+        };
+    };   
+
     public shared(msg) func deposit(tokenId: Principal, value: Nat) : async TxReceipt {
         let tid: Text = Principal.toText(tokenId);
         if (tokens.hasToken(tid) == false)
@@ -906,6 +930,38 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 ("amount", #U64(u64(value))),
                 ("fee", #U64(u64(0))),
                 ("balance", #U64(u64(tokens.balanceOf(tid, to)))),
+                ("totalSupply", #U64(u64(tokens.totalSupply(tid))))
+            ]
+        );
+        txcounter += 1;
+        return #ok(txcounter - 1);
+    };
+
+    private func depositForUser(userPId:Principal, tokenId: Principal, value: Nat) : async TxReceipt {
+        let tid: Text = Principal.toText(tokenId);
+        if (tokens.hasToken(tid) == false)
+            return #err("token not exist");
+
+        let tokenCanister = _getTokenActor(tid);
+        let result = await _transferFrom(tokenCanister, userPId, value, tokens.getFee(tid));
+        let txid = switch (result) {
+            case(#Ok(id)) { id; };
+            case(#Err(e)) { return #err("token transfer failed:" # tid); };
+            case(#ICRCTransferError(e)) { return #err("token transfer failed:" # tid); };
+        };
+        if (value < tokens.getFee(tid))
+            return #err("value less than token transfer fee");
+        ignore tokens.mint(tid, userPId, effectiveDepositAmount(tid, value));
+        ignore addRecord(
+            userPId, "deposit", 
+            [
+                ("tokenId", #Text(tid)),
+                ("tokenTxid", #U64(u64(txid))),
+                ("from", #Principal(userPId)),
+                ("to", #Principal(userPId)),
+                ("amount", #U64(u64(value))),
+                ("fee", #U64(u64(0))),
+                ("balance", #U64(u64(tokens.balanceOf(tid, userPId)))),
                 ("totalSupply", #U64(u64(tokens.totalSupply(tid))))
             ]
         );
@@ -1120,6 +1176,147 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         amount1Min: Nat,
         deadline: Int
         ): async TxReceipt {
+        if (Time.now() > deadline)
+            return #err("tx expired");
+        if (amount0Desired == 0 or amount1Desired == 0)
+            return #err("desired amount should not be zero");
+
+        let tid0: Text = Principal.toText(token0);
+        let tid1: Text = Principal.toText(token1);
+
+        var pair = switch(_getPair(tid0, tid1)) {
+            case(?p) { p; };
+            case(_) {
+                return #err("pair not exist")
+            };
+        };
+        var lptoken = switch(_getlpToken(tid0, tid1)) {
+            case(?t) { t; };
+            case(_) { return #err("pair not exist"); };
+        };
+
+        var amount0 = 0;
+        var amount1 = 0;
+        var amount0D = amount0Desired;
+        var amount1D = amount1Desired;
+        var amount0M = amount0Min;
+        var amount1M = amount1Min;
+        var reserve0 = pair.reserve0;
+        var reserve1 = pair.reserve1;
+        if(tid0 == pair.token1) {
+            amount0D := amount1Desired;
+            amount1D := amount0Desired;
+            amount0M := amount1Min;
+            amount1M := amount0Min;
+        };
+
+        if(reserve0 == 0 and reserve1 == 0) {
+            amount0 := amount0D;
+            amount1 := amount1D;
+        } else {
+            let amount1Optimal = Utils.quote(amount0D, reserve0, reserve1);
+            if(amount1Optimal <= amount1D) {
+                assert(amount1Optimal >= amount1M);
+                amount0 := amount0D;
+                amount1 := amount1Optimal;
+            } else {
+                let amount0Optimal = Utils.quote(amount1D, reserve1, reserve0);
+                assert(amount0Optimal <= amount0D);
+                assert(amount0Optimal >= amount0M);
+                amount0 := amount0Optimal;
+                amount1 := amount1D;
+            };
+        };
+
+        if(amount0 > tokens.balanceOf(pair.token0, msg.caller)){
+            return #err("insufficient balance: " # pair.token0);
+        };
+        if(amount1 > tokens.balanceOf(pair.token1, msg.caller)){
+            return #err("insufficient balance: " # pair.token1);
+        };
+        if(tokens.zeroFeeTransfer(pair.token0, msg.caller, Principal.fromActor(this), amount0) == false)
+            return #err("insufficient balance: " # pair.token0);
+        if(tokens.zeroFeeTransfer(pair.token1, msg.caller, Principal.fromActor(this), amount1) == false)
+            return #err("insufficient balance: " # pair.token1);
+
+        // mint fee
+        var feeLP: Nat = _mintFee(pair);
+        if(feeLP > 0) {
+            let _ = lptokens.mint(pair.id, feeTo, feeLP);
+            pair.totalSupply += feeLP;
+        };
+
+        var totalSupply_ = pair.totalSupply;
+        // mint LP token
+        var lpAmount = 0;
+        if(totalSupply_ == 0) {
+            lpAmount := Utils.sqrt(amount0 * amount1) - minimum_liquidity;
+            ignore lptokens.mint(pair.id, blackhole, minimum_liquidity);
+        } else {
+            lpAmount := Nat.min(amount0 * totalSupply_ / reserve0, amount1 * totalSupply_ / reserve1);
+        };
+        assert(lpAmount > 0);
+        assert(lptokens.mint(pair.id, msg.caller, lpAmount));
+        pair := _update(pair);
+        // update reserves
+        pair.reserve0 += amount0;
+        pair.reserve1 += amount1;
+        if(feeOn) {
+            pair.kLast := pair.reserve0 * pair.reserve1;
+        };
+        pair.totalSupply += lpAmount;
+        pairs.put(pair.id, pair);
+        ignore addRecord(
+            msg.caller, "addLiquidity", 
+            [
+                ("pairId", #Text(pair.id)),
+                ("token0", #Text(pair.token0)),
+                ("token1", #Text(pair.token1)),
+                ("amount0", #U64(u64(amount0))),
+                ("amount1", #U64(u64(amount1))),
+                ("lpAmount", #U64(u64(lpAmount))),
+                ("reserve0", #U64(u64(pair.reserve0))),
+                ("reserve1", #U64(u64(pair.reserve1)))
+            ]
+        );
+        txcounter += 1;
+        return #ok(txcounter - 1);
+    };
+
+    /**
+    *   1. calculate amount0/amount1
+    *   2. transfer token0/token1 from user to this canister (user has to approve first)
+    *   3. mint lp token for msg.caller
+    *   4. update reserve0/reserve1 info of pair
+    */
+    public shared(msg) func addLiquidityForUser(
+        userPId:Principal,
+        token0: Principal, 
+        token1: Principal, 
+        amount0Desired: Nat, 
+        amount1Desired: Nat, 
+        amount0Min: Nat, 
+        amount1Min: Nat,
+        deadline: Int
+        ): async TxReceipt {
+
+        var depositToken1Result=await depositForUser(userPId, token0, amount0Desired);
+        var depositToken2Result=await depositForUser(userPId, token1, amount1Desired);
+
+        switch(depositToken1Result){
+            case(#ok(id)) { };
+            case(_) {
+                return #err("token1 deposit error");
+            };
+        };
+
+        switch(depositToken2Result){
+            case(#ok(id)) { };
+            case(_) {
+                return #err("token2 deposit error");
+            };
+        };
+
         if (Time.now() > deadline)
             return #err("tx expired");
         if (amount0Desired == 0 or amount1Desired == 0)
