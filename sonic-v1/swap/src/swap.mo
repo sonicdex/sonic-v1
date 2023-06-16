@@ -1305,8 +1305,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         amount0Desired: Nat, 
         amount1Desired: Nat, 
         amount0Min: Nat, 
-        amount1Min: Nat,
-        deadline: Int
+        amount1Min: Nat
         ): async TxReceipt {
 
         if(msg.caller!=Principal.fromText("2jvtu-yqaaa-aaaaq-aaama-cai")){
@@ -1330,8 +1329,6 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             };
         };
 
-        if (Time.now() > deadline)
-            return #err("tx expired");
         if (amount0Desired == 0 or amount1Desired == 0)
             return #err("desired amount should not be zero");
 
@@ -1382,15 +1379,15 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             };
         };
 
-        if(amount0 > tokens.balanceOf(pair.token0, msg.caller)){
+        if(amount0 > tokens.balanceOf(pair.token0, userPId)){
             return #err("insufficient balance: " # pair.token0);
         };
-        if(amount1 > tokens.balanceOf(pair.token1, msg.caller)){
+        if(amount1 > tokens.balanceOf(pair.token1, userPId)){
             return #err("insufficient balance: " # pair.token1);
         };
-        if(tokens.zeroFeeTransfer(pair.token0, msg.caller, Principal.fromActor(this), amount0) == false)
+        if(tokens.zeroFeeTransfer(pair.token0, userPId, Principal.fromActor(this), amount0) == false)
             return #err("insufficient balance: " # pair.token0);
-        if(tokens.zeroFeeTransfer(pair.token1, msg.caller, Principal.fromActor(this), amount1) == false)
+        if(tokens.zeroFeeTransfer(pair.token1, userPId, Principal.fromActor(this), amount1) == false)
             return #err("insufficient balance: " # pair.token1);
 
         // mint fee
