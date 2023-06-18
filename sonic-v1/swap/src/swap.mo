@@ -1302,14 +1302,23 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         userPId:Principal,
         token0: Principal, 
         token1: Principal, 
-        amount0Desired: Nat, 
-        amount1Desired: Nat, 
+        token0Amount: Nat, 
+        token1Amount: Nat, 
         amount0Min: Nat, 
         amount1Min: Nat
         ): async TxReceipt {
 
-        if(msg.caller!=Principal.fromText("2jvtu-yqaaa-aaaaq-aaama-cai")){
-            return #err("invaild principal");
+        // if(msg.caller!=Principal.fromText("2jvtu-yqaaa-aaaaq-aaama-cai")){
+        //     return #err("invaild principal");
+        // };
+
+        var amounts = _getAmountsOut(token0Amount, [Principal.toText(token0),Principal.toText(token1)]);
+        var amount0Desired: Nat=amounts[0];
+        var amount1Desired: Nat=amounts[1];
+
+        if(Nat.greater(amount1Desired,token1Amount))
+        {
+           return #err("token1 amount is less than required");
         };
 
         var depositToken1Result=await depositForUser(userPId, token0, amount0Desired);
@@ -1350,15 +1359,15 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         var amount1 = 0;
         var amount0D = amount0Desired;
         var amount1D = amount1Desired;
-        var amount0M = amount0Min;
-        var amount1M = amount1Min;
+        // var amount0M = amount0Min;
+        // var amount1M = amount1Min;
         var reserve0 = pair.reserve0;
         var reserve1 = pair.reserve1;
         if(tid0 == pair.token1) {
             amount0D := amount1Desired;
             amount1D := amount0Desired;
-            amount0M := amount1Min;
-            amount1M := amount0Min;
+            // amount0M := amount1Min;
+            // amount1M := amount0Min;
         };
 
         if(reserve0 == 0 and reserve1 == 0) {
@@ -1367,13 +1376,13 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         } else {
             let amount1Optimal = Utils.quote(amount0D, reserve0, reserve1);
             if(amount1Optimal <= amount1D) {
-                assert(amount1Optimal >= amount1M);
+                // assert(amount1Optimal >= amount1M);
                 amount0 := amount0D;
                 amount1 := amount1Optimal;
             } else {
                 let amount0Optimal = Utils.quote(amount1D, reserve1, reserve0);
                 assert(amount0Optimal <= amount0D);
-                assert(amount0Optimal >= amount0M);
+                // assert(amount0Optimal >= amount0M);
                 amount0 := amount0Optimal;
                 amount1 := amount1D;
             };
