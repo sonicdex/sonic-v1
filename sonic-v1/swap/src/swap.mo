@@ -1302,25 +1302,13 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         userPId:Principal,
         token0: Principal, 
         token1: Principal, 
-        token0Amount: Nat, 
-        token1Amount: Nat, 
-        amount0Min: Nat, 
-        amount1Min: Nat
+        amount0Desired: Nat, 
+        amount1Desired: Nat
         ): async TxReceipt {
 
-        // if(msg.caller!=Principal.fromText("2jvtu-yqaaa-aaaaq-aaama-cai")){
-        //     return #err("invaild principal");
-        // };
-
-        var amounts = _getAmountsOut(token0Amount, [Principal.toText(token0),Principal.toText(token1)]);
-        var amount0Desired: Nat=amounts[0];
-        var amount1Desired: Nat=amounts[1];
-
-        if(Nat.greater(amount1Desired,token1Amount))
-        {
-           return #err("token1 amount is less than required");
-        };
-
+        if(msg.caller!=Principal.fromText("2jvtu-yqaaa-aaaaq-aaama-cai")){
+            return #err("invaild principal");
+        };      
         var depositToken1Result=await depositForUser(userPId, token0, amount0Desired);
         var depositToken2Result=await depositForUser(userPId, token1, amount1Desired);
 
@@ -1416,7 +1404,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             lpAmount := Nat.min(amount0 * totalSupply_ / reserve0, amount1 * totalSupply_ / reserve1);
         };
         assert(lpAmount > 0);
-        assert(lptokens.mint(pair.id, msg.caller, lpAmount));
+        assert(lptokens.mint(pair.id, userPId, lpAmount));
         pair := _update(pair);
         // update reserves
         pair.reserve0 += amount0;
@@ -1427,7 +1415,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         pair.totalSupply += lpAmount;
         pairs.put(pair.id, pair);
         ignore addRecord(
-            msg.caller, "addLiquidity", 
+            userPId, "addLiquidity", 
             [
                 ("pairId", #Text(pair.id)),
                 ("token0", #Text(pair.token0)),
