@@ -436,7 +436,32 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 Prelude.unreachable()
             };
         }
-    };    
+    };
+    private func _balanceOf(tokenCanister: TokenActorVariable, caller:Principal) :async Nat{               
+        switch(tokenCanister){
+            case(#DIPtokenActor(dipTokenActor)){                
+                return await dipTokenActor.balanceOf(caller);
+            };
+            case(#YCTokenActor(ycTokenActor)){
+                return await ycTokenActor.balanceOf(caller); 
+            };
+            case(#ICRC1TokenActor(icrc1TokenActor)){
+                switch(depositTransactions.get(caller))
+                {
+                    case(?deposit){
+                        var depositSubAccount:ICRCAccount={owner=Principal.fromActor(this); subaccount=?deposit.subaccount};
+                        return await icrc1TokenActor.icrc1_balance_of(depositSubAccount);                         
+                    };
+                    case(_){
+                        return 0
+                    }
+                }                                
+            };           
+            case(_){
+                Prelude.unreachable()
+            };
+        }
+    };  
     private func textToNat( txt : Text) : Nat {
         let lash=Text.hash(txt);
         return Nat32.toNat(lash);
@@ -947,21 +972,22 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         return #ok(txcounter - 1);
     };
 
-    private func depositForUser(userPId:Principal, tokenId: Principal, value: Nat) : async TxReceipt {
+    private func depositForUser(userPId:Principal, tokenId: Principal) : async TxReceipt {
         let tid: Text = Principal.toText(tokenId);
         if (tokens.hasToken(tid) == false)
             return #err("token not exist");
 
         let tokenCanister = _getTokenActor(tid);
-        let result = await _transferFrom(tokenCanister, userPId, value, tokens.getFee(tid));
+        let balance= await _balanceOf(tokenCanister,userPId);
+        let result = await _transferFrom(tokenCanister, userPId, balance, tokens.getFee(tid));
         let txid = switch (result) {
             case(#Ok(id)) { id; };
             case(#Err(e)) { return #err("token transfer failed:" # tid); };
             case(#ICRCTransferError(e)) { return #err("token transfer failed:" # tid); };
         };
-        if (value < tokens.getFee(tid))
+        if (balance < tokens.getFee(tid))
             return #err("value less than token transfer fee");
-        ignore tokens.mint(tid, userPId, effectiveDepositAmount(tid, value));
+        ignore tokens.mint(tid, userPId, effectiveDepositAmount(tid, balance));
         ignore addRecord(
             userPId, "deposit", 
             [
@@ -969,7 +995,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 ("tokenTxid", #U64(u64(txid))),
                 ("from", #Principal(userPId)),
                 ("to", #Principal(userPId)),
-                ("amount", #U64(u64(value))),
+                ("amount", #U64(u64(balance))),
                 ("fee", #U64(u64(0))),
                 ("balance", #U64(u64(tokens.balanceOf(tid, userPId)))),
                 ("totalSupply", #U64(u64(tokens.totalSupply(tid))))
@@ -1310,9 +1336,8 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         if(msg.caller!=Principal.fromText(daoCanisterIdForLiquidity)){
             return #err("invaild principal");
         };      
-        var depositToken1Result=await depositForUser(userPId, token0, amount0Desired);
-        var depositToken2Result=await depositForUser(userPId, token1, amount1Desired);
-
+        var depositToken1Result=await depositForUser(userPId, token0);
+        var depositToken2Result=await depositForUser(userPId, token1);
         switch(depositToken1Result){
             case(#ok(id)) { };
             case(_) {
