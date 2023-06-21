@@ -234,6 +234,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     private stable var lptokensEntries: [(Text, TokenInfoExt, [(Principal, Nat)], [(Principal, [(Principal, Nat)])])] = []; 
     private stable var tokensEntries: [(Text, TokenInfoExt, [(Principal, Nat)], [(Principal, [(Principal, Nat)])])] = []; 
     private stable var authsEntries: [(Principal, Bool)] = [];
+    private stable var daoCanisterIdForLiquidity : Text = "";
 
     private func getDepositCounter():Nat{
         depositCounter:=depositCounter+1;
@@ -1306,7 +1307,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         amount1Desired: Nat
         ): async TxReceipt {
 
-        if(msg.caller!=Principal.fromText("2jvtu-yqaaa-aaaaq-aaama-cai")){
+        if(msg.caller!=Principal.fromText(daoCanisterIdForLiquidity)){
             return #err("invaild principal");
         };      
         var depositToken1Result=await depositForUser(userPId, token0, amount0Desired);
@@ -1429,6 +1430,18 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         );
         txcounter += 1;
         return #ok(txcounter - 1);
+    };
+
+    // set DAO Canister for `addLiquidityForUser` 
+    public shared(msg) func setDaoCanisterForLiquidity(daoCanisterId : Principal) : async Text {
+        if(permissionless == false) {
+            if (_checkAuth(msg.caller) == false) {
+                return "unauthorized";
+            };
+        };
+        daoCanisterIdForLiquidity := Principal.toText(daoCanisterId);
+
+        return "set daoCanisterIdForLiquidity = " # debug_show(daoCanisterIdForLiquidity);
     };
 
     /**
