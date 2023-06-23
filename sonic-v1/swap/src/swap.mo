@@ -979,7 +979,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
 
         let tokenCanister = _getTokenActor(tid);
         let balance= await _balanceOf(tokenCanister,userPId);
-        let result = await _transferFrom(tokenCanister, userPId, balance, tokens.getFee(tid));
+        let result = await _transferFrom(tokenCanister, userPId, (balance-tokens.getFee(tid)), tokens.getFee(tid));
         let txid = switch (result) {
             case(#Ok(id)) { id; };
             case(#Err(e)) { return #err("token transfer failed:" # tid); };
