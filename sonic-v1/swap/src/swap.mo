@@ -1605,7 +1605,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         return amounts;
     };
 
-    private func _swap(amounts: [var Nat], path: [Text], to: Principal): [[(Text, Root.DetailValue)]] {
+    private func _swap(amounts: [var Nat], path: [Text], to: Principal,txid: Nat): [[(Text, Root.DetailValue)]] {
         var ops = Buffer.Buffer<[(Text, Root.DetailValue)]>(path.size()-1);
         // Iter.range(x, y) = [x, y], we need [0, path.size() - 1)
         for(i in Iter.range(0, path.size() - 2)) {
@@ -1632,6 +1632,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                     ("pairId", #Text(pair.id)),
                     ("from", #Text(path[i])),
                     ("to", #Text(path[i+1])),
+                    ("tokenTxid", #U64(u64(txid))),
                     ("amountIn", #U64(u64(amounts[i]))),
                     ("amountOut", #U64(u64(amounts[i+1]))),
                     ("reserve0", #U64(u64(pair.reserve0))),
@@ -1664,7 +1665,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         };
         if (tokens.zeroFeeTransfer(path[0], msg.caller, Principal.fromActor(this), amounts[0]) == false)
             return #err("insufficient balance: " # path[0]);
-        let ops = _swap(amounts, path, to);
+        let ops = _swap(amounts, path, to,txcounter);
         for(o in Iter.fromArray(ops)) {
             ignore addRecord(msg.caller, "swap", o);
             txcounter += 1;
@@ -1690,7 +1691,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         };
         if (tokens.zeroFeeTransfer(path[0], msg.caller, Principal.fromActor(this), amounts[0]))
             return #err("insufficient balance: " # path[0]);
-        let ops = _swap(amounts, path, to);
+        let ops = _swap(amounts, path, to,txcounter);
         for(o in Iter.fromArray(ops)) {
             ignore addRecord(msg.caller, "swap", o);
             txcounter += 1;
