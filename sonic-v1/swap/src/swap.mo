@@ -963,6 +963,42 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         return #ok(txcounter - 1);
     };
 
+    public shared(msg) func retryDeposit(tokenId: Principal) : async TxReceipt {        
+        let tid: Text = Principal.toText(tokenId);
+        if (tokens.hasToken(tid) == false)
+            return #err("token not exist");
+
+        let tokenCanister = _getTokenActor(tid);
+        var balance = await _balanceOf(tokenCanister, msg.caller);
+        var value:Nat = balance-tokens.getFee(tid);
+        if(Nat.equal(value,0)){
+            return #err("no pending deposit found");
+        };
+        let txid = switch(await _transferFrom(tokenCanister, msg.caller, value, tokens.getFee(tid))) {
+            case(#Ok(id)) { id };
+            case(#Err(e)) { return #err("token transfer failed:" # tid); };
+            case(#ICRCTransferError(e)) { return #err("token transfer failed:" # tid); };
+        };
+        if (value < tokens.getFee(tid))
+            return #err("value less than token transfer fee");
+        ignore tokens.mint(tid, msg.caller, effectiveDepositAmount(tid, value));
+        ignore addRecord(
+            msg.caller, "deposit", 
+            [
+                ("tokenId", #Text(tid)),
+                ("tokenTxid", #U64(u64(txid))),
+                ("from", #Principal(msg.caller)),
+                ("to", #Principal(msg.caller)),
+                ("amount", #U64(u64(value))),
+                ("fee", #U64(u64(0))),
+                ("balance", #U64(u64(tokens.balanceOf(tid, msg.caller)))),
+                ("totalSupply", #U64(u64(tokens.totalSupply(tid))))
+            ]
+        );
+        txcounter += 1;
+        return #ok(txcounter - 1);
+    };
+
     public shared(msg) func retryDepositTo(tokenId: Principal, to: Principal, value: Nat) : async TxReceipt {
         if (_checkAuth(msg.caller) == false) {
           return #err("unauthorized");
