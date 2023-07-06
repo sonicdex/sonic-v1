@@ -143,6 +143,14 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         #Err: Text;
     };
 
+    public type RewardPairInfo = {
+        id: Text;
+        token0: Text;
+        token1: Text;
+        var amount0: Nat;
+        var amount1: Nat;
+    };
+
     // id = token0 # : # token1
     public type PairInfo = {
         id: Text;
@@ -201,6 +209,13 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         created_at:Time.Time;
     };
 
+    type RewardTokens={
+        token0 : Text;
+        amount0 : Nat;
+        token1 : Text;
+        amount1 : Nat
+    };
+
     public type TokenInfo = Tokens.TokenInfo;
     public type TokenInfoExt = Tokens.TokenInfoExt;
     public type TokenInfoWithType = Tokens.TokenInfoWithType; 
@@ -224,6 +239,9 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     private var pairs = HashMap.HashMap<Text, PairInfo>(1, Text.equal, Text.hash);
     private var lptokens: Tokens.Tokens = Tokens.Tokens(feeTo, []);
     private var tokens: Tokens.Tokens = Tokens.Tokens(feeTo, []);
+    private var rewardTokens=HashMap.HashMap<Text, RewardTokens>(1, Text.equal, Text.hash);
+    private var rewardPairs = HashMap.HashMap<Text, RewardPairInfo>(1, Text.equal, Text.hash);
+
     // admins
     private var auths = HashMap.HashMap<Principal, Bool>(1, Principal.equal, Principal.hash);
     auths.put(owner, true);
@@ -235,6 +253,8 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     private stable var tokensEntries: [(Text, TokenInfoExt, [(Principal, Nat)], [(Principal, [(Principal, Nat)])])] = []; 
     private stable var authsEntries: [(Principal, Bool)] = [];
     private stable var daoCanisterIdForLiquidity : Text = "";
+    private stable var rewardPairsEntries: [(Text, RewardPairInfo)] = [];
+    private stable var rewardTokenEntries : [(Text,RewardTokens)] = [];
 
     private func getDepositCounter():Nat{
         depositCounter:=depositCounter+1;
@@ -680,6 +700,11 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     private func _getPair(token0: Text, token1: Text) : ?PairInfo {
         let tid = _getlpTokenId(token0, token1);
         return pairs.get(tid);
+    };
+
+    private func _getRewardPair(token0: Text, token1: Text) : ?RewardPairInfo {
+        let tid = _getlpTokenId(token0, token1);
+        return rewardPairs.get(tid);
     };
 
     private func _getlpToken(token0: Text, token1: Text): ?TokenInfo {
@@ -1577,18 +1602,60 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         };
     };
 
-    private func _getAmountsOut(amountIn: Nat, path: [Text]): [var Nat] {
+    //-------------------------------------------------
+    private var logMessages : [Text] = []; 
+    public query func logMessageGet():async [Text]{
+        return logMessages;
+    };    
+    public func logMessageClear():async() {
+        logMessages:=[];      
+        return;
+    };
+    //-------------------------------------------------
+
+    private func _updateRewardPoint(path: [Text], amount: Nat){
+        let tid0: Text = path[0];
+        let tid1: Text = path[1];
+
+        var pair = switch(_getRewardPair(tid0, tid1)) {
+            case(?p) { p; };
+            case(_) {
+                let (t0, t1) = Utils.sortTokens(tid0, tid1);
+                let pair_str = t0 # ":" # t1;
+                let pairinfo: RewardPairInfo = {
+                    id = pair_str;
+                    token0 = t0;
+                    token1 = t1;
+                    var amount0 = 0;
+                    var amount1 = 0;
+                };
+                rewardPairs.put(pair_str, pairinfo);
+                pairinfo;
+            };
+        };        
+
+        if(pair.token0 == path[0]) {
+            pair.amount0 += amount;
+        } else {
+            pair.amount1 += amount;
+        };        
+    };
+
+    private func _getAmountsOut(amountIn: Nat, path: [Text]): ([var Nat],Nat) {
         assert(path.size() >= 2);
         var amounts: [var Nat] = Array.init<Nat>(path.size(), amountIn);
+        var rewardAmount=0;
         var i: Nat = 0;
         while(i < Int.abs(path.size() - 1)) {
             let ret: (Nat, Nat) = _getReserves(path[i], path[i+1]);
             let reserveIn = ret.0;
             let reserveOut = ret.1;
-            amounts[i+1] := Utils.getAmountOut(amounts[i], reserveIn, reserveOut);
+            let data=Utils.getAmountOut(amounts[i], reserveIn, reserveOut);
+            amounts[i+1] := data.0;
+            rewardAmount := data.1;
             i += 1;
         };
-        return amounts;
+        return (amounts,rewardAmount);
     };
 
     private func _getAmountsIn(amountOut: Nat, path: [Text]): [var Nat] {
@@ -1657,15 +1724,20 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         if (Time.now() > deadline)
             return #err("tx expired");
 
-        var amounts = _getAmountsOut(amountIn, path);
-        if (amounts[amounts.size() - 1] < amountOutMin) // slippage check
-            return #err("slippage: insufficient output amount");
+        logMessages:=Array.append(logMessages,[debug_show("swapExactTokensForTokens")]);
+        logMessages:=Array.append(logMessages,[debug_show(path)]);
+        var amountdatas = _getAmountsOut(amountIn, path);
+        var amounts = amountdatas.0;
+        var rewardAmount = amountdatas.1;
+        // if (amounts[amounts.size() - 1] < amountOutMin) // slippage check
+        //     return #err("slippage: insufficient output amount");
         if(amounts[0] > tokens.balanceOf(path[0], msg.caller)) {
             return #err("insufficient balance: " # path[0]);
         };
         if (tokens.zeroFeeTransfer(path[0], msg.caller, Principal.fromActor(this), amounts[0]) == false)
             return #err("insufficient balance: " # path[0]);
         let ops = _swap(amounts, path, to,txcounter);
+        _updateRewardPoint(path, rewardAmount);
         for(o in Iter.fromArray(ops)) {
             ignore addRecord(msg.caller, "swap", o);
             txcounter += 1;
@@ -2191,20 +2263,24 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
 
     system func preupgrade() {
         depositTransactionsEntries := Iter.toArray(depositTransactions.entries());
-        tokenTypeEntries := Iter.toArray(tokenTypes.entries());
+        tokenTypeEntries := Iter.toArray(tokenTypes.entries());        
         pairsEntries := Iter.toArray(pairs.entries());
         lptokensEntries := mapToArray(lptokens.getTokenInfoList());
         tokensEntries := mapToArray(tokens.getTokenInfoList());
         authsEntries := Iter.toArray(auths.entries());
+        rewardTokenEntries := Iter.toArray(rewardTokens.entries());
+        rewardPairsEntries := Iter.toArray(rewardPairs.entries());
     };
 
     system func postupgrade() {
         depositTransactions:= HashMap.fromIter<Principal, DepositSubAccounts>(depositTransactionsEntries.vals(), 1, Principal.equal, Principal.hash);
-        tokenTypes:= HashMap.fromIter<Text,Text>(tokenTypeEntries.vals(), 1, Text.equal, Text.hash);
+        tokenTypes:= HashMap.fromIter<Text,Text>(tokenTypeEntries.vals(), 1, Text.equal, Text.hash);        
         pairs := HashMap.fromIter<Text, PairInfo>(pairsEntries.vals(), 1, Text.equal, Text.hash);
         lptokens := Tokens.Tokens(feeTo, arrayToMap(lptokensEntries));
         tokens := Tokens.Tokens(feeTo, arrayToMap(tokensEntries));
         auths := HashMap.fromIter<Principal, Bool>(authsEntries.vals(), 1, Principal.equal, Principal.hash);
+        rewardTokens:= HashMap.fromIter<Text,RewardTokens>(rewardTokenEntries.vals(), 1, Text.equal, Text.hash);
+        rewardPairs := HashMap.fromIter<Text, RewardPairInfo>(rewardPairsEntries.vals(), 1, Text.equal, Text.hash);
         lppattern := #text ":";
         pairsEntries := [];
         lptokensEntries := [];
