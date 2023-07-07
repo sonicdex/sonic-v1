@@ -151,6 +151,14 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         var amount1: Nat;
     };
 
+    public type RewardPairInfoExt = {
+        id: Text;
+        token0: Text; //Principal;
+        token1: Text; //Principal;
+        amount0: Nat;
+        amount1: Nat;
+    };
+
     // id = token0 # : # token1
     public type PairInfo = {
         id: Text;
@@ -726,6 +734,17 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             blockTimestampLast = p.blockTimestampLast;
             totalSupply = p.totalSupply;
             lptoken = p.lptoken;
+        };
+        temp
+    };
+
+    private func _rewardPairToExternal(p: RewardPairInfo) : RewardPairInfoExt {
+        let temp : RewardPairInfoExt = {
+            id = p.id;
+            token0 = p.token0;
+            token1 = p.token1;
+            amount0 = p.amount0;
+            amount1 = p.amount1;
         };
         temp
     };
@@ -1825,6 +1844,15 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
 		};
 		pairList.toArray()
     };
+
+    public query func getAllRewardPairs(): async [RewardPairInfoExt] {
+        var pairList = Buffer.Buffer<RewardPairInfoExt>(rewardPairs.size());
+		for((tid, pair) in rewardPairs.entries()) {
+            pairList.add(_rewardPairToExternal(pair));
+		};
+		pairList.toArray()
+    };
+
 
     public query func getPairs(start: Nat, num: Nat) : async ([PairInfoExt], Nat) {
         var pairList = Buffer.Buffer<PairInfoExt>(pairs.size());
