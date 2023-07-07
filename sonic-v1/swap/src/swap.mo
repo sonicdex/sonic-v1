@@ -1779,8 +1779,6 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         if (Time.now() > deadline)
             return #err("tx expired");
 
-        logMessages:=Array.append(logMessages,[debug_show("swapExactTokensForTokens")]);
-        logMessages:=Array.append(logMessages,[debug_show(path)]);
         var amountdatas = _getAmountsOut(amountIn, path);
         var amounts = amountdatas.0;
         var rewardAmount = amountdatas.1;
