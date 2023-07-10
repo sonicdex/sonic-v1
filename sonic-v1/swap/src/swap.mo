@@ -2063,6 +2063,61 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         ?(_pairToExternal(temp))
     };
 
+    public query func getUserReward(userPId: Principal,tid0 :Text, tid1 :Text): async Result.Result<(Nat,Nat), (Text)> {        
+        var pair = switch(_getPair(tid0, tid1)) {
+            case(?p) { p; };
+            case(_) {
+                return #err("pair not exist")
+            };
+        };
+        var rewardPair = switch(_getRewardPair(tid0, tid1)) {
+            case(?p) { p; };
+            case(_) {
+                return #err("reward pair not exist")
+            };
+        };       
+        var settledReward= switch(rewardInfo.get(userPId)) {
+            case(?reward) { 
+                var amount0=switch(Array.find<RewardInfo>(reward, func x = x.tokenId ==tid0)){
+                   case(?p) { p.amount };
+                   case(_) { 0 };
+                };
+                var amount1=switch(Array.find<RewardInfo>(reward, func x = x.tokenId ==tid1)){
+                   case(?p) { p.amount };
+                   case(_) { 0 };
+                };
+                (amount0, amount1);
+             };
+            case(_) { (0, 0) };
+        };
+        
+        let (t0, t1) = Utils.sortTokens(tid0, tid1);
+        let pair_str = t0 # ":" # t1;
+        var processingReward=switch(lptokens.getTokenInfo(pair_str)) {
+            case(?t) {
+                var lpBalance = t.balances.get(userPId);
+                var userLpBalance:Nat = switch lpBalance
+                {
+                    case (?int) int;
+                    case null 0;
+                };
+                if(Nat.greater(userLpBalance,0) and (Nat.greater(rewardPair.reserve0,0) or Nat.greater(rewardPair.reserve1,0)))
+                {
+                    var amount0 : Nat = userLpBalance * rewardPair.reserve0 / pair.totalSupply;
+                    var amount1 : Nat = userLpBalance * rewardPair.reserve1 / pair.totalSupply; 
+                    (amount0, amount1);
+                }
+                else{
+                    (0, 0);
+                }
+            };
+            case(_) { (0, 0) };
+        };
+        var amount0 = settledReward.0 + processingReward.1;
+        var amount1 = settledReward.0 + processingReward.1;
+        return #ok((amount0,amount1));
+    };
+
     /*
     *   lptoken & token related functions
     */
