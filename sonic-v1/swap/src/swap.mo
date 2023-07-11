@@ -242,6 +242,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     private stable var maxTokens: Nat = 100; // max number of tokens supported
     private stable var feeOn: Bool = false; // 1/6 of transaction fee(0.3%) goes to feeTo
     private stable var tokenFee: Nat = 10000; // 0.0001 if decimal == 8
+    private stable var platformFee:Nat=5;  // 5 of transaction fee(0.3%) goes to feeTo
     private stable var feeTo: Principal = owner_;
     private stable var owner: Principal = owner_;
     private stable let blackhole: Principal = Principal.fromText("aaaaa-aa");
@@ -645,6 +646,11 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     public shared(msg) func setFeeTo(newTo: Principal): async Bool {
         assert(_checkAuth(msg.caller));
         feeTo := newTo;
+        return true;
+    };
+    public shared(msg) func setPlatformFee(newFee: Nat): async Bool {
+        assert(_checkAuth(msg.caller));
+        platformFee := newFee;
         return true;
     };
 
@@ -1259,25 +1265,9 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
 
     // mint dev fee
     private func _mintFee(pair: PairInfo): Nat {
-        var rewardpair = switch(_getRewardPair(pair.token0, pair.token1)) {
-            case(?p) { p; };
-            case(_) {
-                let (t0, t1) = Utils.sortTokens(pair.token0, pair.token1);
-                let pair_str = t0 # ":" # t1;
-                let pairinfo: RewardPairInfo = {
-                    id = pair_str;
-                    token0 = t0;
-                    token1 = t1;
-                    var reserve0 = 0;
-                    var reserve1 = 0;
-                };
-                rewardPairs.put(pair_str, pairinfo);
-                pairinfo;
-            };
-        }; 
-
-        var reserve0=pair.reserve0+rewardpair.reserve0;
-        var reserve1=pair.reserve1+rewardpair.reserve1;
+        var rewardpair = getRewardPairReserve(pair);
+        var reserve0=pair.reserve0+rewardpair.0;
+        var reserve1=pair.reserve1+rewardpair.1;
         if(feeOn == false) {
             pair.kLast := 0;
             return 0;
@@ -1301,6 +1291,26 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             // };
         };
         return liquidity;
+    };
+
+    private func getRewardPairReserve(pair: PairInfo): (Nat,Nat){
+        var rewardpair = switch(_getRewardPair(pair.token0, pair.token1)) {
+            case(?p) { p; };
+            case(_) {
+                let (t0, t1) = Utils.sortTokens(pair.token0, pair.token1);
+                let pair_str = t0 # ":" # t1;
+                let pairinfo: RewardPairInfo = {
+                    id = pair_str;
+                    token0 = t0;
+                    token1 = t1;
+                    var reserve0 = 0;
+                    var reserve1 = 0;
+                };
+                rewardPairs.put(pair_str, pairinfo);
+                pairinfo;
+            };
+        }; 
+        return (rewardpair.reserve0,rewardpair.reserve1);
     };
 
     /**
@@ -1592,21 +1602,22 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                     if(Nat.greater(userLpBalance,0) and (Nat.greater(reserve0,0) or Nat.greater(reserve1,0))){
                         var amount0 : Nat = userLpBalance * reserve0 / totalSupply;
                         var amount1 : Nat = userLpBalance * reserve1 / totalSupply; 
-                        var reward:[RewardInfo]=[];
-                        if(Nat.greater(amount0,0)){
-                            reward:=Array.append(reward,[{
-                                tokenId=tid0;
-                                amount=amount0;
-                            }]);
-                        };
+                        updateRewardAmountAndFee(key, tid0, amount0, tid1, amount1);
+                        // var reward:[RewardInfo]=[];
+                        // if(Nat.greater(amount0,0)){
+                        //     reward:=Array.append(reward,[{
+                        //         tokenId=tid0;
+                        //         amount=amount0;
+                        //     }]);
+                        // };
 
-                        if(Nat.greater(amount1,0)){
-                            reward:=Array.append(reward,[{
-                                tokenId=tid1;
-                                amount=amount1;
-                            }]);
-                        }; 
-                        rewardInfo.put(key,reward);                    
+                        // if(Nat.greater(amount1,0)){
+                        //     reward:=Array.append(reward,[{
+                        //         tokenId=tid1;
+                        //         amount=amount1;
+                        //     }]);
+                        // }; 
+                        // rewardInfo.put(key,reward);                    
                     };
                 };
             };
@@ -1614,6 +1625,47 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             };
         };
         _resetRewardPoint(tid0, tid1);
+    };
+
+    private func updateRewardAmountAndFee(userPId:Principal, tid0:Text, amount0:Nat, tid1:Text, amount1:Nat){
+        var userReward:[RewardInfo]=[];
+
+        var fee0:Nat=(amount0*platformFee)/100;       
+        var userAmount0:Nat=amount0-fee0;
+
+        var fee1:Nat=(amount1*platformFee)/100;
+        var userAmount1:Nat=amount1-fee1;
+
+        //updating user reward
+        switch(rewardInfo.get(userPId)){
+            case(?reward){
+                userReward:=reward;
+                if(Nat.greater(amount0,0)){
+                    userReward:=Array.append(userReward,[{tokenId=tid0; amount=userAmount0; }]);
+                };
+                if(Nat.greater(amount1,0)){
+                    userReward:=Array.append(userReward,[{tokenId=tid1; amount=userAmount1; }]);
+                };
+                rewardInfo.put(userPId,userReward);
+            };
+            case(_){};
+        };
+
+        //updating fee
+        var feeReward:[RewardInfo]=[];
+        switch(rewardInfo.get(feeTo)){
+            case(?reward){
+                feeReward:=reward;
+                if(Nat.greater(amount0,0)){
+                    feeReward:=Array.append(feeReward,[{tokenId=tid0; amount=userAmount0; }]);
+                };
+                if(Nat.greater(amount1,0)){
+                    feeReward:=Array.append(feeReward,[{tokenId=tid1; amount=userAmount1; }]);
+                };
+                rewardInfo.put(feeTo,feeReward);
+            };
+            case(_){};
+        }
     };
 
     // set DAO Canister for `addLiquidityForUser` 
@@ -2589,3 +2641,4 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         authsEntries := [];
     };
 };
+
