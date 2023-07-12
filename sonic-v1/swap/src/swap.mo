@@ -1973,17 +1973,16 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         var pair = switch(_getPair(tid0, tid1)) {
             case(?p) { p; };
             case(_) {
-                return #err("pair not exist")
+                return #ok(0, 0);
             };
         };
         var rewardPair = switch(_getRewardPair(tid0, tid1)) {
             case(?p) { p; };
             case(_) {
-                return #err("reward pair not exist")
+                return #ok(0, 0);
             };
         };
-        let (t0, t1) = Utils.sortTokens(tid0, tid1);
-        let pair_str = t0 # ":" # t1;
+        let pair_str = pair.id;
         var processingReward=switch(lptokens.getTokenInfo(pair_str)) {
             case(?t) {
                 var lpBalance = t.balances.get(userPId);
