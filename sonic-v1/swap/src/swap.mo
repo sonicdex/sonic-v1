@@ -143,11 +143,6 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         #Err: Text;
     };
 
-    public type RewardInfo = {
-        tokenId: Text;
-        amount: Nat;
-    };
-
     // id = token0 # : # token1
     public type PairInfo = {
         id: Text;
@@ -1597,7 +1592,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         };
         pair.totalSupply -= lpAmount;
         pairs.put(pair.id, pair);
-        _resetRewardPoint(tid0, tid1, amount0, amount1);
+        _resetRewardPoint(tid0, tid1);
         ignore addRecord(
             msg.caller, "removeLiquidity", 
             [
@@ -1628,7 +1623,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         };
     };
 
-    private func _resetRewardPoint(tid0: Text, tid1: Text, amount0: Nat, amount1: Nat){
+    private func _resetRewardPoint(tid0: Text, tid1: Text){
         var rewardpair = switch(_getRewardPair(tid0, tid1)) {
             case(?p) { p; };
             case(_) {
@@ -1652,8 +1647,8 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 pairinfo;
             };
         };
-        rewardpair.reserve0 -= amount0;
-        rewardpair.reserve1 -= amount1;         
+        rewardpair.reserve0:= 0;
+        rewardpair.reserve1:= 0;         
     };
 
     private func _updateRewardPoint(path: [Text], amount: Nat){
