@@ -1969,7 +1969,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         ?(_pairToExternal(temp))
     };
 
-    public query func getUserReward(userPId: Principal,tid0 :Text, tid1 :Text): async Result.Result<(Nat,Nat), (Text)> {        
+    public shared query(msg) func getUserReward(tid0 :Text, tid1 :Text): async Result.Result<(Nat,Nat), (Text)> {        
         var pair = switch(_getPair(tid0, tid1)) {
             case(?p) { p; };
             case(_) {
@@ -1985,7 +1985,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         let pair_str = pair.id;
         var processingReward=switch(lptokens.getTokenInfo(pair_str)) {
             case(?t) {
-                var lpBalance = t.balances.get(userPId);
+                var lpBalance = t.balances.get(msg.caller);
                 var userLpBalance:Nat = switch lpBalance
                 {
                     case (?int) int;
