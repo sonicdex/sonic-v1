@@ -1341,7 +1341,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         };
 
         assert(lpAmount > 0);
-        assert(lptokens.mint(pair.id, msg.caller, lpAmount));        
+        assert(lptokens.mint(pair.id, msg.caller, lpAmount));
         pair := _update(pair);
         // update reserves
         pair.reserve0 += amount0;
