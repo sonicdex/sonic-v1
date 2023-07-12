@@ -1597,6 +1597,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         };
         pair.totalSupply -= lpAmount;
         pairs.put(pair.id, pair);
+        _resetRewardPoint(tid0, tid1, amount0, amount1);
         ignore addRecord(
             msg.caller, "removeLiquidity", 
             [
@@ -1627,18 +1628,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         };
     };
 
-    //-------------------------------------------------
-    private var logMessages : [Text] = []; 
-    public query func logMessageGet():async [Text]{
-        return logMessages;
-    };    
-    public func logMessageClear():async() {
-        logMessages:=[];      
-        return;
-    };
-    //-------------------------------------------------
-
-    private func _resetRewardPoint(tid0: Text, tid1: Text){
+    private func _resetRewardPoint(tid0: Text, tid1: Text, amount0: Nat, amount1: Nat){
         var rewardpair = switch(_getRewardPair(tid0, tid1)) {
             case(?p) { p; };
             case(_) {
@@ -1662,8 +1652,8 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 pairinfo;
             };
         };
-        rewardpair.reserve0:=0;
-        rewardpair.reserve1:=0;             
+        rewardpair.reserve0 -= amount0;
+        rewardpair.reserve1 -= amount1;         
     };
 
     private func _updateRewardPoint(path: [Text], amount: Nat){
@@ -1851,7 +1841,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     public query func getAllRewardPairs(): async [PairInfoExt] {
         var pairList = Buffer.Buffer<PairInfoExt>(rewardPairs.size());
 		for((tid, pair) in rewardPairs.entries()) {
-            pairList.add(_rewardPairToExternal(pair));
+            pairList.add(_pairToExternal(pair));
 		};
 		pairList.toArray()
     };
@@ -2290,10 +2280,6 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     public query func exportPairs(): async [PairInfoExt] {
         Array.map(Iter.toArray(pairs.vals()), _pairToExternal)
     };
-
-    // public query func exportRewardInfo(): async [(Principal,[RewardInfo])] {
-    //     return Iter.toArray(rewardInfo.entries());
-    // };
 
     /*
     *   canister upgrade related functions
