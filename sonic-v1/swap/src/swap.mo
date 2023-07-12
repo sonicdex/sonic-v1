@@ -219,7 +219,6 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     private stable var maxTokens: Nat = 100; // max number of tokens supported
     private stable var feeOn: Bool = false; // 1/6 of transaction fee(0.3%) goes to feeTo
     private stable var tokenFee: Nat = 10000; // 0.0001 if decimal == 8
-    private stable var platformFee:Nat=5;  // 5 of transaction fee(0.3%) goes to feeTo
     private stable var feeTo: Principal = owner_;
     private stable var owner: Principal = owner_;
     private stable let blackhole: Principal = Principal.fromText("aaaaa-aa");
@@ -620,12 +619,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         assert(_checkAuth(msg.caller));
         feeTo := newTo;
         return true;
-    };
-    public shared(msg) func setPlatformFee(newFee: Nat): async Bool {
-        assert(_checkAuth(msg.caller));
-        platformFee := newFee;
-        return true;
-    };
+    };    
 
     public shared(msg) func setGlobalTokenFee(newFee: Nat): async Bool {
         assert(_checkAuth(msg.caller));
