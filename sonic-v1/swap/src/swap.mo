@@ -230,7 +230,6 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     private var lptokens: Tokens.Tokens = Tokens.Tokens(feeTo, []);
     private var tokens: Tokens.Tokens = Tokens.Tokens(feeTo, []);
     private var rewardPairs = HashMap.HashMap<Text, PairInfo>(1, Text.equal, Text.hash);
-
     // admins
     private var auths = HashMap.HashMap<Principal, Bool>(1, Principal.equal, Principal.hash);
     auths.put(owner, true);
@@ -619,7 +618,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         assert(_checkAuth(msg.caller));
         feeTo := newTo;
         return true;
-    };    
+    };
 
     public shared(msg) func setGlobalTokenFee(newFee: Nat): async Bool {
         assert(_checkAuth(msg.caller));
@@ -716,7 +715,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             lptoken = p.lptoken;
         };
         temp
-    };    
+    };
     
     // create/update pair
     private func _putPair(token0: Text, token1: Text, info: PairInfo) : Bool {
@@ -1341,7 +1340,6 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             lpAmount := Nat.min(amount0 * totalSupply_ / reserve0, amount1 * totalSupply_ / reserve1);
         };
 
-        //processReward(tid0, tid1, totalSupply_);
         assert(lpAmount > 0);
         assert(lptokens.mint(pair.id, msg.caller, lpAmount));        
         pair := _update(pair);
@@ -1481,7 +1479,6 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             lpAmount := Nat.min(amount0 * totalSupply_ / reserve0, amount1 * totalSupply_ / reserve1);
         };
 
-        //processReward(tid0, tid1, totalSupply_);
         assert(lpAmount > 0);
         assert(lptokens.mint(pair.id, userPId, lpAmount));
         pair := _update(pair);
@@ -1600,7 +1597,6 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         };
         pair.totalSupply -= lpAmount;
         pairs.put(pair.id, pair);
-        //processReward(tid0, tid1);
         ignore addRecord(
             msg.caller, "removeLiquidity", 
             [
@@ -1749,10 +1745,10 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 };
             };
             if(pair.token0 == path[i]) {
-                pair.reserve0 += (amounts[i]);
+                pair.reserve0 += amounts[i];
                 pair.reserve1 -= amounts[i+1];
             } else {
-                pair.reserve1 += (amounts[i]);
+                pair.reserve1 += amounts[i];
                 pair.reserve0 -= amounts[i+1];
             };
             pair := _update(pair);
@@ -2376,7 +2372,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
 
     system func preupgrade() {
         depositTransactionsEntries := Iter.toArray(depositTransactions.entries());
-        tokenTypeEntries := Iter.toArray(tokenTypes.entries());        
+        tokenTypeEntries := Iter.toArray(tokenTypes.entries());
         pairsEntries := Iter.toArray(pairs.entries());
         lptokensEntries := mapToArray(lptokens.getTokenInfoList());
         tokensEntries := mapToArray(tokens.getTokenInfoList());
@@ -2386,7 +2382,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
 
     system func postupgrade() {
         depositTransactions:= HashMap.fromIter<Principal, DepositSubAccounts>(depositTransactionsEntries.vals(), 1, Principal.equal, Principal.hash);
-        tokenTypes:= HashMap.fromIter<Text,Text>(tokenTypeEntries.vals(), 1, Text.equal, Text.hash);        
+        tokenTypes:= HashMap.fromIter<Text,Text>(tokenTypeEntries.vals(), 1, Text.equal, Text.hash);  
         pairs := HashMap.fromIter<Text, PairInfo>(pairsEntries.vals(), 1, Text.equal, Text.hash);
         lptokens := Tokens.Tokens(feeTo, arrayToMap(lptokensEntries));
         tokens := Tokens.Tokens(feeTo, arrayToMap(tokensEntries));
