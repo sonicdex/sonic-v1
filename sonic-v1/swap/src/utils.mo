@@ -50,7 +50,7 @@ module {
     };
 
     public func getAmountOut(amountIn: Nat, reserveIn: Nat, reserveOut: Nat): (Nat,Nat) {
-        var actualAmount=(amountIn * 970)/1000;
+        var actualAmount=(amountIn * 997)/1000;
         var amountInWithFee = amountIn * 997;
         var numerator = amountInWithFee * reserveOut;
         var denominator = reserveIn * 1000 + amountInWithFee;
