@@ -1611,7 +1611,8 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         };
         pair.totalSupply -= lpAmount;
         pairs.put(pair.id, pair);
-        _resetRewardPoint(tid0, tid1);
+        _resetRewardPair(tid0, tid1);
+        _resetRewardInfo(msg.caller, tid0, tid1);
         ignore addRecord(
             msg.caller, "removeLiquidity", 
             [
@@ -1770,7 +1771,28 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         return #ok(txcounter - 1);
     };
 
-    private func _resetRewardPoint(tid0: Text, tid1: Text){
+    private func _resetRewardInfo(userPId : Principal, tid0:Text, tid1:Text){        
+        var rewards:[RewardInfo]=[];
+        switch(rewardInfo.get(userPId))
+        {
+            case(?r){
+                for(reward in r.vals()){
+                    if(reward.tokenId==tid0){
+                        rewards:=Array.append(rewards,[{tokenId=reward.tokenId; amount=0;}]);
+                    } else if(reward.tokenId==tid1){                                       
+                        rewards:=Array.append(rewards,[{tokenId=reward.tokenId; amount=0;}]);
+                    } else{
+                        rewards:=Array.append(rewards,[reward]);
+                    }
+                    
+                };
+            };
+            case(_){ };
+        };
+        rewardInfo.put(userPId,rewards); 
+    }; 
+
+    private func _resetRewardPair(tid0: Text, tid1: Text){
         var rewardpair = switch(_getRewardPair(tid0, tid1)) {
             case(?p) { p; };
             case(_) {
@@ -1890,7 +1912,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             case(_) { 
             };
         };
-        _resetRewardPoint(tid0, tid1);
+        _resetRewardPair(tid0, tid1);
     };    
 
     /*
