@@ -1799,10 +1799,6 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     };
 
     private func _updateRewardPoint(path: [Text], amount: Nat){
-        if(feeOn==false){
-            return;
-        };
-
         let tid0: Text = path[0];
         let tid1: Text = path[1];
 
@@ -1862,21 +1858,32 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                     if(Nat.greater(userLpBalance,0) and (Nat.greater(reserve0,0) or Nat.greater(reserve1,0))){
                         var amount0 : Nat = userLpBalance * reserve0 / totalSupply;
                         var amount1 : Nat = userLpBalance * reserve1 / totalSupply; 
-                        var reward:[RewardInfo]=[];
-                        if(Nat.greater(amount0,0)){
-                            reward:=Array.append(reward,[{
-                                tokenId=tid0;
-                                amount=amount0;
-                            }]);
-                        };
+                        var rewards:[RewardInfo]=[];
+                        switch(rewardInfo.get(key))
+                        {
+                            case(?r){
+                                for(reward in r.vals()){
+                                    if(reward.tokenId==tid0){
+                                        rewards:=Array.append(rewards,[{tokenId=reward.tokenId; amount=reward.amount+amount0;}]);
+                                    } else if(reward.tokenId==tid1){                                       
+                                        rewards:=Array.append(rewards,[{tokenId=reward.tokenId; amount=reward.amount+amount1;}]);
+                                    } else{
+                                        rewards:=Array.append(rewards,[reward]);
+                                    }
+                                    
+                                };
+                            };
+                            case(_){
+                                if(Nat.greater(amount0,0)){
+                                    rewards:=Array.append(rewards,[{ tokenId=tid0; amount=amount0; }]);
+                                };
 
-                        if(Nat.greater(amount1,0)){
-                            reward:=Array.append(reward,[{
-                                tokenId=tid1;
-                                amount=amount1;
-                            }]);
-                        }; 
-                        rewardInfo.put(key,reward);                    
+                                if(Nat.greater(amount1,0)){
+                                    rewards:=Array.append(rewards,[{ tokenId=tid1; amount=amount1; }]);
+                                };
+                            };
+                        };
+                        rewardInfo.put(key,rewards);                    
                     };
                 };
             };
