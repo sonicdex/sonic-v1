@@ -1584,10 +1584,24 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         } else {
             amount0M := amount1Min;
             amount1M := amount0Min;
-        };
-        if (amount0 < amount0M or amount1 < amount1M)
-            return #err("insufficient output amount");
+        };        
 
+        if(Nat.greater(feeLP,0)){
+            var amount0Part0:Nat=amount0M;
+            var amount0Part1:Nat=lpAmount * pair.reserve0 / feeLP;
+            var amount0calculated=(amount0Part0*amount0Part1)/(amount0Part0+amount0Part1);
+
+            var amount1Part0:Nat=amount1M;
+            var amount1Part1:Nat=lpAmount * pair.reserve1 / feeLP;
+            var amount1calculated=(amount1Part0*amount1Part1)/(amount1Part0+amount1Part1);
+
+            if (amount0 < amount0calculated or amount1 < amount1calculated)
+                return #err("insufficient output amount");    
+        }
+        else{
+            if (amount0 < amount0M or amount1 < amount1M)
+               return #err("insufficient output amount");            
+        };
         
         // burn user lp
         if (lptokens.burn(pair.id, msg.caller, lpAmount) == false)
