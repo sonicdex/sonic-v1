@@ -1616,6 +1616,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             pair.totalSupply += feeLP;
         };
 
+        processReward(tid0, tid1, pair.totalSupply);
         pair := _update(pair);
         // update reserves
         pair.reserve0 -= amount0;
@@ -1625,7 +1626,6 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         };
         pair.totalSupply -= lpAmount;
         pairs.put(pair.id, pair);
-        _resetRewardPair(tid0, tid1);
         _resetRewardInfo(msg.caller, tid0, tid1);
         ignore addRecord(
             msg.caller, "removeLiquidity", 
