@@ -1325,6 +1325,71 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     *   3. mint lp token for msg.caller
     *   4. update reserve0/reserve1 info of pair
     */
+    public shared(msg) func addLiquidityForUserTest(
+        userPId:Principal,
+        token0: Principal, 
+        token1: Principal, 
+        amount0Desired: Nat, 
+        amount1Desired: Nat
+        ): async Text {
+
+        // if((_checkAuth(msg.caller) == false) or (msg.caller!=Principal.fromText(daoCanisterIdForLiquidity))){
+        //     return "invaild principal";
+        // };      
+
+        if (amount0Desired == 0 or amount1Desired == 0)
+            return "desired amount should not be zero";
+
+        let tid0: Text = Principal.toText(token0);
+        let tid1: Text = Principal.toText(token1);
+
+        var pair = switch(_getPair(tid0, tid1)) {
+            case(?p) { p; };
+            case(_) {
+                return "pair not exist";
+            };
+        };
+        var lptoken = switch(_getlpToken(tid0, tid1)) {
+            case(?t) { t; };
+            case(_) { return "pair not exist"; };
+        };
+
+        var amount0 = 0;
+        var amount1 = 0;
+        var amount0D = amount0Desired;
+        var amount1D = amount1Desired;
+
+        var reserve0 = pair.reserve0;
+        var reserve1 = pair.reserve1;
+        if(tid0 == pair.token1) {
+            amount0D := amount1Desired;
+            amount1D := amount0Desired;
+        };
+
+        if(reserve0 == 0 and reserve1 == 0) {
+            amount0 := amount0D;
+            amount1 := amount1D;
+        } else {
+            let amount1Optimal = Utils.quote(amount0D, reserve0, reserve1);
+            if(amount1Optimal <= amount1D) {
+                amount0 := amount0D;
+                amount1 := amount1Optimal;
+            } else {
+                let amount0Optimal = Utils.quote(amount1D, reserve1, reserve0);
+                assert(amount0Optimal <= amount0D);
+                amount0 := amount0Optimal;
+                amount1 := amount1D;
+            };
+        };
+
+        return debug_show({
+            token0 = token0;
+            token1 = token1;
+            amount0 = amount0;
+            amount1 = amount1;
+        });
+    };
+
     public shared(msg) func addLiquidityForUser(
         userPId:Principal,
         token0: Principal, 
@@ -1333,9 +1398,16 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         amount1Desired: Nat
         ): async TxReceipt {
 
-        if(msg.caller!=Principal.fromText(daoCanisterIdForLiquidity)){
-            return #err("invaild principal");
-        };      
+        // if(msg.caller!=Principal.fromText(daoCanisterIdForLiquidity)){
+        //     return #err("invaild principal");
+        // };
+
+        if(permissionless == false) {
+            if (_checkAuth(msg.caller) == false) {
+                return #err("unauthorized");
+            };
+        };
+      
         var depositToken1Result=await depositForUser(userPId, token0);
         var depositToken2Result=await depositForUser(userPId, token1);
         switch(depositToken1Result){
