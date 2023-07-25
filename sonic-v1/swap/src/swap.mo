@@ -2188,6 +2188,16 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         return Array.freeze(res_temp);
     };
 
+    //state backup start
+    public shared(msg) func backupDepositTransactions() : async [(Principal,DepositSubAccounts)] {
+        // assert(_checkAuth(msg.caller));
+        return Iter.toArray(depositTransactions.entries())
+    };
+
+    
+
+    //state backup end
+
 
     system func preupgrade() {
         depositTransactionsEntries := Iter.toArray(depositTransactions.entries());
