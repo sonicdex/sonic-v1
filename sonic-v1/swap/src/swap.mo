@@ -236,6 +236,12 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     private stable var authsEntries: [(Principal, Bool)] = [];
     private stable var daoCanisterIdForLiquidity : Text = "";
 
+    //temp
+    private var depositTransactionTemp= HashMap.HashMap<Principal, DepositSubAccounts>(1, Principal.equal, Principal.hash);  
+    private var tokenTypesTemp = HashMap.HashMap<Text, Text>(1, Text.equal, Text.hash); 
+    private stable var depositCounterTemp : Nat = 0;
+    private stable var txcounterTemp: Nat = 0;
+
     private func getDepositCounter():Nat{
         depositCounter:=depositCounter+1;
         return depositCounter;
@@ -2188,17 +2194,6 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         return Array.freeze(res_temp);
     };
 
-    //state backup start
-    public shared(msg) func backupDepositTransactions() : async [(Principal,DepositSubAccounts)] {
-        // assert(_checkAuth(msg.caller));
-        return Iter.toArray(depositTransactions.entries())
-    };
-
-    
-
-    //state backup end
-
-
     system func preupgrade() {
         depositTransactionsEntries := Iter.toArray(depositTransactions.entries());
         tokenTypeEntries := Iter.toArray(tokenTypes.entries());
@@ -2220,5 +2215,57 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         lptokensEntries := [];
         tokensEntries := [];
         authsEntries := [];
+    };
+
+    //state backup start    
+
+    // public func logMessageClear():async() {
+    //     logMessages:=[];      
+    //     return;
+    // };
+
+    public shared(msg) func backupDepositCounter() : async Nat {
+        return depositCounter
+    };
+    public shared(msg) func backupDepositCounterTest() : async Nat {
+        return depositCounterTemp
+    };
+    public shared(msg) func restoreDepositCounter(value :Nat) : async Bool {
+        depositCounterTemp:=value;
+        return true;
+    };
+
+    public shared(msg) func backupTxcounter() : async Nat {
+        return txcounter;
+    };
+    public shared(msg) func backupTxcounterTest() : async Nat {
+        return txcounterTemp;
+    };
+    public shared(msg) func restoreTxcounter(value :Nat) : async Bool {
+        txcounterTemp:=value;
+        return true;
+    };
+
+    
+    public shared(msg) func backupDepositTransactions() : async [(Principal,DepositSubAccounts)] {
+        return Iter.toArray(depositTransactions.entries())
+    };
+    public shared(msg) func backupDepositTransactionsTest() : async [(Principal,DepositSubAccounts)] {
+        return Iter.toArray(depositTransactionTemp.entries())
+    };
+    public shared(msg) func restoreDepositTransactions(user:Principal, subaccount:DepositSubAccounts) : async Bool {
+        depositTransactionTemp.put(user, subaccount);
+        return true;
+    };
+
+    public shared(msg) func backupTokenTypes() : async [(Text,Text)] {
+        return Iter.toArray(tokenTypes.entries())
+    };
+    public shared(msg) func backupTokenTypesTest() : async [(Text,Text)] {
+        return Iter.toArray(tokenTypesTemp.entries())
+    };
+    public shared(msg) func restoreTokenTypes(tokenId:Text, tokenType:Text) : async Bool {
+        tokenTypesTemp.put(tokenId, tokenType);
+        return true;
     };
 };
