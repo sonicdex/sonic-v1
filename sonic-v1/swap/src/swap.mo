@@ -241,6 +241,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     private var tokenTypesTemp = HashMap.HashMap<Text, Text>(1, Text.equal, Text.hash); 
     private stable var depositCounterTemp : Nat = 0;
     private stable var txcounterTemp: Nat = 0;
+    private var pairsTemp = HashMap.HashMap<Text, PairInfo>(1, Text.equal, Text.hash);
 
     private func getDepositCounter():Nat{
         depositCounter:=depositCounter+1;
@@ -2266,6 +2267,43 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     };
     public shared(msg) func restoreTokenTypes(tokenId:Text, tokenType:Text) : async Bool {
         tokenTypesTemp.put(tokenId, tokenType);
+        return true;
+    };
+
+    public shared(msg) func backupPairs() : async [PairInfoExt] {
+        var pairList = Buffer.Buffer<PairInfoExt>(pairs.size());
+		for((tid, pair) in pairs.entries()) {
+            pairList.add(_pairToExternal(pair));
+		};
+		return pairList.toArray()
+    };
+    public shared(msg) func backupPairsTest() : async [PairInfoExt] {
+        var pairList = Buffer.Buffer<PairInfoExt>(pairsTemp.size());
+		for((tid, pair) in pairsTemp.entries()) {
+            pairList.add(_pairToExternal(pair));
+		};
+		return pairList.toArray()
+    };
+    private func _pairToInternal(p: PairInfoExt) : PairInfo {
+        let temp : PairInfo = {
+            id = p.id;
+            token0 = p.token0;
+            token1 = p.token1;
+            creator = p.creator;
+            var reserve0 = p.reserve0;
+            var reserve1 = p.reserve1;
+            var price0CumulativeLast = p.price0CumulativeLast;
+            var price1CumulativeLast = p.price1CumulativeLast;
+            var kLast = p.kLast;
+            var blockTimestampLast = p.blockTimestampLast;
+            var totalSupply = p.totalSupply;
+            lptoken = p.lptoken;
+        };
+        temp
+    }; 
+
+    public shared(msg) func restorePairs(tid:Text, pairInfo:PairInfoExt) : async Bool {
+        pairsTemp.put(tid, _pairToInternal(pairInfo));
         return true;
     };
 };
