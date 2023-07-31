@@ -2119,6 +2119,8 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
 		};
         return {
             owner = owner;
+            feeOn = feeOn;
+            feeTo = feeTo;
             cycles = Cycles.balance();
             tokens = tokens.tokenList();
             pairs = pairList.toArray();
