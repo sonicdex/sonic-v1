@@ -23,6 +23,7 @@ import Cycles = "mo:base/ExperimentalCycles";
 import Nat32 "mo:base/Nat32";
 import Blob "mo:base/Blob";
 import Hex "./Hex";
+import Bool "mo:base/Bool";
 
 shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     type Errors = {
@@ -189,6 +190,8 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
 
     type SwapInfo = {
         owner : Principal;
+        feeOn : Bool;
+        feeTo : Principal;
         cycles : Nat;
         tokens: [TokenInfoExt];
         pairs: [PairInfoExt];
