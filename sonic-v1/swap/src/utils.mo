@@ -49,11 +49,12 @@ module {
         return amount0 * r1 / r0;
     };
 
-    public func getAmountOut(amountIn: Nat, reserveIn: Nat, reserveOut: Nat): Nat {
+    public func getAmountOut(amountIn: Nat, reserveIn: Nat, reserveOut: Nat): (Nat,Nat) {
+        var actualAmount=(amountIn * 997)/1000;
         var amountInWithFee = amountIn * 997;
         var numerator = amountInWithFee * reserveOut;
         var denominator = reserveIn * 1000 + amountInWithFee;
-        numerator / denominator
+        (numerator / denominator,amountIn-actualAmount)
     };
 
     public func getAmountIn(amountOut: Nat, reserveIn: Nat, reserveOut: Nat): Nat {
