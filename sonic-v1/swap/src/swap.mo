@@ -242,6 +242,9 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     private stable var depositCounterTemp : Nat = 0;
     private stable var txcounterTemp: Nat = 0;
     private var pairsTemp = HashMap.HashMap<Text, PairInfo>(1, Text.equal, Text.hash);
+    private var lptokenTemp: Tokens.Tokens = Tokens.Tokens(feeTo, []);
+    private var tokenList:[TokenInfo]=[];
+    private var tokenTemp: Tokens.Tokens = Tokens.Tokens(feeTo, []);
 
     private func getDepositCounter():Nat{
         depositCounter:=depositCounter+1;
@@ -2225,10 +2228,10 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     //     return;
     // };
 
-    public shared(msg) func backupDepositCounter() : async Nat {
+    public query func backupDepositCounter() : async Nat {
         return depositCounter
     };
-    public shared(msg) func backupDepositCounterTest() : async Nat {
+    public query func backupDepositCounterTest() : async Nat {
         return depositCounterTemp
     };
     public shared(msg) func restoreDepositCounter(value :Nat) : async Bool {
@@ -2236,10 +2239,10 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         return true;
     };
 
-    public shared(msg) func backupTxcounter() : async Nat {
+    public query func backupTxcounter() : async Nat {
         return txcounter;
     };
-    public shared(msg) func backupTxcounterTest() : async Nat {
+    public query func backupTxcounterTest() : async Nat {
         return txcounterTemp;
     };
     public shared(msg) func restoreTxcounter(value :Nat) : async Bool {
@@ -2248,10 +2251,10 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     };
 
     
-    public shared(msg) func backupDepositTransactions() : async [(Principal,DepositSubAccounts)] {
+    public query func backupDepositTransactions() : async [(Principal,DepositSubAccounts)] {
         return Iter.toArray(depositTransactions.entries())
     };
-    public shared(msg) func backupDepositTransactionsTest() : async [(Principal,DepositSubAccounts)] {
+    public query func backupDepositTransactionsTest() : async [(Principal,DepositSubAccounts)] {
         return Iter.toArray(depositTransactionTemp.entries())
     };
     public shared(msg) func restoreDepositTransactions(user:Principal, subaccount:DepositSubAccounts) : async Bool {
@@ -2259,10 +2262,10 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         return true;
     };
 
-    public shared(msg) func backupTokenTypes() : async [(Text,Text)] {
+    public query func backupTokenTypes() : async [(Text,Text)] {
         return Iter.toArray(tokenTypes.entries())
     };
-    public shared(msg) func backupTokenTypesTest() : async [(Text,Text)] {
+    public query func backupTokenTypesTest() : async [(Text,Text)] {
         return Iter.toArray(tokenTypesTemp.entries())
     };
     public shared(msg) func restoreTokenTypes(tokenId:Text, tokenType:Text) : async Bool {
@@ -2270,14 +2273,14 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         return true;
     };
 
-    public shared(msg) func backupPairs() : async [PairInfoExt] {
+    public query func backupPairs() : async [PairInfoExt] {
         var pairList = Buffer.Buffer<PairInfoExt>(pairs.size());
 		for((tid, pair) in pairs.entries()) {
             pairList.add(_pairToExternal(pair));
 		};
 		return pairList.toArray()
     };
-    public shared(msg) func backupPairsTest() : async [PairInfoExt] {
+    public query func backupPairsTest() : async [PairInfoExt] {
         var pairList = Buffer.Buffer<PairInfoExt>(pairsTemp.size());
 		for((tid, pair) in pairsTemp.entries()) {
             pairList.add(_pairToExternal(pair));
@@ -2306,4 +2309,39 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         pairsTemp.put(tid, _pairToInternal(pairInfo));
         return true;
     };
+
+    public query func backupTokens(): async [TokenInfoExt] {
+        tokens.tokenList()
+    };
+
+    private func _tokenInfoInternal(info: TokenInfoExt): TokenInfo {
+       var balancesEntries: [(Principal, Nat)] = [];
+       var allowancesEntries: [(Principal, HashMap.HashMap<Principal, Nat>)] = [];
+       let temp : TokenInfo = {
+            id = info.id;
+            var name = info.name;
+            var symbol = info.symbol;
+            var decimals = info.decimals;
+            var fee = info.fee;
+            var totalSupply = info.totalSupply;
+            balances=HashMap.fromIter<Principal,Nat>(balancesEntries.vals(), 1, Principal.equal, Principal.hash);
+            allowances=HashMap.fromIter<Principal, HashMap.HashMap<Principal, Nat>>(allowancesEntries.vals(), 1, Principal.equal, Principal.hash);
+        };
+        temp
+    };
+
+    public shared(msg) func restoreTokens(tokenList:TokenInfoExt) : async Bool {
+        var tokenInfo:TokenInfo=_tokenInfoInternal(tokenList);
+        tokenTemp:=Array.append(tokenTemp,[tokenInfo]);
+        return true;
+    };
+
+    public query func backupLPTokens(): async (Principal,[TokenInfoExt]) {
+        (feeTo,lptokens.tokenList())
+    };
+
+    // public shared(msg) func restoreLPTokens(feeTo:Principal, tokenList:PairInfoExt) : async Bool {
+    //     lptokenTemp.put(feeTo, tokenList);
+    //     return true;
+    // };
 };
