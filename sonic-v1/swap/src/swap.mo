@@ -248,7 +248,6 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     private var lptokens: Tokens.Tokens = Tokens.Tokens(feeTo, []);
     private var tokens: Tokens.Tokens = Tokens.Tokens(feeTo, []);
     private var rewardPairs = HashMap.HashMap<Text, PairInfo>(1, Text.equal, Text.hash);
-    private var rewardTokens=HashMap.HashMap<Text, RewardTokens>(1, Text.equal, Text.hash);
     private var rewardInfo = HashMap.HashMap<Principal, [RewardInfo]>(1, Principal.equal, Principal.hash);    
 
     // admins
@@ -2463,6 +2462,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     };
 
     public query func exportBalances(tokenId: Text): async ?[(Principal, Nat)] {
+        assert(_checkAuth(msg.caller));
         if(Text.contains(tokenId, lppattern)) {
             let list = lptokens.getTokenInfoList();
             for((k, v) in list.vals()) {
@@ -2500,10 +2500,6 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
 
     public query func exportRewardPairs(): async [PairInfoExt]{
         Array.map(Iter.toArray(rewardPairs.vals()), _pairToExternal)
-    };
-
-    public query func exportRewardTokens(): async [(Text, RewardTokens)]{
-        return Iter.toArray(rewardTokens.entries());
     };
 
     public query func exportRewardInfo(): async [(Principal,[RewardInfo])]{
@@ -2593,7 +2589,6 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         tokensEntries := mapToArray(tokens.getTokenInfoList());
         authsEntries := Iter.toArray(auths.entries());
         rewardPairsEntries := Iter.toArray(rewardPairs.entries());
-        rewardTokenEntries := Iter.toArray(rewardTokens.entries());
         rewardInfoEntries := Iter.toArray(rewardInfo.entries());
     };
 
@@ -2605,7 +2600,6 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         tokens := Tokens.Tokens(feeTo, arrayToMap(tokensEntries));
         auths := HashMap.fromIter<Principal, Bool>(authsEntries.vals(), 1, Principal.equal, Principal.hash);
         rewardPairs := HashMap.fromIter<Text, PairInfo>(rewardPairsEntries.vals(), 1, Text.equal, Text.hash);
-        rewardTokens:= HashMap.fromIter<Text,RewardTokens>(rewardTokenEntries.vals(), 1, Text.equal, Text.hash);
         rewardInfo := HashMap.fromIter<Principal, [RewardInfo]>(rewardInfoEntries.vals(), 1, Principal.equal, Principal.hash);
         lppattern := #text ":";
         depositTransactionsEntries := [];
