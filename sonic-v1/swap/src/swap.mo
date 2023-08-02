@@ -197,6 +197,14 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         pairs: [PairInfoExt];
     };
 
+    type SwapInfoExt = {
+        depositCounter : Nat;
+        txcounter : Nat;
+        owner : Principal;
+        feeOn : Bool;
+        feeTo : Principal;
+    };
+
     type DepositSubAccounts={
         transactionOwner : Principal;
         depositAId:Text;
@@ -2497,12 +2505,25 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     /*
     * state export
     */
+    public shared(msg) func exportSwapInfo() : async SwapInfoExt{
+        assert(_checkAuth(msg.caller));        
+        return 
+        {
+            depositCounter = depositCounter;
+            txcounter = txcounter;
+            owner = owner;
+            feeOn = feeOn;
+            feeTo = feeTo;           
+        };
+    };
+
     public shared(msg) func exportSubAccounts() : async [(Principal,DepositSubAccounts)] {
         assert(_checkAuth(msg.caller));
         return Iter.toArray(depositTransactions.entries())
     };
 
-    public query func exportBalances(tokenId: Text): async ?[(Principal, Nat)] {
+    public shared query(msg) func exportBalances(tokenId: Text): async ?[(Principal, Nat)] {
+        assert(_checkAuth(msg.caller));
         if(Text.contains(tokenId, lppattern)) {
             let list = lptokens.getTokenInfoList();
             for((k, v) in list.vals()) {
@@ -2536,6 +2557,15 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
 
     public query func exportPairs(): async [PairInfoExt] {
         Array.map(Iter.toArray(pairs.vals()), _pairToExternal)
+    };
+
+    public query func exportRewardPairs(): async [PairInfoExt]{
+        Array.map(Iter.toArray(rewardPairs.vals()), _pairToExternal)
+    };
+
+    public shared query(msg) func exportRewardInfo(): async [(Principal,[RewardInfo])]{
+        assert(_checkAuth(msg.caller));
+        return Iter.toArray(rewardInfo.entries());
     };
 
     /*
