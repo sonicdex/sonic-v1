@@ -2462,7 +2462,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         return Iter.toArray(depositTransactions.entries())
     };
 
-    public query func exportBalances(tokenId: Text): async ?[(Principal, Nat)] {
+    public shared query(msg) func exportBalances(tokenId: Text): async ?[(Principal, Nat)] {
         assert(_checkAuth(msg.caller));
         if(Text.contains(tokenId, lppattern)) {
             let list = lptokens.getTokenInfoList();
@@ -2503,7 +2503,8 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         Array.map(Iter.toArray(rewardPairs.vals()), _pairToExternal)
     };
 
-    public query func exportRewardInfo(): async [(Principal,[RewardInfo])]{
+    public shared query(msg) func exportRewardInfo(): async [(Principal,[RewardInfo])]{
+        assert(_checkAuth(msg.caller));
         return Iter.toArray(rewardInfo.entries());
     };
 
