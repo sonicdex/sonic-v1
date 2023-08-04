@@ -197,6 +197,14 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         pairs: [PairInfoExt];
     };
 
+    type SwapInfoExt = {
+        depositCounter : Nat;
+        txcounter : Nat;
+        owner : Principal;
+        feeOn : Bool;
+        feeTo : Principal;
+    };
+
     type DepositSubAccounts={
         transactionOwner : Principal;
         depositAId:Text;
@@ -907,6 +915,18 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         if (tokens.hasToken(tid) == false)
             return #err("token not exist");
 
+        ignore addRecord(
+            msg.caller, "deposit-init", 
+            [
+                ("tokenId", #Text(tid)),
+                ("from", #Principal(msg.caller)),
+                ("to", #Principal(msg.caller)),
+                ("amount", #U64(u64(value))),
+                ("fee", #U64(u64(tokens.getFee(tid)))),
+                ("balance", #U64(u64(tokens.balanceOf(tid, msg.caller)))),
+                ("totalSupply", #U64(u64(tokens.totalSupply(tid))))
+            ]
+        );
         let tokenCanister = _getTokenActor(tid);
         let result = await _transferFrom(tokenCanister, msg.caller, value, tokens.getFee(tid));
         let txid = switch (result) {
@@ -939,6 +959,18 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         if (tokens.hasToken(tid) == false)
             return #err("token not exist");
 
+        ignore addRecord(
+            msg.caller, "depositTo-init", 
+            [
+                ("tokenId", #Text(tid)),
+                ("from", #Principal(msg.caller)),
+                ("to", #Principal(to)),
+                ("amount", #U64(u64(value))),
+                ("fee", #U64(u64(tokens.getFee(tid)))),
+                ("balance", #U64(u64(tokens.balanceOf(tid, to)))),
+                ("totalSupply", #U64(u64(tokens.totalSupply(tid))))
+            ]
+        );
         let tokenCanister = _getTokenActor(tid);
         let txid = switch(await _transferFrom(tokenCanister, msg.caller, value, tokens.getFee(tid))) {
             case(#Ok(id)) { id };
@@ -973,6 +1005,18 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         let tokenCanister = _getTokenActor(tid);
         var balance = await _balanceOf(tokenCanister, msg.caller);
         var value:Nat = balance-tokens.getFee(tid);
+        ignore addRecord(
+            msg.caller, "retrydeposit-init", 
+            [
+                ("tokenId", #Text(tid)),
+                ("from", #Principal(msg.caller)),
+                ("to", #Principal(msg.caller)),
+                ("amount", #U64(u64(value))),
+                ("fee", #U64(u64(tokens.getFee(tid)))),
+                ("balance", #U64(u64(tokens.balanceOf(tid, msg.caller)))),
+                ("totalSupply", #U64(u64(tokens.totalSupply(tid))))
+            ]
+        );
         if(Nat.equal(value,0)){
             return #err("no pending deposit found");
         };
@@ -1072,6 +1116,18 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         let tid: Text = Principal.toText(tokenId);
         if (tokens.hasToken(tid) == false)
             return #err("token not exist");
+        ignore addRecord(
+            msg.caller, "withdraw-init", 
+            [
+                ("tokenId", #Text(tid)),
+                ("from", #Principal(msg.caller)),
+                ("to", #Principal(msg.caller)),
+                ("amount", #U64(u64(value))),
+                ("fee", #U64(u64(tokens.getFee(tid)))),
+                ("balance", #U64(u64(tokens.balanceOf(tid, msg.caller)))),
+                ("totalSupply", #U64(u64(tokens.totalSupply(tid))))
+            ]
+        );
         if (tokens.burn(tid, msg.caller, value)) {
             let tokenCanister = _getTokenActor(tid);
             let fee = tokens.getFee(tid);
@@ -1116,6 +1172,18 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         let tid: Text = Principal.toText(tokenId);
         if (tokens.hasToken(tid) == false)
             return #err("token not exist");
+        ignore addRecord(
+            msg.caller, "withdrawTo-init", 
+            [
+                ("tokenId", #Text(tid)),
+                ("from", #Principal(msg.caller)),
+                ("to", #Principal(msg.caller)),
+                ("amount", #U64(u64(value))),
+                ("fee", #U64(u64(tokens.getFee(tid)))),
+                ("balance", #U64(u64(tokens.balanceOf(tid, msg.caller)))),
+                ("totalSupply", #U64(u64(tokens.totalSupply(tid))))
+            ]
+        );
         if (tokens.burn(tid, msg.caller, value)) {
             let tokenCanister = _getTokenActor(tid);
             let fee = tokens.getFee(tid);
@@ -2437,12 +2505,25 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     /*
     * state export
     */
+    public shared(msg) func exportSwapInfo() : async SwapInfoExt{
+        assert(_checkAuth(msg.caller));        
+        return 
+        {
+            depositCounter = depositCounter;
+            txcounter = txcounter;
+            owner = owner;
+            feeOn = feeOn;
+            feeTo = feeTo;           
+        };
+    };
+
     public shared(msg) func exportSubAccounts() : async [(Principal,DepositSubAccounts)] {
         assert(_checkAuth(msg.caller));
         return Iter.toArray(depositTransactions.entries())
     };
 
-    public query func exportBalances(tokenId: Text): async ?[(Principal, Nat)] {
+    public shared query(msg) func exportBalances(tokenId: Text): async ?[(Principal, Nat)] {
+        assert(_checkAuth(msg.caller));
         if(Text.contains(tokenId, lppattern)) {
             let list = lptokens.getTokenInfoList();
             for((k, v) in list.vals()) {
@@ -2476,6 +2557,15 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
 
     public query func exportPairs(): async [PairInfoExt] {
         Array.map(Iter.toArray(pairs.vals()), _pairToExternal)
+    };
+
+    public query func exportRewardPairs(): async [PairInfoExt]{
+        Array.map(Iter.toArray(rewardPairs.vals()), _pairToExternal)
+    };
+
+    public shared query(msg) func exportRewardInfo(): async [(Principal,[RewardInfo])]{
+        assert(_checkAuth(msg.caller));
+        return Iter.toArray(rewardInfo.entries());
     };
 
     /*
