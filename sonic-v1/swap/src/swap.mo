@@ -2642,6 +2642,98 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         return Array.freeze(res_temp);
     };
 
+    /*
+    * state restore
+    */
+
+    private func _tokenInfoInternal(info: TokenInfoExt): TokenInfo {
+       var balancesEntries: [(Principal, Nat)] = [];
+       var allowancesEntries: [(Principal, HashMap.HashMap<Principal, Nat>)] = [];
+       let temp : TokenInfo = {
+            id = info.id;
+            var name = info.name;
+            var symbol = info.symbol;
+            var decimals = info.decimals;
+            var fee = info.fee;
+            var totalSupply = info.totalSupply;
+            balances=HashMap.fromIter<Principal,Nat>(balancesEntries.vals(), 1, Principal.equal, Principal.hash);
+            allowances=HashMap.fromIter<Principal, HashMap.HashMap<Principal, Nat>>(allowancesEntries.vals(), 1, Principal.equal, Principal.hash);
+        };
+        temp
+    };
+
+    private func _pairToInternal(p: PairInfoExt) : PairInfo {
+        let temp : PairInfo = {
+            id = p.id;
+            token0 = p.token0;
+            token1 = p.token1;
+            creator = p.creator;
+            var reserve0 = p.reserve0;
+            var reserve1 = p.reserve1;
+            var price0CumulativeLast = p.price0CumulativeLast;
+            var price1CumulativeLast = p.price1CumulativeLast;
+            var kLast = p.kLast;
+            var blockTimestampLast = p.blockTimestampLast;
+            var totalSupply = p.totalSupply;
+            lptoken = p.lptoken;
+        };
+        temp
+    }; 
+
+    public shared(msg) func restoreSwapInfo(swapInfo:SwapInfoExt) : async Bool {
+        assert(_checkAuth(msg.caller));        
+        depositCounter := swapInfo.depositCounter;
+        txcounter := swapInfo.txcounter;
+        owner := swapInfo.owner;
+        feeOn := swapInfo.feeOn;
+        feeTo := swapInfo.feeTo;           
+        return true;
+    };
+
+    public shared(msg) func restoreSubAccounts(userPId:Principal, subAccount:DepositSubAccounts) : async Bool {
+        assert(_checkAuth(msg.caller));        
+        depositTransactions.put(userPId,subAccount);     
+        return true;
+    };
+
+    public shared(msg) func restoreTokenTypes(tokenId:Text, tokenType :Text) : async Bool {
+        assert(_checkAuth(msg.caller));        
+        tokenTypes.put(tokenId,tokenType);     
+        return true;
+    };
+
+    public shared(msg) func restoreTokenList(tokenInfoExt :TokenInfoExt) : async Bool {
+        assert(_checkAuth(msg.caller)); 
+        var tokenInfo:TokenInfo=_tokenInfoInternal(tokenInfoExt);
+        return tokens.createToken(tokenInfo.id,tokenInfo); 
+    };
+
+    public shared(msg) func restoreLPTokenList(lptokenInfoExt :TokenInfoExt) : async Bool {
+        assert(_checkAuth(msg.caller)); 
+        var lptokenInfo:TokenInfo=_tokenInfoInternal(lptokenInfoExt);
+        return lptokens.createToken(lptokenInfo.id,lptokenInfo); 
+    };
+
+    public shared(msg) func restorePairs(pairInfoExt :PairInfoExt) : async Bool {
+        assert(_checkAuth(msg.caller)); 
+        var pairInfo:PairInfo=_pairToInternal(pairInfoExt);
+        pairs.put(pairInfo.id,pairInfo); 
+        return true;
+    };
+
+    public shared(msg) func restoreRewardPairs(pairInfoExt :PairInfoExt) : async Bool {
+        assert(_checkAuth(msg.caller)); 
+        var pairInfo:PairInfo=_pairToInternal(pairInfoExt);
+        rewardPairs.put(pairInfo.id,pairInfo); 
+        return true;
+    };
+
+    public shared(msg) func restoreRewardInfo(tokenId:Principal, rewardinfo :[RewardInfo]) : async Bool {
+        assert(_checkAuth(msg.caller)); 
+        rewardInfo.put(tokenId,rewardinfo); 
+        return true;
+    };
+
 
     system func preupgrade() {
         depositTransactionsEntries := Iter.toArray(depositTransactions.entries());
