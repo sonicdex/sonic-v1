@@ -24,6 +24,7 @@ import Nat32 "mo:base/Nat32";
 import Blob "mo:base/Blob";
 import Hex "./Hex";
 import Bool "mo:base/Bool";
+import Error "mo:base/Error";
 
 shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     type Errors = {
@@ -1133,7 +1134,49 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             let fee = tokens.getFee(tid);
             var txid: Nat = 0;
             try {
-                switch(await _transfer(tokenCanister, msg.caller, value - fee)) {
+                ignore addRecord(
+                    msg.caller, "withdraw-before-transfer", 
+                    [
+                        ("tokenId", #Text(tid)),
+                        ("from", #Principal(msg.caller)),
+                        ("to", #Principal(msg.caller)),
+                        ("amount", #U64(u64(value))),
+                        ("fee", #U64(u64(tokens.getFee(tid)))),
+                        ("balance", #U64(u64(tokens.balanceOf(tid, msg.caller)))),
+                        ("totalSupply", #U64(u64(tokens.totalSupply(tid))))
+                    ]
+                );
+                let transResponse=await _transfer(tokenCanister, msg.caller, value - fee);
+                try {
+                    ignore addRecord(
+                        msg.caller, "withdraw-after-transfer", 
+                        [
+                            ("tokenId", #Text(tid)),
+                            ("from", #Principal(msg.caller)),
+                            ("to", #Principal(msg.caller)),
+                            ("amount", #U64(u64(value))),
+                            ("fee", #U64(u64(tokens.getFee(tid)))),
+                            ("balance", #U64(u64(tokens.balanceOf(tid, msg.caller)))),
+                            ("totalSupply", #U64(u64(tokens.totalSupply(tid)))),
+                            ("transResponse", #Text(debug_show(transResponse)))
+                        ]
+                    );
+                } catch (e) {
+                    ignore addRecord(
+                        msg.caller, "withdraw-after-transfer", 
+                        [
+                            ("tokenId", #Text(tid)),
+                            ("from", #Principal(msg.caller)),
+                            ("to", #Principal(msg.caller)),
+                            ("amount", #U64(u64(value))),
+                            ("fee", #U64(u64(tokens.getFee(tid)))),
+                            ("balance", #U64(u64(tokens.balanceOf(tid, msg.caller)))),
+                            ("totalSupply", #U64(u64(tokens.totalSupply(tid)))),
+                            ("transResponseCatch", #Text(Error.message(e)))
+                        ]
+                    );
+                };
+                switch(transResponse) {
                     case(#Ok(id)) { txid := id; };
                     case(#Err(e)) {
                         ignore tokens.mint(tid, msg.caller, value);
