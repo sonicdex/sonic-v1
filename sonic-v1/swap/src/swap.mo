@@ -2719,7 +2719,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     public shared(msg) func restoreLPTokenBalance(tid :Text, tokenInfo :[(Principal, Nat)]) : async Bool {
         assert(_checkAuth(msg.caller));  
         for(token in tokenInfo.vals()){
-            ignore tokens.mint(tid, token.0, token.1);
+            ignore lptokens.mint(tid, token.0, token.1);
         };
         return true;
     };
