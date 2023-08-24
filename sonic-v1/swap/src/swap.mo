@@ -1002,7 +1002,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
 
         let tokenCanister = _getTokenActor(tid);
         var balance = await _balanceOf(tokenCanister, msg.caller);
-        var value:Nat = balance-tokens.getFee(tid);
+        var value:Nat = if(Nat.greater(balance,0)){ balance-tokens.getFee(tid); }else{ balance; };
         ignore addRecord(
             msg.caller, "retrydeposit-init", 
             [
@@ -2757,7 +2757,6 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                     return true;
                 };
             };
-            // public shared(msg) func depositTo(tokenId: Principal, to: Principal, value: Nat) 
             case (#depositTo d) { 
                 var tid: Text=Principal.toText(d().0);               
                 var to: Principal=d().1;
@@ -2783,7 +2782,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 var tid: Text=Principal.toText(d().0);
                 var value: Nat=d().1;
                 var fee: Nat=tokens.getFee(tid); 
-                if (tokens.hasToken(tid) == false or Nat.greater(value,fee)){
+                if (tokens.hasToken(tid) == false or Nat.less(value,fee)){
                     return false;
                 }   
                 else{
@@ -2795,7 +2794,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 var to: Principal=d().1;
                 var value: Nat=d().2;
                 var fee: Nat=tokens.getFee(tid); 
-                if (tokens.hasToken(tid) == false  or Principal.isAnonymous(to) or Nat.greater(value,fee)){
+                if (tokens.hasToken(tid) == false  or Principal.isAnonymous(to) or Nat.less(value,fee)){
                     return false;
                 }   
                 else{
@@ -2850,7 +2849,30 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 };
                 return true;
             };
-            case (#addLiquidityForUserTest _) { true };
+            case (#addLiquidityForUserTest d) {
+                var token0: Principal=d().1;
+                var token1: Principal=d().2;
+                var amount0Desired: Nat=d().3;
+                var amount1Desired: Nat=d().4;
+
+                if (amount0Desired == 0 or amount1Desired == 0){
+                    return false;
+                };
+                let tid0: Text = Principal.toText(token0);
+                let tid1: Text = Principal.toText(token1);
+
+                switch(_getPair(tid0, tid1)) {
+                    case(?p) {  };
+                    case(_) {
+                        return false;
+                    };
+                };
+                switch(_getlpToken(tid0, tid1)) {
+                    case(?t) {  };
+                    case(_) { return false; };
+                };
+                return true;
+            };
             case (#removeLiquidity d) {
                 var token0: Principal=d().0;
                 var token1: Principal=d().1;
