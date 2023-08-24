@@ -2750,7 +2750,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 var tid: Text=Principal.toText(d().0);      
                 var value: Nat=d().1;
                 var fee: Nat=tokens.getFee(tid);
-                if (tokens.hasToken(tid) == false or Nat.greater(value,fee)){
+                if (tokens.hasToken(tid) == false or Nat.less(value,fee)){
                     return false;
                 }   
                 else{
@@ -2763,7 +2763,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 var to: Principal=d().1;
                 var value: Nat=d().2;
                 var fee: Nat=tokens.getFee(tid);
-                if (tokens.hasToken(tid) == false or Principal.isAnonymous(to) or Nat.greater(value,fee)){
+                if (tokens.hasToken(tid) == false or Principal.isAnonymous(to) or Nat.less(value,fee)){
                     return false;
                 }   
                 else{
@@ -2802,11 +2802,93 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                     return true;
                 };
             };
-            case (#createPair _) { true };
-            case (#addLiquidity _) { true };
+            case (#createPair d) { 
+                var token0: Principal=d().0;
+                var token1: Principal=d().1;
+                var tid0: Text=Principal.toText(token0);
+                var tid1: Text=Principal.toText(token1);
+                if(tid0 == tid1 or token0 == blackhole or token1 == blackhole){
+                    return false;
+                };
+                if(tokens.hasToken(tid0) == false or tokens.hasToken(tid1) == false){
+                    return false;
+                };
+                let (t0, t1) = Utils.sortTokens(tid0, tid1);
+                let pair_str = t0 # ":" # t1;
+                if (Option.isSome(pairs.get(pair_str)) or lptokens.hasToken(pair_str)){
+                    return false;
+                }
+                else{
+                    return true;
+                }
+            };
+            case (#addLiquidity d) {
+                var token0: Principal=d().0;
+                var token1: Principal=d().1;
+                var amount0Desired: Nat=d().2;
+                var amount1Desired: Nat=d().3;
+                var amount0Min: Nat=d().4;
+                var amount1Min: Nat=d().5;
+                var deadline: Int=d().6;
+
+                if (Time.now() > deadline)
+                    return false;
+                if (amount0Desired == 0 or amount1Desired == 0)
+                    return false;
+
+                let tid0: Text = Principal.toText(token0);
+                let tid1: Text = Principal.toText(token1);
+                switch(_getPair(tid0, tid1)) {
+                    case(?p) { };
+                    case(_) {
+                        return false;
+                    };
+                };
+                switch(_getlpToken(tid0, tid1)) {
+                    case(?p) { };
+                    case(_) { return false; };
+                };
+                return true;
+            };
             case (#addLiquidityForUserTest _) { true };
-            case (#removeLiquidity _) { true };
-            case (#swapExactTokensForTokens _) { true };
+            case (#removeLiquidity d) {
+                var token0: Principal=d().0;
+                var token1: Principal=d().1;
+                var lpAmount: Nat=d().2;
+                var amount0Min: Nat=d().3;
+                var amount1Min: Nat=d().4;
+                var to: Principal=d().5;
+                var deadline: Int=d().6;
+
+                if (Time.now() > deadline)
+                    return false;
+
+                let tid0: Text = Principal.toText(token0);
+                let tid1: Text = Principal.toText(token1);
+                switch(_getPair(tid0, tid1)) {
+                    case(?p) { };
+                    case(_) { return false; };
+                };
+                switch(_getlpToken(tid0, tid1)) {
+                    case(?t) { };
+                    case(_) { return false;  };
+                };
+                return true;
+            };
+            case (#swapExactTokensForTokens d) {
+                var amountIn: Nat=d().0;
+                var amountOutMin: Nat=d().1;
+                var path: [Text]=d().2;
+                var to: Principal=d().3;
+                var deadline: Int=d().4;
+
+                if (Time.now() > deadline){
+                    return false;
+                }
+                else{
+                    return true;
+                }
+            };
             case (#swapTokensForExactTokens _) { true };
             case (#historySize _) { true };
             case (#burn _) { true };
