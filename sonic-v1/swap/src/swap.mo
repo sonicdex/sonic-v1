@@ -746,15 +746,13 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     };
 
     /*
-    * token related functions: addToken/deposit/withdraw
+    * token related functions: addToken
     */
-    private func createTokenType(tokenId: Principal, tokenType: Text) : Bool {
-        let tid:Text=Principal.toText(tokenId);
-        if (Option.isNull(tokenTypes.get(tid)) == false) {
-            return false;
+    private func createTokenType(tokenId: Principal, tokenType: Text) {
+        let tid : Text = Principal.toText(tokenId);
+        if (Option.isNull(tokenTypes.get(tid)) == true) {
+            tokenTypes.put(tid, tokenType);
         };
-        tokenTypes.put(tid, tokenType);
-        return true;
     };
 
     /*
@@ -810,7 +808,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             allowances = HashMap.HashMap<Principal, HashMap.HashMap<Principal, Nat>>(1, Principal.equal, Principal.hash);
         };
         assert(tokens.createToken(Principal.toText(tokenId), token));
-        let isTypeAdded=createTokenType(tokenId, tokenType);
+        createTokenType(tokenId, tokenType);
         ignore addRecord(
             msg.caller, "addToken", [("tokenId", #Text(Principal.toText(tokenId)))]
         );
