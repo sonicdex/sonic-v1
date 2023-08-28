@@ -611,15 +611,13 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     };
 
     public shared(msg) func setOwner(newOwner: Principal): async Bool {
-        // TODO: owner_ -> owner
-        assert(msg.caller == owner_);
+        assert(msg.caller == owner);
         owner := newOwner;
         return true;
     };
 
     public shared(msg) func setPermissionless(newValue: Bool): async Bool {
-        // TODO: owner_ -> owner
-        assert(msg.caller == owner_);
+        assert(msg.caller == owner);
         permissionless := newValue;
         return true;
     };
