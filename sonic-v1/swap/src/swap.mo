@@ -134,6 +134,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     };
 
     public type TxReceipt = Result.Result<Nat, Text>;
+    public type ICRC1SubAccountBalance = Result.Result<Nat, Text>;
     public type TransferReceipt = { 
         #Ok: Nat;
         #Err: Errors;
@@ -756,7 +757,11 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         return true;
     };
 
-    public shared(msg) func getBalance(caller:Principal, tid: Text):async Nat{
+    /*
+    * checks for users' ICRC1 Tokens deposited in temporary addresses
+    * Useful for platform admins to verify balance
+    */
+    public shared(msg) func getICRC1SubAccountBalance(user:Principal, tid: Text) : async ICRC1SubAccountBalance{
        assert(_checkAuth(msg.caller));
        var balance:Nat=0;
        let tokenCanister = _getTokenActor(tid);
@@ -764,22 +769,22 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
        {            
             case(#ICRC1TokenActor(icrc1TokenActor))
             {
-                switch(depositTransactions.get(caller))
+                switch(depositTransactions.get(user))
                 {
                     case(?deposit){
                         var depositSubAccount:ICRCAccount={owner=Principal.fromActor(this); subaccount=?deposit.subaccount};
                         balance:=await icrc1TokenActor.icrc1_balance_of(depositSubAccount);                        
                     };
                     case(_){
-                        balance:=0;
+                        return #err("no subaccounts found for user");
                     }
                 }                                
             };            
             case(_){
-                return balance;
+                return #err("tid/tokenid passed is not a supported ICRC1 canister");
             };
         };
-        return balance;      
+        return #ok(balance);      
     };
 
     public shared(msg) func addToken(tokenId: Principal, tokenType: Text) : async TxReceipt {
