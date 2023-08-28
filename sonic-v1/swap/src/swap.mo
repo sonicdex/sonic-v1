@@ -788,10 +788,8 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     };
 
     public shared(msg) func addToken(tokenId: Principal, tokenType: Text) : async TxReceipt {
-        if(permissionless == false) {
-            if (_checkAuth(msg.caller) == false) {
-                return #err("unauthorized");
-            };
+        if (_checkAuth(msg.caller) == false) {
+            return #err("unauthorized");
         };
         if (tokens.getNumTokens() == maxTokens)
             return #err("max number of tokens reached");
