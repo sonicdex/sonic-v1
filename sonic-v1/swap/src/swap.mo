@@ -1002,7 +1002,12 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
 
         let tokenCanister = _getTokenActor(tid);
         var balance = await _balanceOf(tokenCanister, msg.caller);
-        var value:Nat = balance-tokens.getFee(tid);
+        let tokenFee = tokens.getFee(tid);
+        var value : Nat = if(Nat.greater(balance,tokenFee)){
+            balance - tokenFee;
+        } else{
+            balance;
+        };
         ignore addRecord(
             msg.caller, "retrydeposit-init", 
             [
