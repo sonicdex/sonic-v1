@@ -2246,17 +2246,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     /*
     *   lptoken & token related functions
     */
-    public shared(msg) func setPairSupply(tokenId: Text, value: Nat) : async Result.Result<Bool, Text> {
-        assert(msg.caller == owner);
-        switch(pairs.get(tokenId)) {
-            case (?pair) {
-                pair.totalSupply -= value;
-            };
-            case (_) { return #err("no such token id found"); };
-        };
-        return #ok(true);
-    };
-
+    
     public shared(msg) func burn(tokenId: Text, value: Nat) : async Bool {
         if(Text.contains(tokenId, lppattern)) {
             if(lptokens.burn(tokenId, msg.caller, value) == true) {
