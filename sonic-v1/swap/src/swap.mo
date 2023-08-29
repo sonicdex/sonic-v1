@@ -830,31 +830,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         };
         return value;
     };
-
-    public shared(msg) func initateTransfer() : async Text {
-        switch(depositTransactions.get(msg.caller))
-        {
-            case(?deposit){                
-                return deposit.depositAId;
-            };
-            case(_){
-                let subaccount =Utils.generateSubaccount({
-                    caller = msg.caller;
-                    id = getDepositCounter();
-                });
-                let depositAId = Hex.encode(Blob.toArray(subaccount));
-                var trans={
-                    transactionOwner = msg.caller;
-                    depositAId=depositAId;
-                    subaccount = subaccount;
-                    created_at = Time.now();
-                };
-                depositTransactions.put(msg.caller,trans);
-                return depositAId;
-            };
-        };
-    };
-
+    
     public shared(msg) func initiateICRC1Transfer() : async [Nat8] {
         switch(depositTransactions.get(msg.caller))
         {
