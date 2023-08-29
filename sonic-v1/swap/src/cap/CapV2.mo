@@ -11,7 +11,7 @@ import IC "IC";
 
 module {
     public class Cap(canister_id: Principal, creation_cycles: Nat) {
-        let router_id = "lj532-6iaaa-aaaah-qcc7a-cai";
+        let router_id = "6uyxe-oaaaa-aaaah-adoua-cai";
 
         var rootBucket: ?Text = null;
         let ic: IC.ICActor = actor("aaaaa-aa");
@@ -66,7 +66,9 @@ module {
         /// Returns the principal of the root canister
         public func performHandshake(): async () {
             switch(rootBucket) {
-                case(?r) { return; };
+                case(?r) { 
+                    return; 
+                };
                 case(_) { };
             };
             let router: Router.Self = actor(router_id);
