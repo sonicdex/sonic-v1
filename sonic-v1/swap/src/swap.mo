@@ -880,10 +880,8 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     };
 
     public shared func initiateICRC1TransferForUser(userPId: Principal) : async ICRCTxReceipt{
-        if(permissionless == false) {
-            if (_checkAuth(msg.caller) == false) {
+        if (_checkAuth(msg.caller) == false) {
                 return #Err("unauthorized");
-            };
         };
         switch(depositTransactions.get(userPId))
         {
@@ -1469,12 +1467,10 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         amount1Desired: Nat
         ): async TxReceipt {
 
-
-        if(permissionless == false) {
-            if (_checkAuth(msg.caller) == false) {
-                return #err("unauthorized");
-            };
+        if (_checkAuth(msg.caller) == false) {
+            return #err("unauthorized");
         };
+
 
         var depositToken1Result=await depositForUser(userPId, token0);
         var depositToken2Result=await depositForUser(userPId, token1);
