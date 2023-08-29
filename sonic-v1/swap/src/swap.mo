@@ -830,7 +830,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         };
         return value;
     };
-    
+
     public shared(msg) func initiateICRC1Transfer() : async [Nat8] {
         switch(depositTransactions.get(msg.caller))
         {
@@ -1337,7 +1337,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         };
         var lptoken = switch(_getlpToken(tid0, tid1)) {
             case(?t) { t; };
-            case(_) { return #err("pair not exist"); };
+            case(_) { return #err("lptokens or lptoken pair doesnot exists"); };
         };
 
         var amount0 = 0;
@@ -1479,7 +1479,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         };
         var lptoken = switch(_getlpToken(tid0, tid1)) {
             case(?t) { t; };
-            case(_) { return #err("pair not exist"); };
+            case(_) { return #err("lptokens or lptoken pair doesnot exists"); };
         };
 
         var amount0 = 0;
@@ -1594,7 +1594,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         };
         var lptoken = switch(_getlpToken(tid0, tid1)) {
             case(?t) { t; };
-            case(_) { return "pair not exist"; };
+            case(_) { return "lptokens or lptoken pair doesnot exists"; };
         };
 
         var amount0 = 0;
