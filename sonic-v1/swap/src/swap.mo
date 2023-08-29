@@ -1180,7 +1180,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             [
                 ("tokenId", #Text(tid)),
                 ("from", #Principal(msg.caller)),
-                ("to", #Principal(msg.caller)),
+                ("to", #Principal(to)),
                 ("amount", #U64(u64(value))),
                 ("fee", #U64(u64(tokens.getFee(tid)))),
                 ("balance", #U64(u64(tokens.balanceOf(tid, msg.caller)))),
