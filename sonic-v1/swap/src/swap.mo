@@ -1923,32 +1923,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         return #ok(txcounter - 1);
     };
 
-    public shared(msg) func swapTokensForExactTokens(
-        amountOut: Nat, 
-        amountInMax: Nat, 
-        path: [Text], 
-        to: Principal,
-        deadline: Int
-        ): async TxReceipt {
-        ignore writeLog("swapTokensForExactTokens", msg.caller);
-        if (Time.now() > deadline)
-            return #err("tx expired");
 
-        var amounts = _getAmountsIn(amountOut, path);
-        if (amounts[0] > amountInMax) // slippage check
-            return #err("slippage: insufficient input amount");
-        if(amounts[0] > tokens.balanceOf(path[0], msg.caller)) {
-            return #err("insufficient balance: " # path[0]);
-        };
-        if (tokens.zeroFeeTransfer(path[0], msg.caller, Principal.fromActor(this), amounts[0]))
-            return #err("insufficient balance: " # path[0]);
-        let ops = _swap(amounts, path, to,txcounter);
-        for(o in Iter.fromArray(ops)) {
-            ignore addRecord(msg.caller, "swap", o);
-            txcounter += 1;
-        };
-        return #ok(txcounter - 1);
-    };
 
     private func _resetRewardInfo(userPId : Principal, tid0:Text, tid1:Text){        
         var rewards:[RewardInfo]=[];
@@ -2745,7 +2720,6 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             #setPairSupply : () -> (Text, Nat);
             #setPermissionless : () -> Bool;
             #swapExactTokensForTokens : () -> (Nat, Nat, [Text], Principal, Int);
-            #swapTokensForExactTokens : () -> (Nat, Nat, [Text], Principal, Int);
             #symbol : () -> Text;
             #totalSupply : () -> Text;
             #transfer : () -> (Text, Principal, Nat);
@@ -2974,6 +2948,13 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 var to: Principal=d().3;
                 var deadline: Int=d().4;
 
+                var amountdatas = _getAmountsOut(amountIn, path);
+                var amounts = amountdatas.0;
+                
+                if(amounts[0] > tokens.balanceOf(path[0], caller)) {
+                    return false;
+                };
+
                 if(Principal.isAnonymous(caller)){
                     return false;
                 };
@@ -2984,14 +2965,6 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 else{
                     return true;
                 }
-            };
-            case (#swapTokensForExactTokens _) { 
-                if(Principal.isAnonymous(caller)){
-                    false
-                }
-                else{
-                    true
-                };                 
             };
             case (#historySize _) { 
                 if(Principal.isAnonymous(caller)){
