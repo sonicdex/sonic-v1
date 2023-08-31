@@ -600,12 +600,14 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     };
     //-------------------------------
     public shared(msg) func addAuth(id: Principal): async Bool {
+        writeLog("addAuth", msg.caller);
         assert(msg.caller == owner);
         auths.put(id, true);
         return true;
     };
 
     public shared(msg) func removeAuth(id: Principal): async Bool {
+        writeLog("removeAuth", msg.caller);
         assert(msg.caller == owner);
         auths.delete(id);
         return true;
@@ -613,6 +615,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
 
     public shared(msg) func setOwner(newOwner: Principal): async Bool {
         // TODO: owner_ -> owner
+        writeLog("setOwner", msg.caller);
         assert(msg.caller == owner_);
         owner := newOwner;
         return true;
@@ -620,36 +623,42 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
 
     public shared(msg) func setPermissionless(newValue: Bool): async Bool {
         // TODO: owner_ -> owner
+        writeLog("setPermissionless", msg.caller);
         assert(msg.caller == owner_);
         permissionless := newValue;
         return true;
     };
 
     public shared(msg) func setMaxTokens(newValue: Nat): async Bool {
+        writeLog("setMaxTokens", msg.caller);
         assert(_checkAuth(msg.caller));
         maxTokens := newValue;
         return true;
     };
 
     public shared(msg) func setFeeOn(newValue: Bool): async Bool {
+        writeLog("setFeeOn", msg.caller);
         assert(_checkAuth(msg.caller));
         feeOn := newValue;
         return true;
     };
 
     public shared(msg) func setFeeTo(newTo: Principal): async Bool {
+        writeLog("setFeeTo", msg.caller);
         assert(_checkAuth(msg.caller));
         feeTo := newTo;
         return true;
     };
 
     public shared(msg) func setGlobalTokenFee(newFee: Nat): async Bool {
+        writeLog("setGlobalTokenFee", msg.caller);
         assert(_checkAuth(msg.caller));
         tokenFee := newFee;
         return true;
     };
 
     public shared(msg) func setFeeForToken(tokenId: Text, newFee: Nat): async Bool {
+        writeLog("setFeeForToken", msg.caller);
         assert(_checkAuth(msg.caller));
         if(Text.contains(tokenId, lppattern)) {
             return lptokens.setFee(tokenId, newFee);
@@ -659,6 +668,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     };
 
     public shared(msg) func updateTokenMetadata(tokenId: Text): async Bool {
+        writeLog("updateTokenMetadata", msg.caller);
         assert(_checkAuth(msg.caller));
         if (tokens.hasToken(tokenId) == false) {
             return false;
@@ -669,6 +679,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     };
 
     public shared(msg) func updateAllTokenMetadata(): async Bool {
+        writeLog("updateAllTokenMetadata", msg.caller);
         assert(_checkAuth(msg.caller));
         for((tokenId, info) in Iter.fromArray(tokens.getTokenInfoList())) {
             let tokenCanister = _getTokenActor(tokenId);
@@ -683,6 +694,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     // later tokenA's transfer fee is changed to 2, if sonic is not up to date, will cause
     // sonic to lose money when users withdraw tokenA from sonic
     public shared(msg) func updateTokenFees(): async Bool {
+        writeLog("updateTokenFees", msg.caller);
         assert(_checkAuth(msg.caller));
         for((tokenId, info) in Iter.fromArray(tokens.getTokenInfoList())) {
             let t = _getTokenActor(tokenId);
@@ -760,6 +772,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     };
 
     public shared(msg) func getBalance(caller:Principal, tid: Text):async Nat{
+       writeLog("getBalance", msg.caller);
        assert(_checkAuth(msg.caller));
        var balance:Nat=0;
        let tokenCanister = _getTokenActor(tid);
@@ -786,6 +799,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     };
 
     public shared(msg) func addToken(tokenId: Principal, tokenType: Text) : async TxReceipt {
+        writeLog("addToken", msg.caller);
         if(permissionless == false) {
             if (_checkAuth(msg.caller) == false) {
                 return #err("unauthorized");
@@ -834,6 +848,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     };
 
     public shared(msg) func initateTransfer() : async Text {
+        writeLog("initateTransfer", msg.caller);
         switch(depositTransactions.get(msg.caller))
         {
             case(?deposit){                
@@ -858,6 +873,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     };
 
     public shared(msg) func initiateICRC1Transfer() : async [Nat8] {
+        writeLog("initiateICRC1Transfer", msg.caller);
         switch(depositTransactions.get(msg.caller))
         {
             case(?deposit){                
@@ -881,7 +897,8 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         };
     };
 
-    public shared func initiateICRC1TransferForUser(userPId: Principal) : async ICRCTxReceipt{
+    public shared(msg) func initiateICRC1TransferForUser(userPId: Principal) : async ICRCTxReceipt{
+        writeLog("initiateICRC1TransferForUser", msg.caller);
         if(permissionless == false) {
             if (_checkAuth(msg.caller) == false) {
                 return #Err("unauthorized");
@@ -911,6 +928,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     };   
 
     public shared(msg) func deposit(tokenId: Principal, value: Nat) : async TxReceipt {
+        writeLog("deposit", msg.caller);
         let tid: Text = Principal.toText(tokenId);
         if (tokens.hasToken(tid) == false)
             return #err("token not exist");
@@ -955,6 +973,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     };
 
     public shared(msg) func depositTo(tokenId: Principal, to: Principal, value: Nat) : async TxReceipt {
+        writeLog("depositTo", msg.caller);
         let tid: Text = Principal.toText(tokenId);
         if (tokens.hasToken(tid) == false)
             return #err("token not exist");
@@ -997,7 +1016,8 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         return #ok(txcounter - 1);
     };
 
-    public shared(msg) func retryDeposit(tokenId: Principal) : async TxReceipt {        
+    public shared(msg) func retryDeposit(tokenId: Principal) : async TxReceipt {  
+        writeLog("retryDeposit", msg.caller);      
         let tid: Text = Principal.toText(tokenId);
         if (tokens.hasToken(tid) == false)
             return #err("token not exist");
@@ -1046,6 +1066,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     };
 
     public shared(msg) func retryDepositTo(tokenId: Principal, to: Principal, value: Nat) : async TxReceipt {
+        writeLog("retryDepositTo", msg.caller);
         if (_checkAuth(msg.caller) == false) {
           return #err("unauthorized");
         };
@@ -1113,6 +1134,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     };
 
     public shared(msg) func withdraw(tokenId: Principal, value: Nat) : async TxReceipt {
+        writeLog("withdraw", msg.caller);
         let tid: Text = Principal.toText(tokenId);
         if (tokens.hasToken(tid) == false)
             return #err("token not exist");
@@ -1169,6 +1191,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     };
 
     public shared(msg) func withdrawTo(tokenId: Principal, to: Principal, value: Nat) : async TxReceipt {
+        writeLog("withdrawTo", msg.caller);
         let tid: Text = Principal.toText(tokenId);
         if (tokens.hasToken(tid) == false)
             return #err("token not exist");
@@ -1228,6 +1251,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     *   swap related functions: createPair/addLiquidity/removeLiquidity/swap
     */
     public shared(msg) func createPair(token0: Principal, token1: Principal): async TxReceipt {
+        writeLog("createPair", msg.caller);
         let tid0: Text = Principal.toText(token0);
         let tid1: Text = Principal.toText(token1);
         if(tid0 == tid1 or token0 == blackhole or token1 == blackhole)
@@ -1343,6 +1367,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         amount1Min: Nat,
         deadline: Int
         ): async TxReceipt {
+        writeLog("addLiquidity", msg.caller);
         if (Time.now() > deadline)
             return #err("tx expired");
         if (amount0Desired == 0 or amount1Desired == 0)
@@ -1466,7 +1491,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         amount1Desired: Nat
         ): async TxReceipt {
 
-
+        writeLog("addLiquidityForUser", msg.caller);     
         if(permissionless == false) {
             if (_checkAuth(msg.caller) == false) {
                 return #err("unauthorized");
@@ -1603,7 +1628,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         amount0Desired: Nat, 
         amount1Desired: Nat
         ): async Text {          
-
+        writeLog("addLiquidityForUserTest", msg.caller);    
         if (amount0Desired == 0 or amount1Desired == 0)
             return "desired amount should not be zero";
 
@@ -1659,6 +1684,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
 
     // set DAO Canister for `addLiquidityForUser` 
     public shared(msg) func setDaoCanisterForLiquidity(daoCanisterId : Principal) : async Text {
+        writeLog("setDaoCanisterForLiquidity", msg.caller);
         if(permissionless == false) {
             if (_checkAuth(msg.caller) == false) {
                 return "unauthorized";
@@ -1685,6 +1711,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         to: Principal,
         deadline: Int
         ): async TxReceipt {
+        writeLog("removeLiquidity", msg.caller);
         if (Time.now() > deadline)
             return #err("tx expired");
 
@@ -1873,6 +1900,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         to: Principal,
         deadline: Int
         ): async TxReceipt {
+        writeLog("swapExactTokensForTokens", msg.caller);
         if (Time.now() > deadline)
             return #err("tx expired");
 
@@ -1902,6 +1930,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         to: Principal,
         deadline: Int
         ): async TxReceipt {
+        writeLog("swapTokensForExactTokens", msg.caller);
         if (Time.now() > deadline)
             return #err("tx expired");
 
@@ -2069,6 +2098,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     * public info query functions
     */
     public shared(msg) func historySize(): async Nat {
+        writeLog("historySize", msg.caller);
         return txcounter;
     };
 
@@ -2283,6 +2313,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     *   lptoken & token related functions
     */
     public shared(msg) func setPairSupply(tokenId: Text, value: Nat) : async Bool {
+        writeLog("setPairSupply", msg.caller);
         assert(msg.caller == owner);
         switch(pairs.get(tokenId)) {
             case (?pair) {
@@ -2294,6 +2325,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     };
 
     public shared(msg) func burn(tokenId: Text, value: Nat) : async Bool {
+        writeLog("burn", msg.caller);
         if(Text.contains(tokenId, lppattern)) {
             if(lptokens.burn(tokenId, msg.caller, value) == true) {
                 switch(pairs.get(tokenId)) {
@@ -2333,6 +2365,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     };
 
     public shared(msg) func transfer(tokenId: Text, to: Principal, value: Nat) : async Bool {
+        writeLog("transfer", msg.caller);
         if(Text.contains(tokenId, lppattern)) {
             if(lptokens.transfer(tokenId, msg.caller, to, value) == true) {
                 let fee = lptokens.getFee(tokenId);
@@ -2374,6 +2407,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     };
 
     public shared(msg) func transferFrom(tokenId: Text, from: Principal, to: Principal, value: Nat) : async Bool {
+        writeLog("transferFrom", msg.caller);
         if(Text.contains(tokenId, lppattern)) {
             if(lptokens.transferFrom(tokenId, msg.caller, from, to, value) == true) {
                 let fee = lptokens.getFee(tokenId);
@@ -2415,6 +2449,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     };
 
     public shared(msg) func approve(tokenId: Text, spender: Principal, value: Nat) : async Bool {
+        writeLog("approve", msg.caller);
         if(Text.contains(tokenId, lppattern)) {
             if(lptokens.approve(tokenId, msg.caller, spender, value) == true) {
                 let fee = lptokens.getFee(tokenId);
@@ -2506,6 +2541,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     * state export
     */
     public shared(msg) func exportSwapInfo() : async SwapInfoExt{
+        writeLog("exportSwapInfo", msg.caller);
         assert(_checkAuth(msg.caller));        
         return 
         {
@@ -2518,6 +2554,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     };
 
     public shared(msg) func exportSubAccounts() : async [(Principal,DepositSubAccounts)] {
+        writeLog("exportSubAccounts", msg.caller);
         assert(_checkAuth(msg.caller));
         return Iter.toArray(depositTransactions.entries())
     };
@@ -2640,11 +2677,13 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             size += 1;
         };
         return Array.freeze(res_temp);
-    };
+    };    
 
-        system func inspect({ caller : Principal; arg : Blob; 
+       system func inspect({ caller : Principal; arg : Blob; 
        msg :
         {
+            #logMessageClear : () -> ();
+            #logMessageGet : () -> ();
             #addAuth : () -> Principal;
             #addLiquidity : () -> (Principal, Principal, Nat, Nat, Nat, Nat, Int);
             #addLiquidityForUser : () -> (Principal, Principal, Principal, Nat, Nat);
@@ -2718,7 +2757,10 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             #withdrawTo : () -> (Principal, Principal, Nat);
         }}) : Bool 
     {
-        switch (msg) {
+        switch (msg) {                    
+            case (#logMessageClear _) { (caller == owner) };
+            case (#logMessageGet _) { (caller == owner) };
+
             //admin with (msg.caller == owner)
             case (#addAuth _) { (caller == owner) };
             case (#removeAuth _) { (caller == owner) };
@@ -3024,6 +3066,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             case (#exportPairs _) { true };
             case (#exportRewardPairs _) { true };
             case (#exportRewardInfo _) { true };
+            case (_){ false };    
         }
     };
 
@@ -3059,4 +3102,20 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         tokensEntries := [];
         authsEntries := [];
     };
+
+    //-------------------------------------------------
+    private var logMessages : [Text] = []; 
+    public func logMessageGet():async [Text]{
+        return logMessages;
+    };    
+    public func logMessageClear():async() {
+        logMessages:=[];      
+        return;
+    };
+    private func writeLog(funcName:Text,caller:Principal){
+        var data="funcName : "#funcName#", caller :"#Principal.toText(caller);
+        logMessages:=Array.append(logMessages,[data]);
+    };   
+
+    //-------------------------------------------------
 };
