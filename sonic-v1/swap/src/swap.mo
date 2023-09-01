@@ -234,7 +234,6 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     private var cap: Cap.Cap = Cap.Cap(swap_id, 1_000_000_000_000);
 
     private var lppattern : Text.Pattern = #text ":";
-    private stable var permissionless: Bool = false;
     private stable var maxTokens: Nat = 100; // max number of tokens supported
     private stable var feeOn: Bool = false; // 1/6 of transaction fee(0.3%) goes to feeTo
     private stable var tokenFee: Nat = 10000; // 0.0001 if decimal == 8
@@ -265,6 +264,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     private stable var rewardPairsEntries: [(Text, PairInfo)] = [];
     private stable var rewardTokenEntries : [(Text,RewardTokens)] = [];
     private stable var rewardInfoEntries : [(Principal,[RewardInfo])] = [];
+    private stable var permissionless: Bool = false;
 
     private func getDepositCounter():Nat{
         depositCounter:=depositCounter+1;
@@ -614,12 +614,6 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     public shared(msg) func setOwner(newOwner: Principal): async Bool {
         assert(msg.caller == owner);
         owner := newOwner;
-        return true;
-    };
-
-    public shared(msg) func setPermissionless(newValue: Bool): async Bool {
-        assert(msg.caller == owner);
-        permissionless := newValue;
         return true;
     };
 
