@@ -134,6 +134,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     };
 
     public type TxReceipt = Result.Result<Nat, Text>;
+    public type ICRC1SubAccountBalance = Result.Result<Nat, Text>;
     public type TransferReceipt = { 
         #Ok: Nat;
         #Err: Errors;
@@ -233,7 +234,6 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     private var cap: Cap.Cap = Cap.Cap(swap_id, 1_000_000_000_000);
 
     private var lppattern : Text.Pattern = #text ":";
-    private stable var permissionless: Bool = false;
     private stable var maxTokens: Nat = 100; // max number of tokens supported
     private stable var feeOn: Bool = false; // 1/6 of transaction fee(0.3%) goes to feeTo
     private stable var tokenFee: Nat = 10000; // 0.0001 if decimal == 8
@@ -261,10 +261,10 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     private stable var lptokensEntries: [(Text, TokenInfoExt, [(Principal, Nat)], [(Principal, [(Principal, Nat)])])] = []; 
     private stable var tokensEntries: [(Text, TokenInfoExt, [(Principal, Nat)], [(Principal, [(Principal, Nat)])])] = []; 
     private stable var authsEntries: [(Principal, Bool)] = [];
-    private stable var daoCanisterIdForLiquidity : Text = "";
     private stable var rewardPairsEntries: [(Text, PairInfo)] = [];
     private stable var rewardTokenEntries : [(Text,RewardTokens)] = [];
     private stable var rewardInfoEntries : [(Principal,[RewardInfo])] = [];
+    private stable var permissionless: Bool = false;
 
     private func getDepositCounter():Nat{
         depositCounter:=depositCounter+1;
@@ -612,16 +612,8 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     };
 
     public shared(msg) func setOwner(newOwner: Principal): async Bool {
-        // TODO: owner_ -> owner
-        assert(msg.caller == owner_);
+        assert(msg.caller == owner);
         owner := newOwner;
-        return true;
-    };
-
-    public shared(msg) func setPermissionless(newValue: Bool): async Bool {
-        // TODO: owner_ -> owner
-        assert(msg.caller == owner_);
-        permissionless := newValue;
         return true;
     };
 
@@ -748,18 +740,20 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     };
 
     /*
-    * token related functions: addToken/deposit/withdraw
+    * token related functions: addToken
     */
-    private func createTokenType(tokenId: Principal, tokenType: Text) : Bool {
-        let tid:Text=Principal.toText(tokenId);
-        if (Option.isNull(tokenTypes.get(tid)) == false) {
-            return false;
+    private func createTokenType(tokenId: Principal, tokenType: Text) {
+        let tid : Text = Principal.toText(tokenId);
+        if (Option.isNull(tokenTypes.get(tid)) == true) {
+            tokenTypes.put(tid, tokenType);
         };
-        tokenTypes.put(tid, tokenType);
-        return true;
     };
 
-    public shared(msg) func getBalance(caller:Principal, tid: Text):async Nat{
+    /*
+    * checks for users' ICRC1 Tokens deposited in temporary addresses
+    * Useful for platform admins to verify balance
+    */
+    public shared(msg) func getICRC1SubAccountBalance(user:Principal, tid: Text) : async ICRC1SubAccountBalance{
        assert(_checkAuth(msg.caller));
        var balance:Nat=0;
        let tokenCanister = _getTokenActor(tid);
@@ -767,29 +761,27 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
        {            
             case(#ICRC1TokenActor(icrc1TokenActor))
             {
-                switch(depositTransactions.get(caller))
+                switch(depositTransactions.get(user))
                 {
                     case(?deposit){
                         var depositSubAccount:ICRCAccount={owner=Principal.fromActor(this); subaccount=?deposit.subaccount};
                         balance:=await icrc1TokenActor.icrc1_balance_of(depositSubAccount);                        
                     };
                     case(_){
-                        balance:=0;
+                        return #err("no subaccounts found for user");
                     }
                 }                                
             };            
             case(_){
-                return balance;
+                return #err("tid/tokenid passed is not a supported ICRC1 canister");
             };
         };
-        return balance;      
+        return #ok(balance);      
     };
 
     public shared(msg) func addToken(tokenId: Principal, tokenType: Text) : async TxReceipt {
-        if(permissionless == false) {
-            if (_checkAuth(msg.caller) == false) {
-                return #err("unauthorized");
-            };
+        if (_checkAuth(msg.caller) == false) {
+            return #err("unauthorized");
         };
         if (tokens.getNumTokens() == maxTokens)
             return #err("max number of tokens reached");
@@ -810,7 +802,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             allowances = HashMap.HashMap<Principal, HashMap.HashMap<Principal, Nat>>(1, Principal.equal, Principal.hash);
         };
         assert(tokens.createToken(Principal.toText(tokenId), token));
-        let isTypeAdded=createTokenType(tokenId, tokenType);
+        createTokenType(tokenId, tokenType);
         ignore addRecord(
             msg.caller, "addToken", [("tokenId", #Text(Principal.toText(tokenId)))]
         );
@@ -831,30 +823,6 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             case(_){};
         };
         return value;
-    };
-
-    public shared(msg) func initateTransfer() : async Text {
-        switch(depositTransactions.get(msg.caller))
-        {
-            case(?deposit){                
-                return deposit.depositAId;
-            };
-            case(_){
-                let subaccount =Utils.generateSubaccount({
-                    caller = msg.caller;
-                    id = getDepositCounter();
-                });
-                let depositAId = Hex.encode(Blob.toArray(subaccount));
-                var trans={
-                    transactionOwner = msg.caller;
-                    depositAId=depositAId;
-                    subaccount = subaccount;
-                    created_at = Time.now();
-                };
-                depositTransactions.put(msg.caller,trans);
-                return depositAId;
-            };
-        };
     };
 
     public shared(msg) func initiateICRC1Transfer() : async [Nat8] {
@@ -882,10 +850,8 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     };
 
     public shared func initiateICRC1TransferForUser(userPId: Principal) : async ICRCTxReceipt{
-        if(permissionless == false) {
-            if (_checkAuth(msg.caller) == false) {
+        if (_checkAuth(msg.caller) == false) {
                 return #Err("unauthorized");
-            };
         };
         switch(depositTransactions.get(userPId))
         {
@@ -1004,7 +970,12 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
 
         let tokenCanister = _getTokenActor(tid);
         var balance = await _balanceOf(tokenCanister, msg.caller);
-        var value:Nat = balance-tokens.getFee(tid);
+        let tokenFee = tokens.getFee(tid);
+        var value : Nat = if(Nat.greater(balance,tokenFee)){
+            balance - tokenFee;
+        } else{
+            balance;
+        };
         ignore addRecord(
             msg.caller, "retrydeposit-init", 
             [
@@ -1085,8 +1056,9 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             return #err("token not exist");
 
         let tokenCanister = _getTokenActor(tid);
-        let balance= await _balanceOf(tokenCanister,userPId);
-        let result = await _transferFrom(tokenCanister, userPId, (balance-tokens.getFee(tid)), tokens.getFee(tid));
+        let balance = await _balanceOf(tokenCanister, userPId);
+        let tokenFee = tokens.getFee(tid);
+        let result = await _transferFrom(tokenCanister, userPId, (balance - tokenFee), tokenFee);
         let txid = switch (result) {
             case(#Ok(id)) { id; };
             case(#Err(e)) { return #err("token transfer failed:" # tid); };
@@ -1177,7 +1149,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             [
                 ("tokenId", #Text(tid)),
                 ("from", #Principal(msg.caller)),
-                ("to", #Principal(msg.caller)),
+                ("to", #Principal(to)),
                 ("amount", #U64(u64(value))),
                 ("fee", #U64(u64(tokens.getFee(tid)))),
                 ("balance", #U64(u64(tokens.balanceOf(tid, msg.caller)))),
@@ -1359,7 +1331,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         };
         var lptoken = switch(_getlpToken(tid0, tid1)) {
             case(?t) { t; };
-            case(_) { return #err("pair not exist"); };
+            case(_) { return #err("lptokens or lptoken pair doesnot exists"); };
         };
 
         var amount0 = 0;
@@ -1466,12 +1438,10 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         amount1Desired: Nat
         ): async TxReceipt {
 
-
-        if(permissionless == false) {
-            if (_checkAuth(msg.caller) == false) {
-                return #err("unauthorized");
-            };
+        if (_checkAuth(msg.caller) == false) {
+            return #err("unauthorized");
         };
+
 
         var depositToken1Result=await depositForUser(userPId, token0);
         var depositToken2Result=await depositForUser(userPId, token1);
@@ -1503,7 +1473,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         };
         var lptoken = switch(_getlpToken(tid0, tid1)) {
             case(?t) { t; };
-            case(_) { return #err("pair not exist"); };
+            case(_) { return #err("lptokens or lptoken pair doesnot exists"); };
         };
 
         var amount0 = 0;
@@ -1618,7 +1588,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         };
         var lptoken = switch(_getlpToken(tid0, tid1)) {
             case(?t) { t; };
-            case(_) { return "pair not exist"; };
+            case(_) { return "lptokens or lptoken pair doesnot exists"; };
         };
 
         var amount0 = 0;
@@ -1655,18 +1625,6 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             amount0 = amount0;
             amount1 = amount1;
         });
-    };
-
-    // set DAO Canister for `addLiquidityForUser` 
-    public shared(msg) func setDaoCanisterForLiquidity(daoCanisterId : Principal) : async Text {
-        if(permissionless == false) {
-            if (_checkAuth(msg.caller) == false) {
-                return "unauthorized";
-            };
-        };
-        daoCanisterIdForLiquidity := Principal.toText(daoCanisterId);
-
-        return "set daoCanisterIdForLiquidity = " # debug_show(daoCanisterIdForLiquidity);
     };
 
     /**
@@ -2282,17 +2240,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     /*
     *   lptoken & token related functions
     */
-    public shared(msg) func setPairSupply(tokenId: Text, value: Nat) : async Bool {
-        assert(msg.caller == owner);
-        switch(pairs.get(tokenId)) {
-            case (?pair) {
-                pair.totalSupply -= value;
-            };
-            case (_) { };
-        };
-        true
-    };
-
+    
     public shared(msg) func burn(tokenId: Text, value: Nat) : async Bool {
         if(Text.contains(tokenId, lppattern)) {
             if(lptokens.burn(tokenId, msg.caller, value) == true) {
