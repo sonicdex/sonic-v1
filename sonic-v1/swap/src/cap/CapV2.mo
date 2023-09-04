@@ -48,6 +48,31 @@ module {
             rootBucket;
         };
 
+        public func getRootBucket() : async Text {
+            switch(rootBucket) {
+                case(?r) { 
+                    return r; 
+                };
+                case(_) { };
+            };
+            let router: Router.Self = actor(router_id);
+
+            let result = await router.get_token_contract_root_bucket({
+                witness=false;
+                canister=canister_id;
+            });
+
+            switch(result.canister) {
+                case(null) {
+                    return "No Data";
+                };
+                case(?d){
+                    return "canister_id:"#Principal.toText(canister_id)#" : "#Principal.toText(d);
+                }
+
+            }
+        };
+
         public func insert(event: Root.IndefiniteEvent) : async Result.Result<Nat64, Types.InsertTransactionError> {
             await awaitForHandshake();
 

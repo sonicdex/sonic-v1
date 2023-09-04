@@ -2075,8 +2075,8 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         return cap.getRootBucketId();
     };
 
-    public func getRootBucketIdV2(): async ?Text{
-        return capV2.getRootBucketId();
+    public func getRootBucketIdV2(): async Text{
+        return await capV2.getRootBucket();
     };
 
     public shared(msg) func historySize(): async Nat {
