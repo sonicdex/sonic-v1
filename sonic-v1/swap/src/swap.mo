@@ -1573,6 +1573,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         amount0Desired: Nat, 
         amount1Desired: Nat
         ): async Text {          
+        assert(_checkAuth(msg.caller));
 
         if (amount0Desired == 0 or amount1Desired == 0)
             return "desired amount should not be zero";
