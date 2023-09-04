@@ -1853,32 +1853,6 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         return #ok(txcounter - 1);
     };
 
-    public shared(msg) func swapTokensForExactTokens(
-        amountOut: Nat, 
-        amountInMax: Nat, 
-        path: [Text], 
-        to: Principal,
-        deadline: Int
-        ): async TxReceipt {
-        if (Time.now() > deadline)
-            return #err("tx expired");
-
-        var amounts = _getAmountsIn(amountOut, path);
-        if (amounts[0] > amountInMax) // slippage check
-            return #err("slippage: insufficient input amount");
-        if(amounts[0] > tokens.balanceOf(path[0], msg.caller)) {
-            return #err("insufficient balance: " # path[0]);
-        };
-        if (tokens.zeroFeeTransfer(path[0], msg.caller, Principal.fromActor(this), amounts[0]))
-            return #err("insufficient balance: " # path[0]);
-        let ops = _swap(amounts, path, to,txcounter);
-        for(o in Iter.fromArray(ops)) {
-            ignore addRecord(msg.caller, "swap", o);
-            txcounter += 1;
-        };
-        return #ok(txcounter - 1);
-    };
-
     private func _resetRewardInfo(userPId : Principal, tid0:Text, tid1:Text){        
         var rewards:[RewardInfo]=[];
         switch(rewardInfo.get(userPId))
