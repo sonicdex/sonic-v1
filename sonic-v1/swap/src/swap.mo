@@ -235,6 +235,9 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     private var cap: Cap.Cap = Cap.Cap(swap_id, 1_000_000_000_000);
     private var capV2: CapV2.Cap = CapV2.Cap(swap_id, 1_000_000_000_000);
 
+    private stable var isEnabledCapV1:Bool=true;
+    private stable var isEnabledCapV2:Bool=false;
+
     private var lppattern : Text.Pattern = #text ":";
     private stable var maxTokens: Nat = 100; // max number of tokens supported
     private stable var feeOn: Bool = false; // 1/6 of transaction fee(0.3%) goes to feeTo
@@ -602,6 +605,23 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         }
     };
     //-------------------------------
+    public shared(msg) func getCapEnableStatus(): async (Bool, Bool) {
+        assert(msg.caller == owner);
+        return (isEnabledCapV1,isEnabledCapV2);
+    };
+
+    public shared(msg) func updateCapV1EnableStatus(status: Bool): async Bool {
+        assert(msg.caller == owner);
+        isEnabledCapV1:=status;
+        return true;
+    };
+
+    public shared(msg) func updateCapV2EnableStatus(status: Bool): async Bool {
+        assert(msg.caller == owner);
+        isEnabledCapV2:=status;
+        return true;
+    };
+    
     public shared(msg) func addAuth(id: Principal): async Bool {
         assert(msg.caller == owner);
         auths.put(id, true);
@@ -2644,6 +2664,9 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             #updateTokenMetadata : () -> Text;
             #withdraw : () -> (Principal, Nat);
             #withdrawTo : () -> (Principal, Principal, Nat);
+            #getCapEnableStatus : () -> ();
+            #updateCapV1EnableStatus : () -> Bool;
+            #updateCapV2EnableStatus : () -> Bool;
         }}) : Bool 
         {
             switch (msg) {                    
@@ -2652,6 +2675,9 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 case (#addAuth _) { (caller == owner) };
                 case (#removeAuth _) { (caller == owner) };
                 case (#setOwner _) { (caller == owner) };
+                case (#getCapEnableStatus _) { (caller == owner) };
+                case (#updateCapV1EnableStatus _) { (caller == owner) };
+                case (#updateCapV2EnableStatus _) { (caller == owner) };                
 
                 // //admin with _checkAuth(msg.caller)
                 case (#setMaxTokens _) { _checkAuth(caller) };
