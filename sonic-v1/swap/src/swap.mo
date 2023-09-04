@@ -18,6 +18,7 @@ import Utils "./utils";
 import Tokens "./tokens";
 import Types "./types";
 import Cap "./cap/Cap";
+import CapV2 "./cap/CapV2";
 import Root "./cap/Root";
 import Cycles = "mo:base/ExperimentalCycles";
 import Nat32 "mo:base/Nat32";
@@ -232,6 +233,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     private stable var depositCounter : Nat = 0;
     private stable var txcounter: Nat = 0;
     private var cap: Cap.Cap = Cap.Cap(swap_id, 1_000_000_000_000);
+    private var capV2: CapV2.Cap = CapV2.Cap(swap_id, 1_000_000_000_000);
 
     private var lppattern : Text.Pattern = #text ":";
     private stable var maxTokens: Nat = 100; // max number of tokens supported
@@ -283,6 +285,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         };
         // don't wait for result, faster
         ignore cap.insert(record);
+        ignore capV2.insert(record);
     };
 
     /*
@@ -2001,6 +2004,11 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     /*
     * public info query functions
     */
+
+    public func getRootBucketIdV2(): async Text{
+        return await capV2.getRootBucket();
+    };
+
     public shared(msg) func historySize(): async Nat {
         return txcounter;
     };
@@ -2598,6 +2606,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             #getNumPairs : () -> ();
             #getPair : () -> (Principal, Principal);
             #getPairs : () -> (Nat, Nat);
+            #getRootBucketIdV2 : () -> ();
             #getSupportedTokenList : () -> ();
             #getSupportedTokenListByName : () -> (Text, Nat, Nat);
             #getSupportedTokenListSome : () -> (Nat, Nat);
@@ -2933,6 +2942,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 case (#exportPairs _) { true };
                 case (#exportRewardPairs _) { true };
                 case (#exportRewardInfo _) { true };
+                case (#getRootBucketIdV2 _) { true };
             }
         };
 
