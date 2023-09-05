@@ -8,10 +8,11 @@ import Types "Types";
 import Router "Router";
 // import ic "ic:aaaaa-aa";
 import IC "IC";
+import Bool "mo:base/Bool";
 
 module {
-    public class Cap(canister_id: Principal, creation_cycles: Nat) {
-        let router_id = "lj532-6iaaa-aaaah-qcc7a-cai";
+    public class Cap(canister_id: Principal, router_canister_id:Text, creation_cycles: Nat) {
+        public var router_id =router_canister_id;
 
         var rootBucket: ?Text = null;
         let ic: IC.ICActor = actor("aaaaa-aa");
@@ -44,6 +45,11 @@ module {
             }
         };
 
+        public func setRouterId(id:Text):Bool{
+            router_id:=id;
+            return true;
+        };
+
         public func getRouterId(): Text{
             router_id;
         };
@@ -66,7 +72,9 @@ module {
         /// Returns the principal of the root canister
         public func performHandshake(): async () {
             switch(rootBucket) {
-                case(?r) { return; };
+                case(?r) { 
+                    return; 
+                };
                 case(_) { };
             };
             let router: Router.Self = actor(router_id);
