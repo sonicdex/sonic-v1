@@ -8,10 +8,11 @@ import Types "Types";
 import Router "Router";
 // import ic "ic:aaaaa-aa";
 import IC "IC";
+import Bool "mo:base/Bool";
 
 module {
-    public class Cap(canister_id: Principal, creation_cycles: Nat) {
-        let router_id = "6uyxe-oaaaa-aaaah-adoua-cai";
+    public class Cap(canister_id: Principal, router_canister_id:Text, creation_cycles: Nat) {
+        public var router_id =router_canister_id;
 
         var rootBucket: ?Text = null;
         let ic: IC.ICActor = actor("aaaaa-aa");
@@ -44,33 +45,13 @@ module {
             }
         };
 
-        public func getRootBucketId(): ?Text{
-            rootBucket;
+        public func setRouterId(id:Text):Bool{
+            router_id:=id;
+            return true;
         };
 
-        public func getRootBucket() : async Text {
-            switch(rootBucket) {
-                case(?r) { 
-                    return r; 
-                };
-                case(_) { };
-            };
-            let router: Router.Self = actor(router_id);
-
-            let result = await router.get_token_contract_root_bucket({
-                witness=false;
-                canister=canister_id;
-            });
-
-            switch(result.canister) {
-                case(null) {
-                    return "No Data";
-                };
-                case(?d){
-                    return "canister_id:"#Principal.toText(canister_id)#" : "#Principal.toText(d);
-                }
-
-            }
+        public func getRouterId(): Text{
+            router_id;
         };
 
         public func insert(event: Root.IndefiniteEvent) : async Result.Result<Nat64, Types.InsertTransactionError> {

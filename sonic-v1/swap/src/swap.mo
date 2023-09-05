@@ -232,11 +232,11 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     public type TokenAnalyticsInfo = Tokens.TokenAnalyticsInfo;
     private stable var depositCounter : Nat = 0;
     private stable var txcounter: Nat = 0;
+    private stable var capV1Enabled:Bool=true;
+    private stable var capV2Enabled:Bool=false;
+    private stable var capV2CanisterId:Text="";
     private var cap: Cap.Cap = Cap.Cap(swap_id, 1_000_000_000_000);
-    private var capV2: CapV2.Cap = CapV2.Cap(swap_id, 1_000_000_000_000);
-
-    private stable var isEnabledCapV1:Bool=true;
-    private stable var isEnabledCapV2:Bool=false;
+    private var capV2: CapV2.Cap = CapV2.Cap(swap_id, capV2CanisterId, 1_000_000_000_000);
 
     private var lppattern : Text.Pattern = #text ":";
     private stable var maxTokens: Nat = 100; // max number of tokens supported
@@ -289,8 +289,12 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             caller = caller;
         };
         // don't wait for result, faster
-        ignore cap.insert(record);
-        ignore capV2.insert(record);
+        if(capV1Enabled){ 
+            ignore cap.insert(record);
+        };
+        if(capV2Enabled){ 
+            ignore capV2.insert(record);
+        }
     };
 
     /*
@@ -625,21 +629,32 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         return true;
     };
 
-    public shared(msg) func getCapEnableStatus(): async (Bool, Bool) {
+    public shared(msg) func getCapDetails(): async (Text, Bool,Text, Bool) {
         assert(msg.caller == owner);
-        return (isEnabledCapV1,isEnabledCapV2);
+        return (cap.getRouterId(),capV1Enabled,capV2.getRouterId(),capV2Enabled);
     };
 
-    public shared(msg) func updateCapV1EnableStatus(status: Bool): async Bool {
+    public shared(msg) func setCapV2CanisterId(canisterId: Text): async Bool {
         assert(msg.caller == owner);
-        isEnabledCapV1:=status;
+        capV2CanisterId:=canisterId;
+        return capV2.setRouterId(canisterId);
+    };
+
+    public shared(msg) func setCapV1EnableStatus(status: Bool): async Bool {
+        assert(msg.caller == owner);
+        capV1Enabled:=status;
         return true;
     };
 
-    public shared(msg) func updateCapV2EnableStatus(status: Bool): async Bool {
+    public shared(msg) func setCapV2EnableStatus(status: Bool): async  Result.Result<Bool, Text> {
         assert(msg.caller == owner);
-        isEnabledCapV2:=status;
-        return true;
+        if(capV2.getRouterId()!=""){
+            capV2Enabled:=status;
+            return #ok(true);
+        }
+        else{
+            return #err("capV2CanisterId is empty")
+        }
     };
     
     public shared(msg) func addAuth(id: Principal): async Bool {
@@ -2044,11 +2059,6 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     /*
     * public info query functions
     */
-
-    public func getRootBucketIdV2(): async Text{
-        return await capV2.getRootBucket();
-    };
-
     public shared(msg) func historySize(): async Nat {
         return txcounter;
     };
@@ -2646,7 +2656,6 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             #getNumPairs : () -> ();
             #getPair : () -> (Principal, Principal);
             #getPairs : () -> (Nat, Nat);
-            #getRootBucketIdV2 : () -> ();
             #getSupportedTokenList : () -> ();
             #getSupportedTokenListByName : () -> (Text, Nat, Nat);
             #getSupportedTokenListSome : () -> (Nat, Nat);
@@ -2687,9 +2696,10 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             #getBlacklistedUsers : () -> Principal;
             #addUserToBlacklist : () -> Principal;
             #removeUserFromBlacklist : () -> Principal;
-            #getCapEnableStatus : () -> ();
-            #updateCapV1EnableStatus : () -> Bool;
-            #updateCapV2EnableStatus : () -> Bool;
+            #setCapV2CanisterId : () -> Text;
+            #getCapDetails : () -> ();
+            #setCapV1EnableStatus : () -> Bool;
+            #setCapV2EnableStatus : () -> Bool;
         }}) : Bool 
         {
             switch(blacklistedUsers.get(caller)) {
@@ -2704,9 +2714,10 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 case (#addAuth _) { (caller == owner) };
                 case (#removeAuth _) { (caller == owner) };
                 case (#setOwner _) { (caller == owner) };
-                case (#getCapEnableStatus _) { (caller == owner) };
-                case (#updateCapV1EnableStatus _) { (caller == owner) };
-                case (#updateCapV2EnableStatus _) { (caller == owner) };                
+                case (#setCapV2CanisterId _) { (caller == owner) };
+                case (#getCapDetails _) { (caller == owner) };
+                case (#setCapV1EnableStatus _) { (caller == owner) };
+                case (#setCapV2EnableStatus _) { (caller == owner) };                
                 case (#getBlacklistedUsers _) { (caller == owner) };
                 case (#addUserToBlacklist _) { (caller == owner) };
                 case (#removeUserFromBlacklist _) { (caller == owner) };             
@@ -2999,7 +3010,6 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 case (#exportPairs _) { true };
                 case (#exportRewardPairs _) { true };
                 case (#exportRewardInfo _) { true };
-                case (#getRootBucketIdV2 _) { true };
             }
         };
 

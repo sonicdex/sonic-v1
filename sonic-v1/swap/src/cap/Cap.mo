@@ -44,6 +44,10 @@ module {
             }
         };
 
+        public func getRouterId(): Text{
+            router_id;
+        };
+
         public func insert(event: Root.IndefiniteEvent) : async Result.Result<Nat64, Types.InsertTransactionError> {
             await awaitForHandshake();
 
