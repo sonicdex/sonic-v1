@@ -277,6 +277,9 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     private stable var rewardTokenEntries : [(Text,RewardTokens)] = [];
     private stable var rewardInfoEntries : [(Principal,[RewardInfo])] = [];
     private stable var blacklistedUserEntries: [(Principal, Bool)] = [];
+
+    // variables not used : added for future use
+    private stable var daoCanisterIdForLiquidity : Text = "";
     private stable var permissionless: Bool = false;
 
     private func getDepositCounter():Nat{
