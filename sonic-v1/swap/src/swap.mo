@@ -313,6 +313,13 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         };
     };
 
+    private func _checkBlacklist(id: Principal): Bool {
+        switch(blacklistedUsers.get(id)) {
+            case(?v) { return v; };
+            case(_) { return false; };
+        };
+    };
+
     private func u64(i: Nat): Nat64 {
         Nat64.fromNat(i)
     };
@@ -2713,11 +2720,8 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             #setCapV2EnableStatus : () -> Bool;
         }}) : Bool 
         {
-            switch(blacklistedUsers.get(caller)) {
-                case(?v) {
-                    return false;
-                };
-                case(_) { };
+            if(_checkBlacklist(caller)){
+                return false;
             };
             switch (msg) {                    
 
