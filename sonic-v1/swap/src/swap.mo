@@ -71,6 +71,12 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         owner : Principal;
         fee : Nat;
     };
+    type CapDetails={
+        CapV1RouterId:Text;
+        CapV1Status:Bool;
+        CapV2RouterId:Text;
+        CapV2Status:Bool
+    };
     public type TokenActor = actor {
         allowance: shared (owner: Principal, spender: Principal) -> async Nat;
         approve: shared (spender: Principal, value: Nat) -> async TokenTxReceipt;
@@ -629,9 +635,14 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         return true;
     };
 
-    public shared(msg) func getCapDetails(): async (Text, Bool,Text, Bool) {
+    public shared(msg) func getCapDetails(): async CapDetails {
         assert(msg.caller == owner);
-        return (cap.getRouterId(),capV1Enabled,capV2.getRouterId(),capV2Enabled);
+        return ({
+            CapV1RouterId=cap.getRouterId();
+            CapV1Status=capV1Enabled;
+            CapV2RouterId=capV2.getRouterId();
+            CapV2Status=capV2Enabled;
+        });
     };
 
     public shared(msg) func setCapV2CanisterId(canisterId: Text): async Bool {
