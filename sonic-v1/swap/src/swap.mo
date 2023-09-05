@@ -18,6 +18,7 @@ import Utils "./utils";
 import Tokens "./tokens";
 import Types "./types";
 import Cap "./cap/Cap";
+import CapV2 "./cap/CapV2";
 import Root "./cap/Root";
 import Cycles = "mo:base/ExperimentalCycles";
 import Nat32 "mo:base/Nat32";
@@ -69,6 +70,12 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         totalSupply : Nat;
         owner : Principal;
         fee : Nat;
+    };
+    type CapDetails={
+        CapV1RouterId:Text;
+        CapV1Status:Bool;
+        CapV2RouterId:Text;
+        CapV2Status:Bool
     };
     public type TokenActor = actor {
         allowance: shared (owner: Principal, spender: Principal) -> async Nat;
@@ -231,7 +238,11 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     public type TokenAnalyticsInfo = Tokens.TokenAnalyticsInfo;
     private stable var depositCounter : Nat = 0;
     private stable var txcounter: Nat = 0;
+    private stable var capV1Enabled:Bool=true;
+    private stable var capV2Enabled:Bool=false;
+    private stable var capV2CanisterId:Text="";
     private var cap: Cap.Cap = Cap.Cap(swap_id, 1_000_000_000_000);
+    private var capV2: CapV2.Cap = CapV2.Cap(swap_id, capV2CanisterId, 1_000_000_000_000);
 
     private var lppattern : Text.Pattern = #text ":";
     private stable var maxTokens: Nat = 100; // max number of tokens supported
@@ -249,7 +260,8 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     private var tokens: Tokens.Tokens = Tokens.Tokens(feeTo, []);
     private var rewardPairs = HashMap.HashMap<Text, PairInfo>(1, Text.equal, Text.hash);
     private var rewardTokens=HashMap.HashMap<Text, RewardTokens>(1, Text.equal, Text.hash);
-    private var rewardInfo = HashMap.HashMap<Principal, [RewardInfo]>(1, Principal.equal, Principal.hash);    
+    private var rewardInfo = HashMap.HashMap<Principal, [RewardInfo]>(1, Principal.equal, Principal.hash);
+    private var blacklistedUsers = HashMap.HashMap<Principal, Bool>(1, Principal.equal, Principal.hash);   
 
     // admins
     private var auths = HashMap.HashMap<Principal, Bool>(1, Principal.equal, Principal.hash);
@@ -264,6 +276,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     private stable var rewardPairsEntries: [(Text, PairInfo)] = [];
     private stable var rewardTokenEntries : [(Text,RewardTokens)] = [];
     private stable var rewardInfoEntries : [(Principal,[RewardInfo])] = [];
+    private stable var blacklistedUserEntries: [(Principal, Bool)] = [];
     private stable var permissionless: Bool = false;
 
     private func getDepositCounter():Nat{
@@ -282,7 +295,12 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             caller = caller;
         };
         // don't wait for result, faster
-        ignore cap.insert(record);
+        if(capV1Enabled){ 
+            ignore cap.insert(record);
+        };
+        if(capV2Enabled){ 
+            ignore capV2.insert(record);
+        }
     };
 
     /*
@@ -290,6 +308,13 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     */
     private func _checkAuth(id: Principal): Bool {
         switch(auths.get(id)) {
+            case(?v) { return v; };
+            case(_) { return false; };
+        };
+    };
+
+    private func _checkBlacklist(id: Principal): Bool {
+        switch(blacklistedUsers.get(id)) {
             case(?v) { return v; };
             case(_) { return false; };
         };
@@ -599,6 +624,57 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         }
     };
     //-------------------------------
+
+    public shared(msg) func getBlacklistedUsers(): async [(Principal,Bool)] {
+        assert(msg.caller == owner);
+        return Iter.toArray(blacklistedUsers.entries());
+    };
+    
+    public shared(msg) func addUserToBlacklist(user: Principal): async Bool {
+        assert(msg.caller == owner);
+        blacklistedUsers.put(user, true);
+        return true;
+    };
+
+    public shared(msg) func removeUserFromBlacklist(user: Principal): async Bool {
+        assert(msg.caller == owner);
+        blacklistedUsers.delete(user);
+        return true;
+    };
+
+    public shared(msg) func getCapDetails(): async CapDetails {
+        assert(msg.caller == owner);
+        return ({
+            CapV1RouterId=cap.getRouterId();
+            CapV1Status=capV1Enabled;
+            CapV2RouterId=capV2.getRouterId();
+            CapV2Status=capV2Enabled;
+        });
+    };
+
+    public shared(msg) func setCapV2CanisterId(canisterId: Text): async Bool {
+        assert(msg.caller == owner);
+        capV2CanisterId:=canisterId;
+        return capV2.setRouterId(canisterId);
+    };
+
+    public shared(msg) func setCapV1EnableStatus(status: Bool): async Bool {
+        assert(msg.caller == owner);
+        capV1Enabled:=status;
+        return true;
+    };
+
+    public shared(msg) func setCapV2EnableStatus(status: Bool): async  Result.Result<Bool, Text> {
+        assert(msg.caller == owner);
+        if(capV2.getRouterId()!=""){
+            capV2Enabled:=status;
+            return #ok(true);
+        }
+        else{
+            return #err("capV2CanisterId is empty")
+        }
+    };
+    
     public shared(msg) func addAuth(id: Principal): async Bool {
         assert(msg.caller == owner);
         auths.put(id, true);
@@ -1573,6 +1649,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         amount0Desired: Nat, 
         amount1Desired: Nat
         ): async Text {          
+        assert(_checkAuth(msg.caller));
 
         if (amount0Desired == 0 or amount1Desired == 0)
             return "desired amount should not be zero";
@@ -1846,32 +1923,6 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             return #err("insufficient balance: " # path[0]);
         let ops = _swap(amounts, path, to,txcounter);
         _updateRewardPoint(path, rewardAmount);
-        for(o in Iter.fromArray(ops)) {
-            ignore addRecord(msg.caller, "swap", o);
-            txcounter += 1;
-        };
-        return #ok(txcounter - 1);
-    };
-
-    public shared(msg) func swapTokensForExactTokens(
-        amountOut: Nat, 
-        amountInMax: Nat, 
-        path: [Text], 
-        to: Principal,
-        deadline: Int
-        ): async TxReceipt {
-        if (Time.now() > deadline)
-            return #err("tx expired");
-
-        var amounts = _getAmountsIn(amountOut, path);
-        if (amounts[0] > amountInMax) // slippage check
-            return #err("slippage: insufficient input amount");
-        if(amounts[0] > tokens.balanceOf(path[0], msg.caller)) {
-            return #err("insufficient balance: " # path[0]);
-        };
-        if (tokens.zeroFeeTransfer(path[0], msg.caller, Principal.fromActor(this), amounts[0]))
-            return #err("insufficient balance: " # path[0]);
-        let ops = _swap(amounts, path, to,txcounter);
         for(o in Iter.fromArray(ops)) {
             ignore addRecord(msg.caller, "swap", o);
             txcounter += 1;
@@ -2590,6 +2641,392 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         return Array.freeze(res_temp);
     };
 
+    system func inspect({ caller : Principal; arg : Blob; 
+       msg :
+        {
+            #addAuth : () -> Principal;
+            #addLiquidity : () -> (Principal, Principal, Nat, Nat, Nat, Nat, Int);
+            #addLiquidityForUser : () -> (Principal, Principal, Principal, Nat, Nat);
+            #addLiquidityForUserTest : () -> (Principal, Principal, Principal, Nat, Nat);
+            #addToken : () -> (Principal, Text);
+            #allowance : () -> (Text, Principal, Principal);
+            #approve : () -> (Text, Principal, Nat);
+            #balanceOf : () -> (Text, Principal);
+            #burn : () -> (Text, Nat);
+            #createPair : () -> (Principal, Principal);
+            #decimals : () -> Text;
+            #deposit : () -> (Principal, Nat);
+            #depositTo : () -> (Principal, Principal, Nat);
+            #exportBalances : () -> Text;
+            #exportLPTokens : () -> ();
+            #exportPairs : () -> ();
+            #exportRewardInfo : () -> ();
+            #exportRewardPairs : () -> ();
+            #exportSubAccounts : () -> ();
+            #exportSwapInfo : () -> ();
+            #exportTokenTypes : () -> ();
+            #exportTokens : () -> ();
+            #getAllPairs : () -> ();
+            #getAllRewardPairs : () -> ();
+            #getICRC1SubAccountBalance : () -> (Principal, Text);
+            #getHolders : () -> Text;
+            #getLPTokenId : () -> (Principal, Principal);
+            #getNumPairs : () -> ();
+            #getPair : () -> (Principal, Principal);
+            #getPairs : () -> (Nat, Nat);
+            #getSupportedTokenList : () -> ();
+            #getSupportedTokenListByName : () -> (Text, Nat, Nat);
+            #getSupportedTokenListSome : () -> (Nat, Nat);
+            #getSwapInfo : () -> ();
+            #getTokenMetadata : () -> Text;
+            #getUserBalances : () -> Principal;
+            #getUserInfo : () -> Principal;
+            #getUserInfoAbove : () -> (Principal, Nat, Nat);
+            #getUserInfoByNamePageAbove : () -> (Principal, Int, Text, Nat, Nat, Int, Text, Nat, Nat);
+            #getUserLPBalances : () -> Principal;
+            #getUserLPBalancesAbove : () -> (Principal, Nat);
+            #getUserReward : () -> (Principal, Text, Text);
+            #historySize : () -> ();
+            #initiateICRC1Transfer : () -> ();
+            #initiateICRC1TransferForUser : () -> Principal;
+            #name : () -> Text;
+            #removeAuth : () -> Principal;
+            #removeLiquidity : () -> (Principal, Principal, Nat, Nat, Nat, Principal, Int);
+            #retryDeposit : () -> Principal;
+            #retryDepositTo : () -> (Principal, Principal, Nat);
+            #setDaoCanisterForLiquidity : () -> Principal;
+            #setFeeForToken : () -> (Text, Nat);
+            #setFeeOn : () -> Bool;
+            #setFeeTo : () -> Principal;
+            #setGlobalTokenFee : () -> Nat;
+            #setMaxTokens : () -> Nat;
+            #setOwner : () -> Principal;
+            #swapExactTokensForTokens : () -> (Nat, Nat, [Text], Principal, Int);
+            #symbol : () -> Text;
+            #totalSupply : () -> Text;
+            #transfer : () -> (Text, Principal, Nat);
+            #transferFrom : () -> (Text, Principal, Principal, Nat);
+            #updateAllTokenMetadata : () -> ();
+            #updateTokenFees : () -> ();
+            #updateTokenMetadata : () -> Text;
+            #withdraw : () -> (Principal, Nat);
+            #withdrawTo : () -> (Principal, Principal, Nat);
+            #getBlacklistedUsers : () -> ();
+            #addUserToBlacklist : () -> Principal;
+            #removeUserFromBlacklist : () -> Principal;
+            #setCapV2CanisterId : () -> Text;
+            #getCapDetails : () -> ();
+            #setCapV1EnableStatus : () -> Bool;
+            #setCapV2EnableStatus : () -> Bool;
+        }}) : Bool 
+        {
+            if(_checkBlacklist(caller)){
+                return false;
+            };
+            switch (msg) {                    
+
+                //admin with (msg.caller == owner)
+                case (#addAuth _) { (caller == owner) };
+                case (#removeAuth _) { (caller == owner) };
+                case (#setOwner _) { (caller == owner) };
+                case (#setCapV2CanisterId _) { (caller == owner) };
+                case (#getCapDetails _) { (caller == owner) };
+                case (#setCapV1EnableStatus _) { (caller == owner) };
+                case (#setCapV2EnableStatus _) { (caller == owner) };                
+                case (#getBlacklistedUsers _) { (caller == owner) };
+                case (#addUserToBlacklist _) { (caller == owner) };
+                case (#removeUserFromBlacklist _) { (caller == owner) };             
+
+                // //admin with _checkAuth(msg.caller)
+                case (#setMaxTokens _) { _checkAuth(caller) };
+                case (#setFeeOn _) { _checkAuth(caller) };
+                case (#setFeeTo _) { _checkAuth(caller) };
+                case (#setGlobalTokenFee _) { _checkAuth(caller) };
+                case (#setFeeForToken _) { _checkAuth(caller) };
+                case (#updateTokenMetadata _) { _checkAuth(caller) };
+                case (#updateAllTokenMetadata _) { _checkAuth(caller) };
+                case (#updateTokenFees _) { _checkAuth(caller) };
+                case (#getICRC1SubAccountBalance _) { _checkAuth(caller) };
+                case (#addToken _) { _checkAuth(caller) };
+                case (#initiateICRC1TransferForUser _) { _checkAuth(caller) };
+                case (#retryDepositTo _) { _checkAuth(caller) };
+                case (#addLiquidityForUser _) { _checkAuth(caller) };
+                case (#setDaoCanisterForLiquidity _) { _checkAuth(caller) };
+                case (#exportSwapInfo _) { _checkAuth(caller) };
+                case (#exportSubAccounts _) { _checkAuth(caller) };
+                case (#exportBalances _) { _checkAuth(caller) };
+
+                //non-admin functions                
+                case (#initiateICRC1Transfer _) { 
+                    if(Principal.isAnonymous(caller)){
+                        false
+                    }
+                    else{
+                        true
+                    };                 
+                };
+                case (#deposit d) { 
+                    var tid: Text=Principal.toText(d().0);      
+                    var value: Nat=d().1;
+                    var fee: Nat=tokens.getFee(tid);
+                    if (tokens.hasToken(tid) == false or Nat.less(value,fee) or Principal.isAnonymous(caller)){
+                        return false;
+                    }   
+                    else{
+                        return true;
+                    };
+                };
+                case (#depositTo d) { 
+                    var tid: Text=Principal.toText(d().0);               
+                    var to: Principal=d().1;
+                    var value: Nat=d().2;
+                    var fee: Nat=tokens.getFee(tid);
+                    if (tokens.hasToken(tid) == false or Principal.isAnonymous(to) or Nat.less(value,fee) or Principal.isAnonymous(caller)){
+                        return false;
+                    }   
+                    else{
+                        return true;
+                    };
+                };
+                case (#retryDeposit d) { 
+                    var tid: Text=Principal.toText(d());               
+                    if (tokens.hasToken(tid) == false or Principal.isAnonymous(caller)){
+                        return false;
+                    }   
+                    else{
+                        return true;
+                    };
+                };
+                case (#withdraw d) { 
+                    var tid: Text=Principal.toText(d().0);
+                    var value: Nat=d().1;
+                    var fee: Nat=tokens.getFee(tid); 
+                    if (tokens.hasToken(tid) == false or Nat.less(value,fee) or Principal.isAnonymous(caller)){
+                        return false;
+                    }   
+                    else{
+                        return true;
+                    };
+                };
+                case (#withdrawTo d) { 
+                    var tid: Text=Principal.toText(d().0);
+                    var to: Principal=d().1;
+                    var value: Nat=d().2;
+                    var fee: Nat=tokens.getFee(tid); 
+                    if (tokens.hasToken(tid) == false  or Principal.isAnonymous(to) or Nat.less(value,fee) or Principal.isAnonymous(caller)){
+                        return false;
+                    }   
+                    else{
+                        return true;
+                    };
+                };
+                case (#createPair d) { 
+                    var token0: Principal=d().0;
+                    var token1: Principal=d().1;
+                    var tid0: Text=Principal.toText(token0);
+                    var tid1: Text=Principal.toText(token1);
+                    if(Principal.isAnonymous(caller)){
+                        return false;
+                    };
+                    if(tid0 == tid1 or token0 == blackhole or token1 == blackhole){
+                        return false;
+                    };
+                    if(tokens.hasToken(tid0) == false or tokens.hasToken(tid1) == false){
+                        return false;
+                    };
+                    let (t0, t1) = Utils.sortTokens(tid0, tid1);
+                    let pair_str = t0 # ":" # t1;
+                    if (Option.isSome(pairs.get(pair_str)) or lptokens.hasToken(pair_str)){
+                        return false;
+                    }
+                    else{
+                        return true;
+                    }
+                };
+                case (#addLiquidity d) {
+                    var token0: Principal=d().0;
+                    var token1: Principal=d().1;
+                    var amount0Desired: Nat=d().2;
+                    var amount1Desired: Nat=d().3;
+                    var amount0Min: Nat=d().4;
+                    var amount1Min: Nat=d().5;
+                    var deadline: Int=d().6;
+
+                    if(Principal.isAnonymous(caller)){
+                        return false;
+                    };
+                    if (Time.now() > deadline)
+                        return false;
+                    if (amount0Desired == 0 or amount1Desired == 0)
+                        return false;
+
+                    let tid0: Text = Principal.toText(token0);
+                    let tid1: Text = Principal.toText(token1);
+                    switch(_getPair(tid0, tid1)) {
+                        case(?p) { };
+                        case(_) {
+                            return false;
+                        };
+                    };
+                    switch(_getlpToken(tid0, tid1)) {
+                        case(?p) { };
+                        case(_) { return false; };
+                    };
+                    return true;
+                };
+                case (#addLiquidityForUserTest d) {
+                    var token0: Principal=d().1;
+                    var token1: Principal=d().2;
+                    var amount0Desired: Nat=d().3;
+                    var amount1Desired: Nat=d().4;
+
+                    if(Principal.isAnonymous(caller)){
+                        return false;
+                    };
+                    if (amount0Desired == 0 or amount1Desired == 0){
+                        return false;
+                    };
+                    let tid0: Text = Principal.toText(token0);
+                    let tid1: Text = Principal.toText(token1);
+
+                    switch(_getPair(tid0, tid1)) {
+                        case(?p) {  };
+                        case(_) {
+                            return false;
+                        };
+                    };
+                    switch(_getlpToken(tid0, tid1)) {
+                        case(?t) {  };
+                        case(_) { return false; };
+                    };
+                    return true;
+                };
+                case (#removeLiquidity d) {
+                    var token0: Principal=d().0;
+                    var token1: Principal=d().1;
+                    var lpAmount: Nat=d().2;
+                    var amount0Min: Nat=d().3;
+                    var amount1Min: Nat=d().4;
+                    var to: Principal=d().5;
+                    var deadline: Int=d().6;
+
+                    if(Principal.isAnonymous(caller)){
+                        return false;
+                    };
+                    if (Time.now() > deadline)
+                        return false;
+
+                    let tid0: Text = Principal.toText(token0);
+                    let tid1: Text = Principal.toText(token1);
+                    switch(_getPair(tid0, tid1)) {
+                        case(?p) { };
+                        case(_) { return false; };
+                    };
+                    switch(_getlpToken(tid0, tid1)) {
+                        case(?t) { };
+                        case(_) { return false;  };
+                    };
+                    return true;
+                };
+                case (#swapExactTokensForTokens d) {
+                    var amountIn: Nat=d().0;
+                    var amountOutMin: Nat=d().1;
+                    var path: [Text]=d().2;
+                    var to: Principal=d().3;
+                    var deadline: Int=d().4;
+
+                    if(Principal.isAnonymous(caller)){
+                        return false;
+                    };
+
+                    if (Time.now() > deadline){
+                        return false;
+                    };
+
+                    var amountdatas = _getAmountsOut(amountIn, path);
+                    var amounts = amountdatas.0;
+                    
+                    if(amounts[0] > tokens.balanceOf(path[0], caller)) {
+                        return false;
+                    };                    
+                    
+                    return true;
+                };
+                case (#historySize _) { 
+                    if(Principal.isAnonymous(caller)){
+                        false
+                    }
+                    else{
+                        true
+                    };                 
+                };
+                case (#burn _) { 
+                    if(Principal.isAnonymous(caller)){
+                        false
+                    }
+                    else{
+                        true
+                    };                 
+                };
+                case (#transfer _) { 
+                    if(Principal.isAnonymous(caller)){
+                        false
+                    }
+                    else{
+                        true
+                    };                 
+                };
+                case (#transferFrom _) { 
+                    if(Principal.isAnonymous(caller)){
+                        false
+                    }
+                    else{
+                        true
+                    };                 
+                };
+                case (#approve _) { 
+                    if(Principal.isAnonymous(caller)){
+                        false
+                    }
+                    else{
+                        true
+                    };                 
+                };
+
+                //query
+                case (#getLPTokenId  _) { true };
+                case (#getAllPairs _) { true };
+                case (#getAllRewardPairs _) { true };
+                case (#getPairs _) { true };
+                case (#getNumPairs _) { true };
+                case (#getTokenMetadata _) { true };
+                case (#getSupportedTokenList _) { true };
+                case (#getSupportedTokenListSome _) { true };
+                case (#getSupportedTokenListByName _) { true };
+                case (#getUserBalances _) { true };
+                case (#getUserLPBalances _) { true };
+                case (#getUserLPBalancesAbove _) { true };
+                case (#getUserInfo _) { true };
+                case (#getUserInfoAbove _) { true };
+                case (#getUserInfoByNamePageAbove _) { true };
+                case (#getSwapInfo _) { true };
+                case (#getHolders _) { true };
+                case (#getPair _) { true };
+                case (#getUserReward _) { true };
+                case (#balanceOf _) { true };
+                case (#allowance _) { true };
+                case (#totalSupply _) { true };
+                case (#name _) { true };
+                case (#decimals _) { true };
+                case (#symbol _) { true };
+                case (#exportTokenTypes _) { true };
+                case (#exportTokens _) { true };
+                case (#exportLPTokens _) { true };
+                case (#exportPairs _) { true };
+                case (#exportRewardPairs _) { true };
+                case (#exportRewardInfo _) { true };
+            }
+        };
 
     system func preupgrade() {
         depositTransactionsEntries := Iter.toArray(depositTransactions.entries());
@@ -2601,6 +3038,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         rewardPairsEntries := Iter.toArray(rewardPairs.entries());
         rewardTokenEntries := Iter.toArray(rewardTokens.entries());
         rewardInfoEntries := Iter.toArray(rewardInfo.entries());
+        blacklistedUserEntries := Iter.toArray(blacklistedUsers.entries());
     };
 
     system func postupgrade() {
@@ -2613,6 +3051,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         rewardPairs := HashMap.fromIter<Text, PairInfo>(rewardPairsEntries.vals(), 1, Text.equal, Text.hash);
         rewardTokens:= HashMap.fromIter<Text,RewardTokens>(rewardTokenEntries.vals(), 1, Text.equal, Text.hash);
         rewardInfo := HashMap.fromIter<Principal, [RewardInfo]>(rewardInfoEntries.vals(), 1, Principal.equal, Principal.hash);
+        blacklistedUsers := HashMap.fromIter<Principal, Bool>(blacklistedUserEntries.vals(), 1, Principal.equal, Principal.hash);
         lppattern := #text ":";
         depositTransactionsEntries := [];
         rewardPairsEntries := [];
@@ -2622,5 +3061,6 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         lptokensEntries := [];
         tokensEntries := [];
         authsEntries := [];
+        blacklistedUserEntries := [];
     };
 };
