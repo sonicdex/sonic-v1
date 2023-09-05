@@ -612,7 +612,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     };
     //-------------------------------
 
-    public shared(msg) func getBlacklistedUsers(user: Principal): async [(Principal,Bool)] {
+    public shared(msg) func getBlacklistedUsers(): async [(Principal,Bool)] {
         assert(msg.caller == owner);
         return Iter.toArray(blacklistedUsers.entries());
     };
@@ -2693,7 +2693,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             #updateTokenMetadata : () -> Text;
             #withdraw : () -> (Principal, Nat);
             #withdrawTo : () -> (Principal, Principal, Nat);
-            #getBlacklistedUsers : () -> Principal;
+            #getBlacklistedUsers : () -> ();
             #addUserToBlacklist : () -> Principal;
             #removeUserFromBlacklist : () -> Principal;
             #setCapV2CanisterId : () -> Text;
