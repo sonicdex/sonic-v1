@@ -254,7 +254,8 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     private var tokens: Tokens.Tokens = Tokens.Tokens(feeTo, []);
     private var rewardPairs = HashMap.HashMap<Text, PairInfo>(1, Text.equal, Text.hash);
     private var rewardTokens=HashMap.HashMap<Text, RewardTokens>(1, Text.equal, Text.hash);
-    private var rewardInfo = HashMap.HashMap<Principal, [RewardInfo]>(1, Principal.equal, Principal.hash);    
+    private var rewardInfo = HashMap.HashMap<Principal, [RewardInfo]>(1, Principal.equal, Principal.hash);
+    private var blacklistedUsers = HashMap.HashMap<Principal, Bool>(1, Principal.equal, Principal.hash);   
 
     // admins
     private var auths = HashMap.HashMap<Principal, Bool>(1, Principal.equal, Principal.hash);
@@ -269,6 +270,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     private stable var rewardPairsEntries: [(Text, PairInfo)] = [];
     private stable var rewardTokenEntries : [(Text,RewardTokens)] = [];
     private stable var rewardInfoEntries : [(Principal,[RewardInfo])] = [];
+    private stable var blacklistedUserEntries: [(Principal, Bool)] = [];
     private stable var permissionless: Bool = false;
 
     private func getDepositCounter():Nat{
@@ -605,6 +607,24 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         }
     };
     //-------------------------------
+
+    public shared(msg) func getBlacklistedUsers(user: Principal): async [(Principal,Bool)] {
+        assert(msg.caller == owner);
+        return Iter.toArray(blacklistedUsers.entries());
+    };
+    
+    public shared(msg) func addUserToBlacklist(user: Principal): async Bool {
+        assert(msg.caller == owner);
+        blacklistedUsers.put(user, true);
+        return true;
+    };
+
+    public shared(msg) func removeUserFromBlacklist(user: Principal): async Bool {
+        assert(msg.caller == owner);
+        blacklistedUsers.delete(user);
+        return true;
+    };
+
     public shared(msg) func getCapEnableStatus(): async (Bool, Bool) {
         assert(msg.caller == owner);
         return (isEnabledCapV1,isEnabledCapV2);
@@ -2664,11 +2684,20 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             #updateTokenMetadata : () -> Text;
             #withdraw : () -> (Principal, Nat);
             #withdrawTo : () -> (Principal, Principal, Nat);
+            #getBlacklistedUsers : () -> Principal;
+            #addUserToBlacklist : () -> Principal;
+            #removeUserFromBlacklist : () -> Principal;
             #getCapEnableStatus : () -> ();
             #updateCapV1EnableStatus : () -> Bool;
             #updateCapV2EnableStatus : () -> Bool;
         }}) : Bool 
         {
+            switch(blacklistedUsers.get(caller)) {
+                case(?v) {
+                    return false;
+                };
+                case(_) { };
+            };
             switch (msg) {                    
 
                 //admin with (msg.caller == owner)
@@ -2678,6 +2707,9 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 case (#getCapEnableStatus _) { (caller == owner) };
                 case (#updateCapV1EnableStatus _) { (caller == owner) };
                 case (#updateCapV2EnableStatus _) { (caller == owner) };                
+                case (#getBlacklistedUsers _) { (caller == owner) };
+                case (#addUserToBlacklist _) { (caller == owner) };
+                case (#removeUserFromBlacklist _) { (caller == owner) };             
 
                 // //admin with _checkAuth(msg.caller)
                 case (#setMaxTokens _) { _checkAuth(caller) };
@@ -2877,23 +2909,22 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                     var to: Principal=d().3;
                     var deadline: Int=d().4;
 
+                    if(Principal.isAnonymous(caller)){
+                        return false;
+                    };
+
+                    if (Time.now() > deadline){
+                        return false;
+                    };
+
                     var amountdatas = _getAmountsOut(amountIn, path);
                     var amounts = amountdatas.0;
                     
                     if(amounts[0] > tokens.balanceOf(path[0], caller)) {
                         return false;
-                    };
-
-                    if(Principal.isAnonymous(caller)){
-                        return false;
-                    };
+                    };                    
                     
-                    if (Time.now() > deadline){
-                        return false;
-                    }
-                    else{
-                        return true;
-                    }
+                    return true;
                 };
                 case (#historySize _) { 
                     if(Principal.isAnonymous(caller)){
@@ -2982,6 +3013,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         rewardPairsEntries := Iter.toArray(rewardPairs.entries());
         rewardTokenEntries := Iter.toArray(rewardTokens.entries());
         rewardInfoEntries := Iter.toArray(rewardInfo.entries());
+        blacklistedUserEntries := Iter.toArray(blacklistedUsers.entries());
     };
 
     system func postupgrade() {
@@ -2994,6 +3026,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         rewardPairs := HashMap.fromIter<Text, PairInfo>(rewardPairsEntries.vals(), 1, Text.equal, Text.hash);
         rewardTokens:= HashMap.fromIter<Text,RewardTokens>(rewardTokenEntries.vals(), 1, Text.equal, Text.hash);
         rewardInfo := HashMap.fromIter<Principal, [RewardInfo]>(rewardInfoEntries.vals(), 1, Principal.equal, Principal.hash);
+        blacklistedUsers := HashMap.fromIter<Principal, Bool>(blacklistedUserEntries.vals(), 1, Principal.equal, Principal.hash);
         lppattern := #text ":";
         depositTransactionsEntries := [];
         rewardPairsEntries := [];
@@ -3003,5 +3036,6 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         lptokensEntries := [];
         tokensEntries := [];
         authsEntries := [];
+        blacklistedUserEntries := [];
     };
 };
