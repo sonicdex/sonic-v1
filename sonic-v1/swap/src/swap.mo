@@ -1082,6 +1082,18 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             case(#Err(e)) { return #err("token transfer failed:" # tid); };
             case(#ICRCTransferError(e)) { return #err("token transfer failed:" # tid); };
         };
+        ignore addRecord(
+            msg.caller, "retrydepositTo-init", 
+            [
+                ("tokenId", #Text(tid)),
+                ("from", #Principal(to)),
+                ("to", #Principal(to)),
+                ("amount", #U64(u64(value))),
+                ("fee", #U64(u64(tokens.getFee(tid)))),
+                ("balance", #U64(u64(tokens.balanceOf(tid, to)))),
+                ("totalSupply", #U64(u64(tokens.totalSupply(tid))))
+            ]
+        );
         if (value < tokens.getFee(tid))
             return #err("value less than token transfer fee");
         ignore tokens.mint(tid, to, effectiveDepositAmount(tid, value));
