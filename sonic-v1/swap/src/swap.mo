@@ -19,6 +19,7 @@ import Tokens "./tokens";
 import Types "./types";
 import Cap "./cap/Cap";
 import CapV2 "./cap/CapV2";
+import IC "./cap/IC";
 import Root "./cap/Root";
 import Cycles = "mo:base/ExperimentalCycles";
 import Nat32 "mo:base/Nat32";
@@ -213,6 +214,23 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         feeTo : Principal;
     };
 
+    type MonitorMetrics = {
+        cycles : Nat;
+        canisterStatus : IC.CanisterStatus;
+        tokenCount : Nat;
+        pairsCount : Nat;
+        blacklistedUsersCount : Nat;
+        lpTokenBalancesSize : Nat;
+        lpTokenAllowanceSize : Nat;
+        tokenBalancesSize : Nat;
+        tokenAllowanceSize : Nat;
+        lptokensSize : Nat;
+        rewardPairsSize : Nat; 
+        rewardTokensSize : Nat;
+        rewardInfo : Nat;
+        depositTransactionSize : Nat;
+    };
+
     type DepositSubAccounts={
         transactionOwner : Principal;
         depositAId:Text;
@@ -253,6 +271,9 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     private stable let blackhole: Principal = Principal.fromText("aaaaa-aa");
     private stable let minimum_liquidity: Nat = 10**3;
     private stable let depositCounterV2 : Nat = 10000;
+    
+    // ic management canister
+    let ic: IC.ICActor = actor("aaaaa-aa");
 
     private var depositTransactions= HashMap.HashMap<Principal, DepositSubAccounts>(1, Principal.equal, Principal.hash);
     private var tokenTypes = HashMap.HashMap<Text, Text>(1, Text.equal, Text.hash);
@@ -2456,6 +2477,55 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     };
 
     /*
+     * expose metrics to monitoring identities
+    */
+
+
+    public shared(msg) func monitorMetrics(): async MonitorMetrics {
+
+        assert(_checkAuth(msg.caller));
+
+        let canisterStatus : IC.CanisterStatus = await ic.canister_status({
+            canister_id = Principal.fromActor(this);
+        });
+
+        let lpTokenList = lptokens.getTokenInfoList();
+        let tokenList = tokens.getTokenInfoList();
+
+        var lpTokenBalancesSize = 0;
+        var lpTokenAllowanceSize = 0;
+        var tokenBalancesSize = 0;
+        var tokenAllowanceSize = 0;
+
+        for((k,v) in lpTokenList.vals()) {
+            lpTokenBalancesSize += v.balances.size();
+            lpTokenAllowanceSize += v.allowances.size();
+        };
+
+        for((k,v) in tokenList.vals()) {
+            tokenBalancesSize += v.balances.size();
+            tokenAllowanceSize += v.allowances.size();
+        };
+
+        return {
+            cycles = Cycles.balance();
+            canisterStatus = canisterStatus;
+            tokenCount = tokens.getNumTokens();
+            pairsCount = pairs.size();
+            lptokensSize = lptokens.getNumTokens();
+            blacklistedUsersCount = blacklistedUsers.size();
+            rewardPairsSize = rewardPairs.size(); 
+            rewardTokensSize = rewardTokens.size();
+            rewardInfo = rewardInfo.size();
+            depositTransactionSize = depositTransactions.size();
+            lpTokenBalancesSize = lpTokenBalancesSize;
+            lpTokenAllowanceSize = lpTokenAllowanceSize;
+            tokenBalancesSize = tokenBalancesSize;
+            tokenAllowanceSize = tokenAllowanceSize;
+        };
+    };
+
+    /*
     * state export
     */
     public shared(msg) func exportSwapInfo() : async SwapInfoExt{
@@ -2466,7 +2536,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             txcounter = txcounter;
             owner = owner;
             feeOn = feeOn;
-            feeTo = feeTo;           
+            feeTo = feeTo;
         };
     };
 
@@ -2643,6 +2713,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             #historySize : () -> ();
             #initiateICRC1Transfer : () -> ();
             #initiateICRC1TransferForUser : () -> Principal;
+            #monitorMetrics : () -> ();
             #name : () -> Text;
             #removeAuth : () -> Principal;
             #removeLiquidity : () -> (Principal, Principal, Nat, Nat, Nat, Principal, Int);
@@ -2709,6 +2780,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 case (#exportSwapInfo _) { _checkAuth(caller) };
                 case (#exportSubAccounts _) { _checkAuth(caller) };
                 case (#exportBalances _) { _checkAuth(caller) };
+                case (#monitorMetrics _) { _checkAuth(caller) };
 
                 //non-admin functions                
                 case (#initiateICRC1Transfer _) { 
@@ -2766,7 +2838,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                     var tid: Text=Principal.toText(d().0);
                     var to: Principal=d().1;
                     var value: Nat=d().2;
-                    var fee: Nat=tokens.getFee(tid); 
+                    var fee: Nat=tokens.getFee(tid);
                     if (tokens.hasToken(tid) == false  or Principal.isAnonymous(to) or Nat.less(value,fee) or Principal.isAnonymous(caller)){
                         return false;
                     }   
