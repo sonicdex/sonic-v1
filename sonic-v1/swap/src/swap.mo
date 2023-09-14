@@ -252,6 +252,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     private stable var owner: Principal = owner_;
     private stable let blackhole: Principal = Principal.fromText("aaaaa-aa");
     private stable let minimum_liquidity: Nat = 10**3;
+    private stable let depositCounterV2 : Nat = 10000;
 
     private var depositTransactions= HashMap.HashMap<Principal, DepositSubAccounts>(1, Principal.equal, Principal.hash);
     private var tokenTypes = HashMap.HashMap<Text, Text>(1, Text.equal, Text.hash);
@@ -281,11 +282,6 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     // variables not used : added for future use
     private stable var daoCanisterIdForLiquidity : Text = "";
     private stable var permissionless: Bool = false;
-
-    private func getDepositCounter():Nat{
-        depositCounter:=depositCounter+1;
-        return depositCounter;
-    };
 
     private func addRecord(
         caller: Principal, 
@@ -398,34 +394,28 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 }
             };
             case(#ICRC1TokenActor(icrc1TokenActor)){
-                switch(depositTransactions.get(caller))
+
+                let subaccount = getICRC1SubAccount(caller);
+                var depositSubAccount:ICRCAccount={owner=Principal.fromActor(this); subaccount=?subaccount};
+                var balance=await icrc1TokenActor.icrc1_balance_of(depositSubAccount);
+                if(balance>=value+fee)
                 {
-                    case(?deposit){
-                        var depositSubAccount:ICRCAccount={owner=Principal.fromActor(this); subaccount=?deposit.subaccount};
-                        var balance=await icrc1TokenActor.icrc1_balance_of(depositSubAccount);
-                        if(balance>=value+fee)
-                        {
-                            var defaultSubaccount:Blob=Utils.defaultSubAccount();
-                            var transferArg:ICRCTransferArg=
-                            {
-                                from_subaccount=?deposit.subaccount; 
-                                to={ owner=Principal.fromActor(this); subaccount=?defaultSubaccount};
-                                amount=value;
-                            };
-                            var txid = await icrc1TokenActor.icrc1_transfer(transferArg); 
-                            switch (txid){
-                                case(#Ok(id)){ return #Ok(id); };                 
-                                case(#Err(e)){ return #ICRCTransferError(e); };
-                            }
-                        }
-                        else{
-                            return #ICRCTransferError(#CustomError("transaction amount not matched"));
-                        }; 
+                    var defaultSubaccount:Blob=Utils.defaultSubAccount();
+                    var transferArg:ICRCTransferArg=
+                    {
+                        from_subaccount=?subaccount;
+                        to={ owner=Principal.fromActor(this); subaccount=?defaultSubaccount };
+                        amount=value;
                     };
-                    case(_){
-                        return #ICRCTransferError(#CustomError("transaction not found"));
+                    var txid = await icrc1TokenActor.icrc1_transfer(transferArg);
+                    switch (txid){
+                        case(#Ok(id)){ return #Ok(id); };                 
+                        case(#Err(e)){ return #ICRCTransferError(e); };
                     }
-                }                                
+                }
+                else{
+                    return #ICRCTransferError(#CustomError("transaction amount not matched"));
+                };
             };
             case(#ICRC2TokenActor(icrc2TokenActor)){
                var defaultSubaccount:Blob=Utils.defaultSubAccount();
@@ -504,17 +494,10 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 return await ycTokenActor.balanceOf(caller); 
             };
             case(#ICRC1TokenActor(icrc1TokenActor)){
-                switch(depositTransactions.get(caller))
-                {
-                    case(?deposit){
-                        var depositSubAccount:ICRCAccount={owner=Principal.fromActor(this); subaccount=?deposit.subaccount};
-                        return await icrc1TokenActor.icrc1_balance_of(depositSubAccount);                         
-                    };
-                    case(_){
-                        return 0
-                    }
-                }                                
-            };           
+                let subaccount = getICRC1SubAccount(caller);
+                var depositSubAccount:ICRCAccount={owner=Principal.fromActor(this); subaccount=?subaccount};
+                return await icrc1TokenActor.icrc1_balance_of(depositSubAccount);
+            };
             case(_){
                 Prelude.unreachable()
             };
@@ -834,28 +817,20 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     */
     public shared(msg) func getICRC1SubAccountBalance(user:Principal, tid: Text) : async ICRC1SubAccountBalance{
        assert(_checkAuth(msg.caller));
-       var balance:Nat=0;
        let tokenCanister = _getTokenActor(tid);
        switch(tokenCanister)
        {            
             case(#ICRC1TokenActor(icrc1TokenActor))
             {
-                switch(depositTransactions.get(user))
-                {
-                    case(?deposit){
-                        var depositSubAccount:ICRCAccount={owner=Principal.fromActor(this); subaccount=?deposit.subaccount};
-                        balance:=await icrc1TokenActor.icrc1_balance_of(depositSubAccount);                        
-                    };
-                    case(_){
-                        return #err("no subaccounts found for user");
-                    }
-                }                                
+                let subaccount = getICRC1SubAccount(user);
+                var depositSubAccount:ICRCAccount={owner=Principal.fromActor(this); subaccount=?subaccount};
+                let balance = await icrc1TokenActor.icrc1_balance_of(depositSubAccount);
+                return #ok(balance);
             };            
             case(_){
                 return #err("tid/tokenid passed is not a supported ICRC1 canister");
             };
         };
-        return #ok(balance);      
     };
 
     public shared(msg) func addToken(tokenId: Principal, tokenType: Text) : async TxReceipt {
@@ -904,55 +879,31 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         return value;
     };
 
-    public shared(msg) func initiateICRC1Transfer() : async [Nat8] {
-        switch(depositTransactions.get(msg.caller))
+    private func getICRC1SubAccount(caller: Principal): Blob {
+        switch(depositTransactions.get(caller))
         {
             case(?deposit){                
-                return Blob.toArray(deposit.subaccount);
+                return deposit.subaccount;
             };
             case(_){
-                let subaccount =Utils.generateSubaccount({
-                    caller = msg.caller;
-                    id = getDepositCounter();
+                let subaccount = Utils.generateSubaccount({
+                    caller = caller;
+                    id = depositCounterV2;
                 });
-                let depositAId = Hex.encode(Blob.toArray(subaccount));
-                var trans={
-                    transactionOwner = msg.caller;
-                    depositAId=depositAId;
-                    subaccount = subaccount;
-                    created_at = Time.now();
-                };
-                depositTransactions.put(msg.caller,trans);
-                return Blob.toArray(subaccount);
+                return subaccount;
             };
         };
+    };
+
+    public shared(msg) func initiateICRC1Transfer() : async [Nat8] {
+        return Blob.toArray(getICRC1SubAccount(msg.caller));
     };
 
     public shared func initiateICRC1TransferForUser(userPId: Principal) : async ICRCTxReceipt{
         if (_checkAuth(msg.caller) == false) {
                 return #Err("unauthorized");
         };
-        switch(depositTransactions.get(userPId))
-        {
-            case(?deposit){                
-                return #Ok(Blob.toArray(deposit.subaccount));
-            };
-            case(_){
-                let subaccount =Utils.generateSubaccount({
-                    caller = userPId;
-                    id = getDepositCounter();
-                });
-                let depositAId = Hex.encode(Blob.toArray(subaccount));
-                var trans={
-                    transactionOwner = userPId;
-                    depositAId=depositAId;
-                    subaccount = subaccount;
-                    created_at = Time.now();
-                };
-                depositTransactions.put(userPId,trans);
-                return #Ok(Blob.toArray(subaccount));
-            };
-        };
+        return #Ok(Blob.toArray(getICRC1SubAccount(userPId)));
     };   
 
     public shared(msg) func deposit(tokenId: Principal, value: Nat) : async TxReceipt {
