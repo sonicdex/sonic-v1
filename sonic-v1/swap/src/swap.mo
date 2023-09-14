@@ -1021,13 +1021,14 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         if(Nat.equal(value,0)){
             return #err("no pending deposit found");
         };
+        if (value < tokens.getFee(tid)) {
+            return #err("value less than token transfer fee");
+        };
         let txid = switch(await _transferFrom(tokenCanister, msg.caller, value, tokens.getFee(tid))) {
             case(#Ok(id)) { id };
             case(#Err(e)) { return #err("token transfer failed:" # tid); };
             case(#ICRCTransferError(e)) { return #err("token transfer failed:" # tid); };
         };
-        if (value < tokens.getFee(tid))
-            return #err("value less than token transfer fee");
         ignore tokens.mint(tid, msg.caller, effectiveDepositAmount(tid, value));
         ignore addRecord(
             msg.caller, "deposit", 
