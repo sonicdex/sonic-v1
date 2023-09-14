@@ -252,6 +252,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     private stable var owner: Principal = owner_;
     private stable let blackhole: Principal = Principal.fromText("aaaaa-aa");
     private stable let minimum_liquidity: Nat = 10**3;
+    private stable let depositCounterV2 : Nat = 10000;
 
     private var depositTransactions= HashMap.HashMap<Principal, DepositSubAccounts>(1, Principal.equal, Principal.hash);
     private var tokenTypes = HashMap.HashMap<Text, Text>(1, Text.equal, Text.hash);
@@ -281,11 +282,6 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     // variables not used : added for future use
     private stable var daoCanisterIdForLiquidity : Text = "";
     private stable var permissionless: Bool = false;
-
-    private func getDepositCounter(): Nat{
-        // depositCounter:=depositCounter+1;
-        return depositCounter + 1000;
-    };
 
     private func addRecord(
         caller: Principal, 
@@ -892,7 +888,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             case(_){
                 let subaccount = Utils.generateSubaccount({
                     caller = caller;
-                    id = getDepositCounter();
+                    id = depositCounterV2;
                 });
                 return subaccount;
             };
