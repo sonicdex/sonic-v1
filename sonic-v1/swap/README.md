@@ -54,8 +54,8 @@ Two canisters:
 
    ```
    type SwapInfo = {
-           owner : Principal; // dswap canister creator
-           cycles : Nat; // dswap canister cycles balance
+           owner : Principal; // sonic canister creator
+           cycles : Nat; // sonic canister cycles balance
            tokens: [TokenInfoExt]; // supported tokens info
            pairs: [PairInfoExt]; // supported pairs info
        };
@@ -67,7 +67,7 @@ Two canisters:
    public type TxReceipt = Result.Result<Nat, Text>;
    ```
    
-6. TxRecord, refer to [CAP sdk](https://github.com/Psychedelic/cap/tree/motoko-sdk/sdk/motoko) on record structure and how to retrive tx record.
+6. TxRecord, refer to [CAP sdk](https://github.com/sonicdex/cap-motoko-library) on record structure and how to retrive tx record.
 
    ```
    TxRecord = {
@@ -96,7 +96,7 @@ Two canisters:
 4. getSupportedTokenList(): async [TokenInfoExt] // get supported tokens/assets
 5. getUserLPBalances(user: Principal): async [(Text, Nat)] // (lptoken id, balance)
 6. getUserInfo(user: Principal): async UserInfo // get user info
-7. getSwapInfo(): async SwapInfo // get dswap info
+7. getSwapInfo(): async SwapInfo // get sonicswap info
 ```
 
 #### 
@@ -104,7 +104,7 @@ Two canisters:
 #### 1.2. update calls
 
 ```
-0. addToken(tokenId: Principal) : async TxReceipt // add an asset to dswap
+0. addToken(tokenId: Principal, tokenType: Text) : async TxReceipt // add an asset to sonic
 1. createPair(token0: Principal, token1: Principal): async TxReceipt // create pair
 2. addLiquidity(token0: Principal, token1: Principal, amount0Desired: Nat, amount1Desired: Nat, amount0Min: Nat, amount1Min: Nat, deadline: Int): async TxReceipt // add liquidity
 3. removeLiquidity(token0: Principal, token1: Principal, lpAmount: Nat, to: Principal, deadline: Int): async TxReceipt // remove liquidity
