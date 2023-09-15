@@ -2064,7 +2064,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     /*
     * public info query functions
     */
-    public shared(msg) func historySize(): async Nat {
+    public query func historySize(): async Nat {
         return txcounter;
     };
 
@@ -2968,14 +2968,6 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                     
                     return true;
                 };
-                case (#historySize _) { 
-                    if(Principal.isAnonymous(caller)){
-                        false
-                    }
-                    else{
-                        true
-                    };                 
-                };
                 case (#burn _) { 
                     if(Principal.isAnonymous(caller)){
                         false
@@ -3046,6 +3038,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 case (#exportRewardPairs _) { true };
                 case (#exportRewardInfo _) { true };
                 case (#getCapDetails _) { true };
+                case (#historySize _) { true };
             }
         };
 
