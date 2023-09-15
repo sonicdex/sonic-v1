@@ -836,7 +836,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     * Useful for platform admins to verify balance
     */
     public shared(msg) func getICRC1SubAccountBalance(user:Principal, tid: Text) : async ICRC1SubAccountBalance{
-       assert(msg.caller == owner);
+       assert(_checkAuth(msg.caller));
        let tokenCanister = _getTokenActor(tid);
        switch(tokenCanister)
        {            
@@ -2785,11 +2785,11 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 case (#setFeeForToken _) { (caller == owner) };
                 case (#updateTokenMetadata _) { (caller == owner) };
                 case (#updateAllTokenMetadata _) { (caller == owner) };
-                case (#updateTokenFees _) { (caller == owner) };
-                case (#getICRC1SubAccountBalance _) { (caller == owner) };
+                case (#updateTokenFees _) { (caller == owner) };                
                 case (#addToken _) { (caller == owner) };
 
                 //admin with _checkAuth(msg.caller)
+                case (#getICRC1SubAccountBalance _) { _checkAuth(caller) };
                 case (#initiateICRC1TransferForUser _) { _checkAuth(caller) };
                 case (#retryDepositTo _) { _checkAuth(caller) };
                 case (#addLiquidityForUser _) { _checkAuth(caller) };
