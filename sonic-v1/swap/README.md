@@ -67,7 +67,7 @@ Two canisters:
    public type TxReceipt = Result.Result<Nat, Text>;
    ```
    
-6. TxRecord, refer to [CAP sdk](https://github.com/Psychedelic/cap/tree/motoko-sdk/sdk/motoko) on record structure and how to retrive tx record.
+6. TxRecord, refer to [CAP sdk](https://github.com/sonicdex/cap-motoko-library) on record structure and how to retrive tx record.
 
    ```
    TxRecord = {
