@@ -1,1 +1,18 @@
-.DS_Store
+backup/
+# Various IDEs and Editors
+.vscode/
+.idea/
+**/*~
+
+# Mac OSX temporary files
+**/.DS_Store
+
+# dfx temporary files
+.dfx/
+
+# generated files
+src/declarations/
+
+# frontend code
+node_modules/
+dist/
