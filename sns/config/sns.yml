@@ -1,1469 +1,1575 @@
----
-# It holds that 100000000 e8s = 1 SNS token.
-# time in seconds here are calculated following the below formula
-# 1 year = 365.25 * 24 * 60 * 60
-# 1 month = 1 year  / 12.0
-# 6 months = 1 year / 2.0
-# 1 day = 1 * 24 * 60 * 60
-# 4 days = 4 * 24 * 60 * 60
-#
-#
-# SNS LEDGER
-#
-# Fee of a ledger transaction.
-# Default value = 10000
-#
-# 0.001 Tokens
-transaction_fee_e8s: 100000
-#
-# The name of the token issued by the SNS ledger.
-# This field has no default, a value must be provided by the user.
-# Must be a string with a length between 4 and 255 characters.
-#
-# Example: InternetComputerProtocol
-#
-token_name: SONIC
-#
-# The symbol of the token issued by the SNS Ledger.
-# This field has no default, a value must be provided by the user.
-# Must be a string with a length between 3 and 10 characters.
-#
-# Example: ICP
-#
-token_symbol: SOC
-#
-#
-# SNS GOVERNANCE
-#
-# The cost of making a proposal that is not adopted in e8s.
-# Default value = 100000000
-#
-# 125 Tokens
-proposal_reject_cost_e8s: 12500000000
-#
-# The minimum amount of SNS Token e8s an SNS Ledger account must have to stake a neuron.
-# Default value = 100000000
-#
-# 5 Tokens
-neuron_minimum_stake_e8s: 500000000
-#
-# The minimum dissolve_delay in seconds a neuron must have to be able to cast votes on proposals.
-# Default value = 15768000
-#
-# 1 month = (365 / 12) days
-neuron_minimum_dissolve_delay_to_vote_seconds: 2629800
-#
-# Path to the SNS Project logo on the local filesystem. The path is relative
-# to the running sns binary, so an absolute path to the logo file is recommended.
-# Must have less than 341334 characters, roughly 256Kb.
-#
-logo: ./sonic-icon.png
-#
-# Url to the dapp controlled by the SNS project.
-# Must be a string of max length = 512.
-#
-url: https://app.sonic.ooo
-#
-# Name of the SNS project. This may differ from the name of the associated token name.
-# Must be a string of max length = 255.
-#
 name: SONIC
-#
-# Description of the SNS project.
-# Must be a string of max length = 2000.
-#
-description: "The open DeFi suite on Internet Computer blockchain by the people for the people. Sonic unleashes the potential of crypto trading through innovative DeFi products. https://app.sonic.ooo"
-#
-# The voting reward rate falls quadratically from
-# `initial_reward_rate_basis_points` to `final_reward_rate_basis_points` over
-# the time period defined by `reward_rate_transition_duration_seconds`.
-#
-# The default value is 1. Values of 0 result in the reward rate always being
-# `final_reward_rate_basis_points`. The value used by the NNS is 8 years, or
-# 252460800 seconds. (The value cannot be set to 0.)
-#
-#
-reward_rate_transition_duration_seconds: 157788000
-#
-# The voting reward rate controls how quickly the supply of the SNS token
-# increases. For example, a reward rate of 2% will cause the supply to increase
-# by at most 2% each year. A higher voting reward rate incentivizes people to
-# participate in governance, but also results in higher inflation.
-#
-# An initial and a final reward rate can be set, to have a higher reward rate at
-# the launch of the SNS, and a lower rate farther into the SNS’s lifetime. The
-# reward rate falls quadratically from the initial rate to the final rate over
-# the course of `reward_rate_transition_duration_seconds`.
-#
-# Setting both `initial_reward_rate_percentage` and `final_reward_rate_percentage`
-# to 0 will result in the system not distributing voting rewards at all.
-#
-# The default value for initial_reward_rate_percentage is 0. The value used
-# by the NNS is 10%.
-# The default value for final_reward_rate_percentage is 0. The value used by
-# the NNS is 5%.
-#
-initial_reward_rate_percentage: 2.0
-final_reward_rate_percentage: 1.0
-#
-# The maximum dissolve delay that a neuron can have.
-#
-# The default value is 252460800 seconds (96 months).
-#
-# 1 year = 365 days
-max_dissolve_delay_seconds: 31557600
-#
-# It is possible to give a higher voting weight to older neurons by setting
-# `max_age_bonus_percentage` to a value other than zero. This parameter,
-# `max_neuron_age_for_age_bonus`, sets the age at which the maximum bonus will
-# be given. All older neurons will be treated as if they are this age. The unit
-# is seconds.
-#
-# The default value is 126144000 seconds (48 months).
-#
-# 6 months = (365 / 2) days
-max_neuron_age_seconds_for_age_bonus: 15778800
-#
-# Users with a higher dissolve delay are incentivized to take the long-term
-# interests of the SNS into consideration when voting. To reward this long time
-# commitment, this parameter can be set to a value larger than zero, which will
-# result in neurons having their voting weight increased in proportion to their
-# dissolve delay.
-#
-# If neurons’ dissolve delay is set to `max_dissolve_delay_seconds`, their
-# voting weight will be multiplied by `max_dissolve_delay_bonus_multiplier`.
-#
-# The default value is 2. The value the NNS uses is 2. A value of 1 results in
-# no change in voting weight for neurons with higher dissolve delays.
-# Values below 1 are prohibited.
-#
-max_dissolve_delay_bonus_multiplier: 2.0
-#
-# This is analogous to `max_dissolve_delay_bonus_multiplier`, but controls the
-# additional voting weight given to neurons with more age.
-#
-# If neurons' age is `max_neuron_age_seconds_for_age_bonus` or older, their
-# voting weight will be multiplied by `max_age_bonus_multiplier`.
-#
-# The default value is 2. The value the NNS uses is 1.25. A value of 1 results
-# in no change in voting weight for neurons with higher age.
-# Values below 1 are prohibited.
-#
-max_age_bonus_multiplier: 1.25
-#
-# If the decentralization sale fails, control of the dapp canister(s) is set to these
-# principal IDs. In most use cases, this is set to the original set of controller(s) of the dapp.
-# This field has no default, a value must be provided by the user.
-#
-fallback_controller_principal_ids: ["vfk4j-pkwtu-uj3kn-apwsz-g2gm4-vmrl5-tgwbs-43c6u-mlw4d-uysvm-gae"]
-#
-# The initial voting period in seconds of a newly created proposal.
-# (A proposal's voting period may be increased during a proposal's lifecycle due
-# to the wait-for-quiet algorithm.)
-#
-# The default value is 345600 seconds (4 days).
-#
-initial_voting_period_seconds: 345600
-#
-# The wait for quiet algorithm extends the voting period of a proposal when
-# there is a flip in the majority vote during the proposal's voting period.
-#
-# Without this, there could be an incentive to vote right at the end of a
-# proposal's voting period, in order to reduce the chance that people will see
-# the result and vote against.
-#
-# If this value is set to 86400 seconds (1 day), a change in the majority vote
-# during at the end of a proposal's original voting period the voting period
-# being extended by an additional day. Another change at the end of the extended
-# period will cause the voting period to be extended by half a day, and so on.
-#
-# The total extension to the voting period will never be more than twice this
-# value.
-#
-# For more information, see the wiki page on the wait-for-quiet algorithm:
-# https://wiki.internetcomputer.org/wiki/Network_Nervous_System#Proposal_decision_and_wait-for-quiet
-#
-# The default value is 86400 seconds (1 day).
-#
-wait_for_quiet_deadline_increase_seconds: 86400
-#
-#
-# SNS INITIAL TOKEN DISTRIBUTION
-#
-# This field sets the initial token distribution. Initially, there is only support for
-# the FractionalDeveloperVotingPower strategy. This strategy configures how SNS tokens and neurons
-# are distributed in four "buckets": developer tokens that are given to the original developers of
-# the dapp, airdrop tokens that can be given to any other principals that should have tokens at
-# genesis, treasury tokens that are owned by the SNS governance canister, and sale tokens which
-# are sold in an initial decentralization sale but parts of which can also be reserved for future
-# sales.
-# All developer and airdrop tokens are distributed to the defined principals at genesis in a basket
-# of neurons called the developer neurons and the airdrop neurons, respectively.
-# If only parts of the sale tokens are sold in the initial decentralization sale, the developer
-# neurons are restricted by a voting power multiplier. This voting power multiplier is calculated as
-# `swap_distribution.initial_swap_amount_e8s / swap_distribution.total_e8s`.
 
-# As more of the swap funds are swapped in future rounds, the voting power
-# multiplier will approach 1.0.
-# The initial token distribution must satisfy the following preconditions to be valid:
-#    - developer_distribution.developer_neurons.stake_e8s.sum <= u64:MAX
-#    - developer_neurons.developer_neurons.stake_e8s.sum <= swap_distribution.total_e8s
-#    - airdrop_distribution.airdrop_neurons.stake_e8s.sum <= u64:MAX
-#    - swap_distribution.initial_swap_amount_e8s > 0
-#    - swap_distribution.initial_swap_amount_e8s <= swap_distribution.total_e8s
-#    - swap_distribution.total_e8s >= developer_distribution.developer_neurons.stake_e8s.sum
+description: >
+    The Open Defi Suite on Internet Computer Blockchain governed by the people for the people.
+
+# This is currently a placeholder field and must be left empty for now.
+Principals: []
+
+# token logo
+logo: logo.png
+
+# URL to the dapp controlled by the SNS project.
+url: https://app.sonic.ooo
+
+# Metadata for the NNS proposal required to create the SNS. This data will be
+# shown only in the NNS proposal.
+NnsProposal:
+    # The title of the NNS proposal. Must be a string of 4 to 256 bytes.
+    title: "Proposal to create SNS-DAO for Sonic"
+
+    # The HTTPS address of additional content required to evaluate the NNS
+    # proposal.
+    url: "https://forum.dfinity.org/t/upcoming-sonic-sns/22825"
+
+    # The description of the proposal. Must be a string of 10 to 2,000 bytes.
+    summary: |
+        ## Sonic SNS Proposal for DAO  
+        This is the proposal for the NNS to create an SNS DAO to govern the
+        SONIC DAO.  
+        ## Purpose  
+        Sonic DEX is an open-source, fully on-chain, and audited DeFi suite developed on the Internet Computer.  
+        ## Proposed Token Distribution  
+        Initial Total supply: 125 Million  
+        * 53.80% reserved for the SNS treasury.  
+        * 21% to be distributed by the NNS run decentralisation sale including CF. 
+        * 14.5% allocated to the team which vest over 36 months.  
+        * 2% allocated to seed investors which vest over 12 months.  
+        * 4% allocated to fleek team which vests over 12 months.  
+        * 4.7% allocated to LBP participants & other airdrops which vests over 12 months. 
+        For more information, read [Tokenomics](https://docs.google.com/spreadsheets/d/1X2gQENfw5eKkVos2F9fd3QwDotggG2hZGjGzDbCgld0/edit?usp=sharing)  
+        ## Governance  
+        The governance model includes staking, voting, and other relevant details. The minimum amount of SNS tokens to stake a neuron is 5. The minimum dissolve delay for a neuron to cast votes on proposals is 1 month.  
+        ## Decentralisation Sale  
+        Min participation: 5 ICP  
+        Max participation: 150,000 ICP  
+        Max to be raised: 1,200,000 ICP  
+        Min to be raised: 500,000 ICP  
+        Min participants: 200  
+        ## The Dapp  
+        The Sonic Dex is composed of multiple canisters with the SNS directly controlling the following canisters:  
+        * 3xwpq-ziaaa-aaaah-qcn4a-cai (sonic swap)  
+        * eukbz-7iaaa-aaaah-ac5tq-cai (sonic frontend)  
+        * fxgi7-lqaaa-aaaah-ac5va-cai (sonic analytics)  
+        * utozz-siaaa-aaaam-qaaxq-cai (wicp)  
+        * aanaa-xaaaa-aaaah-aaeiq-cai (xtc)  
+        * lfzsk-7qaaa-aaaah-adk2q-cai (sonic lbp beta)  
+        ## Verification  
+        Above details can be verified through  
+        [Whitepaper](https://sonicdex.gitbook.io/sonic-whitepaper/), [Docs](https://docs.sonic.ooo/) & [Github](https://github.com/sonicdex/)  
+      
+# If the SNS launch attempt fails, control over the dapp canister(s) is given to
+# these principals. In most use cases, this is chosen to be the original set of
+# controller(s) of the dapp.
+fallback_controller_principals:
+    - vfk4j-pkwtu-uj3kn-apwsz-g2gm4-vmrl5-tgwbs-43c6u-mlw4d-uysvm-gae
+
+# The list of dapp canister(s) that will be decentralized if the
+# decentralization swap succeeds.
+dapp_canisters:
+    # sonic swap
+    - 3xwpq-ziaaa-aaaah-qcn4a-cai
+    # sonic app, landing and analytics frontend
+    - eukbz-7iaaa-aaaah-ac5tq-cai
+    - fxgi7-lqaaa-aaaah-ac5va-cai
+    # wicp
+    - utozz-siaaa-aaaam-qaaxq-cai
+    # xtc
+    - aanaa-xaaaa-aaaah-aaeiq-cai
+    # sonic lbp beta
+    - lfzsk-7qaaa-aaaah-adk2q-cai
+
+# Configuration of SNS tokens in the SNS Ledger canister deployed as part
+# of the SNS.
+Token:
+    # The name of the token issued by the SNS ledger.
+    # Must be a string of 4 to 255 bytes without leading or trailing spaces.
+    name: Sonic
+
+    # The symbol of the token issued by the SNS Ledger.
+    # Must be a string of 3 to 10 bytes without leading or trailing spaces.
+    symbol: SONIC
+
+    # SNS ledger transaction fee.
+    # 0.001 tokens
+    transaction_fee: 100000 e8s
+
+    # Path to the SNS token logo on your local filesystem. The path is relative
+    # to the configuration file location, unless an absolute path is given.
+    # Must have less than 341,334 bytes. The only supported format is PNG.
+    logo: logo.png
+
+# Configures SNS proposal-related fields. These fields define the initial values
+# for some of the nervous system parameters related to SNS proposals. This will
+# not affect all SNS proposals submitted to the newly created SNS.
+Proposals:
+    # The cost of making an SNS proposal that is rejected by the SNS neuron
+    # holders.
+    rejection_fee: 125 tokens
+
+    # The initial voting period of an SNS proposal. A proposal's voting period
+    # may be increased during its lifecycle due to the wait-for-quiet algorithm
+    # (see details below).
+    initial_voting_period: 4 days
+    # https://wiki.internetcomputer.org/wiki/Network_Nervous_System#Proposal_decision_and_wait-for-quiet
+    maximum_wait_for_quiet_deadline_extension: 1 day
+
+# Configuration of SNS neurons. These fields have no effect on the NNS proposal,
+# but will affect the SNS itself.
+Neurons:
+    # The minimum amount of SNS tokens to stake a neuron.
+    minimum_creation_stake: 5 tokens
+
+# Configuration of SNS voting. These fields have no effect on the NNS proposal
+# created by this file, but will affect the SNS itself.
+Voting:
+    # The minimum dissolve delay a neuron must have to be able to cast votes on
+    # proposals.
+    #
+    # Dissolve delay incentivizes neurons to vote in the long-term interest of
+    # an SNS, as they are rewarded for longer-term commitment to that SNS.
+    #
+    # Users cannot access the SNS tokens used to stake neurons (until the neuron
+    # is dissolved).
+    minimum_dissolve_delay: 1 month
+
+    # Configuration of voting power bonuses that are applied to neurons to
+    # incentivize alignment with the best interest of the DAO.
+    MaximumVotingPowerBonuses:
+        # Users with a higher dissolve delay are incentivized to take the
+        # long-term interests of the SNS into consideration when voting. To
+        # reward this long-term commitment, this bonus can be set to a
+        # percentage greater than zero, which will result in neurons having
+        # their voting power increased in proportion to their dissolve delay.
+        #
+        # If you do not want this bonus to be applied for neurons with higher
+        # dissolve delay, set `bonus` to `0%` and those neurons will not receive
+        # higher voting power.
+        DissolveDelay:
+            # This parameter sets the maximum dissolve delay a neuron can have.
+            # When reached, the maximum dissolve delay bonus will be applied.
+            duration: 1 years
+            # If a neuron's dissolve delay is `duration`, its voting power will
+            # be increased by this `bonus` amount.
+            bonus: 100%
+
+        # Users with neurons staked in the non-dissolving state for a long
+        # period of time are incentivized to take the long-term interests of
+        # the SNS into consideration when voting. To reward this long-term
+        # commitment, this bonus can be set to a percentage (greater than zero),
+        # which will result in neurons having their voting power increased in
+        # proportion to their age.
+        #
+        # If this bonus should not be applied for older neurons, set the bonus
+        # to `0%` and older neurons will not receive higher voting power.
+        Age:
+            # This parameter sets the duration of time the neuron must be staked
+            # in the non-dissolving state, in other words its `age`, to reach
+            # the maximum age bonus. Once this age is reached, the neuron will
+            # continue to age, but no more bonus will be applied.
+            duration: 6 months
+            # If a neuron's age is `duration` or older, its voting power will be
+            # increased by this `bonus` amount.
+            bonus: 25%
+
+    # Configuration of SNS voting reward parameters.
+    #
+    # The voting reward rate controls how quickly the supply of the SNS token
+    # increases. For example, setting `initial` to `2%` will cause the supply to
+    # increase by at most `2%` per year. A higher voting reward rate
+    # incentivizes users to participate in governance, but also results in
+    # higher inflation.
+    #
+    # The initial and final reward rates can be set to have a higher reward rate
+    # at the launch of the SNS and a lower rate further into the SNS’s lifetime.
+    # The reward rate falls quadratically from the `initial` rate to the `final`
+    # rate over the course of `transition_duration`.
+    #
+    # Setting both `initial` and `final` to `0%` will result in the system not
+    # distributing voting rewards at all.
+    RewardRate:
+        # The initial reward rate at which the SNS voting rewards will increase
+        # per year.
+        initial: 2.0%
+
+        # The final reward rate at which the SNS voting rewards will increase
+        # per year. This rate is reached after `transition_duration` and remains
+        # at this level unless changed by an SNS proposal.
+        final: 1.0%
+
+        # The voting reward rate falls quadratically from `initial` to `final`
+        # over the time period defined by `transition_duration`.
+        #
+        # Values of 0 result in the reward rate always being `final`.
+        transition_duration: 5 years
+
+# Configuration of the initial token distribution of the SNS. You can configure
+# how SNS tokens are distributed in each of the three groups:
+# (1) tokens that are given to the original developers of the dapp,
+# (2) treasury tokens that are owned by the SNS governance canister, and
+# (3) tokens which are distributed to the decentralization swap participants.
 #
-# - developer_distribution has one field:
-#    - developer_neurons: A list of NeuronDistributions that specify the neuron's stake,
-#      controlling principal, a unique memo, and dissolve delay. These neurons will be
-#      available at genesis in PreInitializationSwap mode. The voting power multiplier
-#      is applied to these neurons.
-#
-# - treasury_distribution has one field:
-#    - total_e8s: The total amount of tokens in the treasury bucket.
-#
-# - swap_distribution has two fields:
-#    - total_e8s: The total amount of tokens in the sale bucket. initial_swap_amount_e8s will be
-#      deducted from this total.
-#    - initial_swap_amount_e8s: The initial amount of tokens deposited in the sale canister for
-#      the initial token sale.
-#
-# - airdrop_distribution has one field:
-#    - airdrop_neurons: A list of NeuronDistributions that specify the neuron's stake and
-#      controlling principal. These neurons will be available at genesis in PreInitializationSwap
-#      mode. No voting power multiplier is applied to these neurons.
-#
-initial_token_distribution:
-  FractionalDeveloperVotingPower:
-    treasury_distribution:
-      total_e8s: 7062500000000000 # 70.625M or 56.5%
-    swap_distribution:
-      total_e8s: 2750000000000000 # 27.5M or 22%
-      initial_swap_amount_e8s: 2750000000000000
-    airdrop_distribution:
-      airdrop_neurons:
-      # airdrop allocation for current MCAKE token holders and SONIC's Past LP providers and Users
-	    # the tokens are immediately released to vesting canister
-      # from the vesting canister tokens will be released with minimum of 6 months vesting period
-      # any unclaimed tokens will be send to treasury
-      - controller: 6iiny-yaaaa-aaaah-acuwq-cai
-        stake_e8s: 125000000000000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-    developer_distribution:
-      developer_neurons:
-      - controller: 6kkxa-lvvqy-u2vng-ynmzf-2jnko-s75fh-tbcuz-q5lwq-4hzjj-sqdeb-kqe  # initial developer voting neuron
-        stake_e8s: 100000000000 # 1000
-        memo: 0
-        dissolve_delay_seconds: 31557600
-        vesting_period_seconds: 0
-      - controller: pztrv-cxvtd-suxig-xxkro-xynhu-nuvfq-ccxob-otlye-xeh45-uvild-mqe # fleek team tokens with 1 month dissolve delay, vesting 0
-        stake_e8s: 250000000000000 # 2.5M
-        memo: 0
-        dissolve_delay_seconds: 2629800
-        vesting_period_seconds: 0
-      - controller: pztrv-cxvtd-suxig-xxkro-xynhu-nuvfq-ccxob-otlye-xeh45-uvild-mqe # fleek team tokens vested for 1 year with dissolve delay 1 month
-        stake_e8s: 250000000000000 # 2.5M
-        memo: 1
-        dissolve_delay_seconds: 2629800
-        vesting_period_seconds: 31557600
-      # 18.124M tokens for founding team allocated, vested over a period of 0, 6, 12, 18, 24, 30, 36, 42 to 48 months (4 years)
-      - controller: 7chpc-2qaaa-aaaah-acurq-cai
-        stake_e8s: 201377777777777
-        memo: 0
-        dissolve_delay_seconds: 2629800
-        vesting_period_seconds: 0
-      - controller: 7chpc-2qaaa-aaaah-acurq-cai
-        stake_e8s: 201377777777777
-        memo: 1
-        dissolve_delay_seconds: 2629800
-        vesting_period_seconds: 15778800
-      - controller: 7chpc-2qaaa-aaaah-acurq-cai
-        stake_e8s: 201377777777777
-        memo: 2
-        dissolve_delay_seconds: 2629800
-        vesting_period_seconds: 31557600
-      - controller: 7chpc-2qaaa-aaaah-acurq-cai
-        stake_e8s: 201377777777777
-        memo: 3
-        dissolve_delay_seconds: 2629800
-        vesting_period_seconds: 47336400
-      - controller: 7chpc-2qaaa-aaaah-acurq-cai
-        stake_e8s: 201377777777777
-        memo: 4
-        dissolve_delay_seconds: 2629800
-        vesting_period_seconds: 63115200
-      - controller: 7chpc-2qaaa-aaaah-acurq-cai
-        stake_e8s: 201377777777777
-        memo: 5
-        dissolve_delay_seconds: 2629800
-        vesting_period_seconds: 78894000
-      - controller: 7chpc-2qaaa-aaaah-acurq-cai
-        stake_e8s: 201377777777777
-        memo: 6
-        dissolve_delay_seconds: 2629800
-        vesting_period_seconds: 94672800
-      - controller: 7chpc-2qaaa-aaaah-acurq-cai
-        stake_e8s: 201377777777777
-        memo: 7
-        dissolve_delay_seconds: 2629800
-        vesting_period_seconds: 110451600
-      - controller: 7chpc-2qaaa-aaaah-acurq-cai
-        stake_e8s: 201377777777784
-        memo: 8
-        dissolve_delay_seconds: 2629800
-        vesting_period_seconds: 126230400
-      # Community seed funders allocation, 2.5M total tokens allocated for early investors who participated in our community fundraising in Q1 2022.
-      # the tokens are vested over a period of 0, 3, 6, 9 and 12 months
-      # first set of tokens are set to be released immediately by setting dissolve_delay_seconds as 60
-      - controller: snuqi-abk2c-jgzep-c7pck-yiavv-mdqfi-o2x2g-h4wuc-kvmjn-7agtx-pae
-        stake_e8s: 9305760000000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: snuqi-abk2c-jgzep-c7pck-yiavv-mdqfi-o2x2g-h4wuc-kvmjn-7agtx-pae
-        stake_e8s: 9305760000000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 7889400
-      - controller: snuqi-abk2c-jgzep-c7pck-yiavv-mdqfi-o2x2g-h4wuc-kvmjn-7agtx-pae
-        stake_e8s: 9305760000000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: snuqi-abk2c-jgzep-c7pck-yiavv-mdqfi-o2x2g-h4wuc-kvmjn-7agtx-pae
-        stake_e8s: 9305760000000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: snuqi-abk2c-jgzep-c7pck-yiavv-mdqfi-o2x2g-h4wuc-kvmjn-7agtx-pae
-        stake_e8s: 9305760000000
-        memo: 4
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: wafik-3ibgo-e3dvl-zbnvc-7azle-5okej-i42b5-gvzi6-3bey6-mlil6-mae
-        stake_e8s: 500000000000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: wafik-3ibgo-e3dvl-zbnvc-7azle-5okej-i42b5-gvzi6-3bey6-mlil6-mae
-        stake_e8s: 500000000000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 7889400
-      - controller: wafik-3ibgo-e3dvl-zbnvc-7azle-5okej-i42b5-gvzi6-3bey6-mlil6-mae
-        stake_e8s: 500000000000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: wafik-3ibgo-e3dvl-zbnvc-7azle-5okej-i42b5-gvzi6-3bey6-mlil6-mae
-        stake_e8s: 500000000000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: wafik-3ibgo-e3dvl-zbnvc-7azle-5okej-i42b5-gvzi6-3bey6-mlil6-mae
-        stake_e8s: 500000000000
-        memo: 4
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: 6waub-jkdtz-im6uc-ojink-oojjl-66qqf-jrmgq-tpcpu-ugs2c-u27g5-4ae
-        stake_e8s: 500000000000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: 6waub-jkdtz-im6uc-ojink-oojjl-66qqf-jrmgq-tpcpu-ugs2c-u27g5-4ae
-        stake_e8s: 500000000000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 7889400
-      - controller: 6waub-jkdtz-im6uc-ojink-oojjl-66qqf-jrmgq-tpcpu-ugs2c-u27g5-4ae
-        stake_e8s: 500000000000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: 6waub-jkdtz-im6uc-ojink-oojjl-66qqf-jrmgq-tpcpu-ugs2c-u27g5-4ae
-        stake_e8s: 500000000000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: 6waub-jkdtz-im6uc-ojink-oojjl-66qqf-jrmgq-tpcpu-ugs2c-u27g5-4ae
-        stake_e8s: 500000000000
-        memo: 4
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: gk24j-rp4ue-otalt-dojqy-aff4v-zlpvd-ymdzu-v72ni-2wrkr-a37wf-fae
-        stake_e8s: 500000000000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: gk24j-rp4ue-otalt-dojqy-aff4v-zlpvd-ymdzu-v72ni-2wrkr-a37wf-fae
-        stake_e8s: 500000000000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 7889400
-      - controller: gk24j-rp4ue-otalt-dojqy-aff4v-zlpvd-ymdzu-v72ni-2wrkr-a37wf-fae
-        stake_e8s: 500000000000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: gk24j-rp4ue-otalt-dojqy-aff4v-zlpvd-ymdzu-v72ni-2wrkr-a37wf-fae
-        stake_e8s: 500000000000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: gk24j-rp4ue-otalt-dojqy-aff4v-zlpvd-ymdzu-v72ni-2wrkr-a37wf-fae
-        stake_e8s: 500000000000
-        memo: 4
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: zosil-ho5ev-kgqrp-ybnjd-lbrgh-brv4q-dnj2v-lj7sb-ijsqu-o65qw-qae
-        stake_e8s: 1012000000000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: zosil-ho5ev-kgqrp-ybnjd-lbrgh-brv4q-dnj2v-lj7sb-ijsqu-o65qw-qae
-        stake_e8s: 1012000000000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 7889400
-      - controller: zosil-ho5ev-kgqrp-ybnjd-lbrgh-brv4q-dnj2v-lj7sb-ijsqu-o65qw-qae
-        stake_e8s: 1012000000000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: zosil-ho5ev-kgqrp-ybnjd-lbrgh-brv4q-dnj2v-lj7sb-ijsqu-o65qw-qae
-        stake_e8s: 1012000000000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: zosil-ho5ev-kgqrp-ybnjd-lbrgh-brv4q-dnj2v-lj7sb-ijsqu-o65qw-qae
-        stake_e8s: 1012000000000
-        memo: 4
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: all6m-dw35d-ogire-ri3gv-hd2t3-nhu64-zgmqe-u34sl-wrvak-7vhny-rqe
-        stake_e8s: 500000000000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: all6m-dw35d-ogire-ri3gv-hd2t3-nhu64-zgmqe-u34sl-wrvak-7vhny-rqe
-        stake_e8s: 500000000000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 7889400
-      - controller: all6m-dw35d-ogire-ri3gv-hd2t3-nhu64-zgmqe-u34sl-wrvak-7vhny-rqe
-        stake_e8s: 500000000000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: all6m-dw35d-ogire-ri3gv-hd2t3-nhu64-zgmqe-u34sl-wrvak-7vhny-rqe
-        stake_e8s: 500000000000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: all6m-dw35d-ogire-ri3gv-hd2t3-nhu64-zgmqe-u34sl-wrvak-7vhny-rqe
-        stake_e8s: 500000000000
-        memo: 4
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: 5pzsx-tcrmw-5ogf4-dwdcr-ojz2z-xqhrk-js33g-cqcw6-dnkg4-dld7w-hqe
-        stake_e8s: 250000000000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: 5pzsx-tcrmw-5ogf4-dwdcr-ojz2z-xqhrk-js33g-cqcw6-dnkg4-dld7w-hqe
-        stake_e8s: 250000000000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 7889400
-      - controller: 5pzsx-tcrmw-5ogf4-dwdcr-ojz2z-xqhrk-js33g-cqcw6-dnkg4-dld7w-hqe
-        stake_e8s: 250000000000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: 5pzsx-tcrmw-5ogf4-dwdcr-ojz2z-xqhrk-js33g-cqcw6-dnkg4-dld7w-hqe
-        stake_e8s: 250000000000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: 5pzsx-tcrmw-5ogf4-dwdcr-ojz2z-xqhrk-js33g-cqcw6-dnkg4-dld7w-hqe
-        stake_e8s: 250000000000
-        memo: 4
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: c6olb-xyr36-cb5wq-fzepc-xsrxd-vw3co-nwvlj-fwm2g-omwr7-paukk-yqe
-        stake_e8s: 500000000000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: c6olb-xyr36-cb5wq-fzepc-xsrxd-vw3co-nwvlj-fwm2g-omwr7-paukk-yqe
-        stake_e8s: 500000000000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 7889400
-      - controller: c6olb-xyr36-cb5wq-fzepc-xsrxd-vw3co-nwvlj-fwm2g-omwr7-paukk-yqe
-        stake_e8s: 500000000000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: c6olb-xyr36-cb5wq-fzepc-xsrxd-vw3co-nwvlj-fwm2g-omwr7-paukk-yqe
-        stake_e8s: 500000000000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: c6olb-xyr36-cb5wq-fzepc-xsrxd-vw3co-nwvlj-fwm2g-omwr7-paukk-yqe
-        stake_e8s: 500000000000
-        memo: 4
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: ww2jx-jrz3a-ycha4-3qvql-hgwim-juh2o-dquln-jrcie-s5wrl-xyims-aqe
-        stake_e8s: 5012500000000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: ww2jx-jrz3a-ycha4-3qvql-hgwim-juh2o-dquln-jrcie-s5wrl-xyims-aqe
-        stake_e8s: 5012500000000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 7889400
-      - controller: ww2jx-jrz3a-ycha4-3qvql-hgwim-juh2o-dquln-jrcie-s5wrl-xyims-aqe
-        stake_e8s: 5012500000000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: ww2jx-jrz3a-ycha4-3qvql-hgwim-juh2o-dquln-jrcie-s5wrl-xyims-aqe
-        stake_e8s: 5012500000000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: ww2jx-jrz3a-ycha4-3qvql-hgwim-juh2o-dquln-jrcie-s5wrl-xyims-aqe
-        stake_e8s: 5012500000000
-        memo: 4
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: mx54a-lbpre-rbl2i-rzgj7-55k2o-gbh2g-he7nq-b3kep-b2fnc-7n6wm-dqe
-        stake_e8s: 500000000000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: mx54a-lbpre-rbl2i-rzgj7-55k2o-gbh2g-he7nq-b3kep-b2fnc-7n6wm-dqe
-        stake_e8s: 500000000000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 7889400
-      - controller: mx54a-lbpre-rbl2i-rzgj7-55k2o-gbh2g-he7nq-b3kep-b2fnc-7n6wm-dqe
-        stake_e8s: 500000000000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: mx54a-lbpre-rbl2i-rzgj7-55k2o-gbh2g-he7nq-b3kep-b2fnc-7n6wm-dqe
-        stake_e8s: 500000000000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: mx54a-lbpre-rbl2i-rzgj7-55k2o-gbh2g-he7nq-b3kep-b2fnc-7n6wm-dqe
-        stake_e8s: 500000000000
-        memo: 4
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: vtjxv-twvir-otpuv-43re5-urhft-o6iyl-ageif-bid2k-xzl2z-ixkhf-oae
-        stake_e8s: 550000000000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: vtjxv-twvir-otpuv-43re5-urhft-o6iyl-ageif-bid2k-xzl2z-ixkhf-oae
-        stake_e8s: 550000000000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 7889400
-      - controller: vtjxv-twvir-otpuv-43re5-urhft-o6iyl-ageif-bid2k-xzl2z-ixkhf-oae
-        stake_e8s: 550000000000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: vtjxv-twvir-otpuv-43re5-urhft-o6iyl-ageif-bid2k-xzl2z-ixkhf-oae
-        stake_e8s: 550000000000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: vtjxv-twvir-otpuv-43re5-urhft-o6iyl-ageif-bid2k-xzl2z-ixkhf-oae
-        stake_e8s: 550000000000
-        memo: 4
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: mt4ed-alxoh-agqdg-xyafm-k47ex-epfms-sekyo-kc6mu-rtvez-4zw2n-aae
-        stake_e8s: 500000000000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: mt4ed-alxoh-agqdg-xyafm-k47ex-epfms-sekyo-kc6mu-rtvez-4zw2n-aae
-        stake_e8s: 500000000000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 7889400
-      - controller: mt4ed-alxoh-agqdg-xyafm-k47ex-epfms-sekyo-kc6mu-rtvez-4zw2n-aae
-        stake_e8s: 500000000000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: mt4ed-alxoh-agqdg-xyafm-k47ex-epfms-sekyo-kc6mu-rtvez-4zw2n-aae
-        stake_e8s: 500000000000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: mt4ed-alxoh-agqdg-xyafm-k47ex-epfms-sekyo-kc6mu-rtvez-4zw2n-aae
-        stake_e8s: 500000000000
-        memo: 4
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: saw7k-3vflg-gg6ci-plkdc-3lhsh-huley-llpjr-fqjfm-bhxl5-34evi-iae
-        stake_e8s: 500000000000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: saw7k-3vflg-gg6ci-plkdc-3lhsh-huley-llpjr-fqjfm-bhxl5-34evi-iae
-        stake_e8s: 500000000000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 7889400
-      - controller: saw7k-3vflg-gg6ci-plkdc-3lhsh-huley-llpjr-fqjfm-bhxl5-34evi-iae
-        stake_e8s: 500000000000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: saw7k-3vflg-gg6ci-plkdc-3lhsh-huley-llpjr-fqjfm-bhxl5-34evi-iae
-        stake_e8s: 500000000000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: saw7k-3vflg-gg6ci-plkdc-3lhsh-huley-llpjr-fqjfm-bhxl5-34evi-iae
-        stake_e8s: 500000000000
-        memo: 4
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: ydaf3-kn5th-c4lah-nvslv-gtcvz-uzlwz-o2l7l-25ldt-oxwwd-3pls5-pae
-        stake_e8s: 250000000000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: ydaf3-kn5th-c4lah-nvslv-gtcvz-uzlwz-o2l7l-25ldt-oxwwd-3pls5-pae
-        stake_e8s: 250000000000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 7889400
-      - controller: ydaf3-kn5th-c4lah-nvslv-gtcvz-uzlwz-o2l7l-25ldt-oxwwd-3pls5-pae
-        stake_e8s: 250000000000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: ydaf3-kn5th-c4lah-nvslv-gtcvz-uzlwz-o2l7l-25ldt-oxwwd-3pls5-pae
-        stake_e8s: 250000000000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: ydaf3-kn5th-c4lah-nvslv-gtcvz-uzlwz-o2l7l-25ldt-oxwwd-3pls5-pae
-        stake_e8s: 250000000000
-        memo: 4
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: ick2m-3xrt5-35pdj-nbiv7-26uo2-lcizt-tzbzf-ylkhj-7mpgv-kvscu-kae
-        stake_e8s: 1050000000000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: ick2m-3xrt5-35pdj-nbiv7-26uo2-lcizt-tzbzf-ylkhj-7mpgv-kvscu-kae
-        stake_e8s: 1050000000000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 7889400
-      - controller: ick2m-3xrt5-35pdj-nbiv7-26uo2-lcizt-tzbzf-ylkhj-7mpgv-kvscu-kae
-        stake_e8s: 1050000000000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: ick2m-3xrt5-35pdj-nbiv7-26uo2-lcizt-tzbzf-ylkhj-7mpgv-kvscu-kae
-        stake_e8s: 1050000000000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: ick2m-3xrt5-35pdj-nbiv7-26uo2-lcizt-tzbzf-ylkhj-7mpgv-kvscu-kae
-        stake_e8s: 1050000000000
-        memo: 4
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: 2axu7-czxyn-crrxs-uoom4-mvh5b-b3gj5-mxswl-jh6ur-kppzf-7dbmh-hqe
-        stake_e8s: 500000000000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: 2axu7-czxyn-crrxs-uoom4-mvh5b-b3gj5-mxswl-jh6ur-kppzf-7dbmh-hqe
-        stake_e8s: 500000000000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 7889400
-      - controller: 2axu7-czxyn-crrxs-uoom4-mvh5b-b3gj5-mxswl-jh6ur-kppzf-7dbmh-hqe
-        stake_e8s: 500000000000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: 2axu7-czxyn-crrxs-uoom4-mvh5b-b3gj5-mxswl-jh6ur-kppzf-7dbmh-hqe
-        stake_e8s: 500000000000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: 2axu7-czxyn-crrxs-uoom4-mvh5b-b3gj5-mxswl-jh6ur-kppzf-7dbmh-hqe
-        stake_e8s: 500000000000
-        memo: 4
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: 2gthi-zrgcu-agik2-wr4ab-lhkrj-uzfsy-bortt-qgw5x-vixpd-sccsm-bqe
-        stake_e8s: 500000000000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: 2gthi-zrgcu-agik2-wr4ab-lhkrj-uzfsy-bortt-qgw5x-vixpd-sccsm-bqe
-        stake_e8s: 500000000000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 7889400
-      - controller: 2gthi-zrgcu-agik2-wr4ab-lhkrj-uzfsy-bortt-qgw5x-vixpd-sccsm-bqe
-        stake_e8s: 500000000000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: 2gthi-zrgcu-agik2-wr4ab-lhkrj-uzfsy-bortt-qgw5x-vixpd-sccsm-bqe
-        stake_e8s: 500000000000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: 2gthi-zrgcu-agik2-wr4ab-lhkrj-uzfsy-bortt-qgw5x-vixpd-sccsm-bqe
-        stake_e8s: 500000000000
-        memo: 4
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: 3up6w-taamq-4mcvy-ol5ui-b2lhz-qwtw5-5aurp-fjrjb-4a57r-tpy44-fae
-        stake_e8s: 500000000000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: 3up6w-taamq-4mcvy-ol5ui-b2lhz-qwtw5-5aurp-fjrjb-4a57r-tpy44-fae
-        stake_e8s: 500000000000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 7889400
-      - controller: 3up6w-taamq-4mcvy-ol5ui-b2lhz-qwtw5-5aurp-fjrjb-4a57r-tpy44-fae
-        stake_e8s: 500000000000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: 3up6w-taamq-4mcvy-ol5ui-b2lhz-qwtw5-5aurp-fjrjb-4a57r-tpy44-fae
-        stake_e8s: 500000000000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: 3up6w-taamq-4mcvy-ol5ui-b2lhz-qwtw5-5aurp-fjrjb-4a57r-tpy44-fae
-        stake_e8s: 500000000000
-        memo: 4
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: absmb-a2x7z-zxga3-xsee4-4lf2n-w5cc6-ri3az-pqmpx-oerge-yrjrk-uae
-        stake_e8s: 507500000000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: absmb-a2x7z-zxga3-xsee4-4lf2n-w5cc6-ri3az-pqmpx-oerge-yrjrk-uae
-        stake_e8s: 507500000000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 7889400
-      - controller: absmb-a2x7z-zxga3-xsee4-4lf2n-w5cc6-ri3az-pqmpx-oerge-yrjrk-uae
-        stake_e8s: 507500000000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: absmb-a2x7z-zxga3-xsee4-4lf2n-w5cc6-ri3az-pqmpx-oerge-yrjrk-uae
-        stake_e8s: 507500000000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: absmb-a2x7z-zxga3-xsee4-4lf2n-w5cc6-ri3az-pqmpx-oerge-yrjrk-uae
-        stake_e8s: 507500000000
-        memo: 4
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: wgizu-oh3b7-dza6g-l6pcc-hjil3-pclmv-adeqn-k2god-z4omc-cgjzq-sae
-        stake_e8s: 500000000000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: wgizu-oh3b7-dza6g-l6pcc-hjil3-pclmv-adeqn-k2god-z4omc-cgjzq-sae
-        stake_e8s: 500000000000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 7889400
-      - controller: wgizu-oh3b7-dza6g-l6pcc-hjil3-pclmv-adeqn-k2god-z4omc-cgjzq-sae
-        stake_e8s: 500000000000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: wgizu-oh3b7-dza6g-l6pcc-hjil3-pclmv-adeqn-k2god-z4omc-cgjzq-sae
-        stake_e8s: 500000000000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: wgizu-oh3b7-dza6g-l6pcc-hjil3-pclmv-adeqn-k2god-z4omc-cgjzq-sae
-        stake_e8s: 500000000000
-        memo: 4
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: lcyeu-p6tby-i4uw5-mvkiy-rp3sb-5elnq-5xfiz-rsduf-7itwj-2d2wm-nae
-        stake_e8s: 541500000000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: lcyeu-p6tby-i4uw5-mvkiy-rp3sb-5elnq-5xfiz-rsduf-7itwj-2d2wm-nae
-        stake_e8s: 541500000000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 7889400
-      - controller: lcyeu-p6tby-i4uw5-mvkiy-rp3sb-5elnq-5xfiz-rsduf-7itwj-2d2wm-nae
-        stake_e8s: 541500000000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: lcyeu-p6tby-i4uw5-mvkiy-rp3sb-5elnq-5xfiz-rsduf-7itwj-2d2wm-nae
-        stake_e8s: 541500000000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: lcyeu-p6tby-i4uw5-mvkiy-rp3sb-5elnq-5xfiz-rsduf-7itwj-2d2wm-nae
-        stake_e8s: 541500000000
-        memo: 4
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: airdr-s3anz-vkwqu-3d77h-ccbwc-k5sfc-yjrfv-sdwc4-n5ijm-p37eq-fae
-        stake_e8s: 500000000000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: airdr-s3anz-vkwqu-3d77h-ccbwc-k5sfc-yjrfv-sdwc4-n5ijm-p37eq-fae
-        stake_e8s: 500000000000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 7889400
-      - controller: airdr-s3anz-vkwqu-3d77h-ccbwc-k5sfc-yjrfv-sdwc4-n5ijm-p37eq-fae
-        stake_e8s: 500000000000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: airdr-s3anz-vkwqu-3d77h-ccbwc-k5sfc-yjrfv-sdwc4-n5ijm-p37eq-fae
-        stake_e8s: 500000000000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: airdr-s3anz-vkwqu-3d77h-ccbwc-k5sfc-yjrfv-sdwc4-n5ijm-p37eq-fae
-        stake_e8s: 500000000000
-        memo: 4
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: lhynn-heral-nybs2-6pnwh-v4xfc-f24i5-2yufy-h6zus-oiijg-4xzyd-gae
-        stake_e8s: 500000000000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: lhynn-heral-nybs2-6pnwh-v4xfc-f24i5-2yufy-h6zus-oiijg-4xzyd-gae
-        stake_e8s: 500000000000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 7889400
-      - controller: lhynn-heral-nybs2-6pnwh-v4xfc-f24i5-2yufy-h6zus-oiijg-4xzyd-gae
-        stake_e8s: 500000000000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: lhynn-heral-nybs2-6pnwh-v4xfc-f24i5-2yufy-h6zus-oiijg-4xzyd-gae
-        stake_e8s: 500000000000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: lhynn-heral-nybs2-6pnwh-v4xfc-f24i5-2yufy-h6zus-oiijg-4xzyd-gae
-        stake_e8s: 500000000000
-        memo: 4
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: cczkc-2yxxs-5d25d-ffp4m-jag2i-5r4rt-dxsry-xrnu7-r3yr3-4oixq-sqe
-        stake_e8s: 610350000000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: cczkc-2yxxs-5d25d-ffp4m-jag2i-5r4rt-dxsry-xrnu7-r3yr3-4oixq-sqe
-        stake_e8s: 610350000000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 7889400
-      - controller: cczkc-2yxxs-5d25d-ffp4m-jag2i-5r4rt-dxsry-xrnu7-r3yr3-4oixq-sqe
-        stake_e8s: 610350000000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: cczkc-2yxxs-5d25d-ffp4m-jag2i-5r4rt-dxsry-xrnu7-r3yr3-4oixq-sqe
-        stake_e8s: 610350000000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: cczkc-2yxxs-5d25d-ffp4m-jag2i-5r4rt-dxsry-xrnu7-r3yr3-4oixq-sqe
-        stake_e8s: 610350000000
-        memo: 4
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: nxiqs-ture2-t73uf-mgvm6-sxytg-ylgmh-e6z6d-dw3jp-fcduw-7w72q-vqe
-        stake_e8s: 1250000000000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: nxiqs-ture2-t73uf-mgvm6-sxytg-ylgmh-e6z6d-dw3jp-fcduw-7w72q-vqe
-        stake_e8s: 1250000000000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 7889400
-      - controller: nxiqs-ture2-t73uf-mgvm6-sxytg-ylgmh-e6z6d-dw3jp-fcduw-7w72q-vqe
-        stake_e8s: 1250000000000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: nxiqs-ture2-t73uf-mgvm6-sxytg-ylgmh-e6z6d-dw3jp-fcduw-7w72q-vqe
-        stake_e8s: 1250000000000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: nxiqs-ture2-t73uf-mgvm6-sxytg-ylgmh-e6z6d-dw3jp-fcduw-7w72q-vqe
-        stake_e8s: 1250000000000
-        memo: 4
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: zlthp-jyed5-cou5n-zpymw-b46ud-4o6ul-j6vby-grwkw-ihwyi-psvep-rae
-        stake_e8s: 2500000000000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: zlthp-jyed5-cou5n-zpymw-b46ud-4o6ul-j6vby-grwkw-ihwyi-psvep-rae
-        stake_e8s: 2500000000000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 7889400
-      - controller: zlthp-jyed5-cou5n-zpymw-b46ud-4o6ul-j6vby-grwkw-ihwyi-psvep-rae
-        stake_e8s: 2500000000000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: zlthp-jyed5-cou5n-zpymw-b46ud-4o6ul-j6vby-grwkw-ihwyi-psvep-rae
-        stake_e8s: 2500000000000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: zlthp-jyed5-cou5n-zpymw-b46ud-4o6ul-j6vby-grwkw-ihwyi-psvep-rae
-        stake_e8s: 2500000000000
-        memo: 4
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: 7oppw-5ebmd-erxsk-ncwx3-2pnmf-4wdkh-5glsb-fmmb3-lmhvw-vrdgx-aae
-        stake_e8s: 500000000000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: 7oppw-5ebmd-erxsk-ncwx3-2pnmf-4wdkh-5glsb-fmmb3-lmhvw-vrdgx-aae
-        stake_e8s: 500000000000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 7889400
-      - controller: 7oppw-5ebmd-erxsk-ncwx3-2pnmf-4wdkh-5glsb-fmmb3-lmhvw-vrdgx-aae
-        stake_e8s: 500000000000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: 7oppw-5ebmd-erxsk-ncwx3-2pnmf-4wdkh-5glsb-fmmb3-lmhvw-vrdgx-aae
-        stake_e8s: 500000000000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: 7oppw-5ebmd-erxsk-ncwx3-2pnmf-4wdkh-5glsb-fmmb3-lmhvw-vrdgx-aae
-        stake_e8s: 500000000000
-        memo: 4
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: i4rub-bvxmi-wrcvv-4nl2q-bpuab-cflvh-7cwot-sa2bu-ajmlu-ufj7n-hae
-        stake_e8s: 592755000000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: i4rub-bvxmi-wrcvv-4nl2q-bpuab-cflvh-7cwot-sa2bu-ajmlu-ufj7n-hae
-        stake_e8s: 592755000000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 7889400
-      - controller: i4rub-bvxmi-wrcvv-4nl2q-bpuab-cflvh-7cwot-sa2bu-ajmlu-ufj7n-hae
-        stake_e8s: 592755000000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: i4rub-bvxmi-wrcvv-4nl2q-bpuab-cflvh-7cwot-sa2bu-ajmlu-ufj7n-hae
-        stake_e8s: 592755000000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: i4rub-bvxmi-wrcvv-4nl2q-bpuab-cflvh-7cwot-sa2bu-ajmlu-ufj7n-hae
-        stake_e8s: 592755000000
-        memo: 4
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: trag2-cpiwz-omz4t-h5hc2-ddwi2-j57h4-6nwql-luslo-esh5y-kw6wf-kae
-        stake_e8s: 500000000000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: trag2-cpiwz-omz4t-h5hc2-ddwi2-j57h4-6nwql-luslo-esh5y-kw6wf-kae
-        stake_e8s: 500000000000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 7889400
-      - controller: trag2-cpiwz-omz4t-h5hc2-ddwi2-j57h4-6nwql-luslo-esh5y-kw6wf-kae
-        stake_e8s: 500000000000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: trag2-cpiwz-omz4t-h5hc2-ddwi2-j57h4-6nwql-luslo-esh5y-kw6wf-kae
-        stake_e8s: 500000000000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: trag2-cpiwz-omz4t-h5hc2-ddwi2-j57h4-6nwql-luslo-esh5y-kw6wf-kae
-        stake_e8s: 500000000000
-        memo: 4
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: ipgdv-pf7j7-et34y-zrazs-aqnil-w2umz-offhu-gmsvr-u6pmx-klf53-2ae
-        stake_e8s: 750000000000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: ipgdv-pf7j7-et34y-zrazs-aqnil-w2umz-offhu-gmsvr-u6pmx-klf53-2ae
-        stake_e8s: 750000000000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 7889400
-      - controller: ipgdv-pf7j7-et34y-zrazs-aqnil-w2umz-offhu-gmsvr-u6pmx-klf53-2ae
-        stake_e8s: 750000000000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: ipgdv-pf7j7-et34y-zrazs-aqnil-w2umz-offhu-gmsvr-u6pmx-klf53-2ae
-        stake_e8s: 750000000000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: ipgdv-pf7j7-et34y-zrazs-aqnil-w2umz-offhu-gmsvr-u6pmx-klf53-2ae
-        stake_e8s: 750000000000
-        memo: 4
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: o2glf-b6pob-yk6l7-urxow-pswqi-ymrj5-xx6py-d5ts6-6m736-shf3l-3ae
-        stake_e8s: 750000000000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: o2glf-b6pob-yk6l7-urxow-pswqi-ymrj5-xx6py-d5ts6-6m736-shf3l-3ae
-        stake_e8s: 750000000000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 7889400
-      - controller: o2glf-b6pob-yk6l7-urxow-pswqi-ymrj5-xx6py-d5ts6-6m736-shf3l-3ae
-        stake_e8s: 750000000000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: o2glf-b6pob-yk6l7-urxow-pswqi-ymrj5-xx6py-d5ts6-6m736-shf3l-3ae
-        stake_e8s: 750000000000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: o2glf-b6pob-yk6l7-urxow-pswqi-ymrj5-xx6py-d5ts6-6m736-shf3l-3ae
-        stake_e8s: 750000000000
-        memo: 4
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: svpu3-n53nr-jwunj-6rplv-t2g2y-rbuib-35i4q-suhbk-vcudp-54xaw-lqe
-        stake_e8s: 2329215000000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: svpu3-n53nr-jwunj-6rplv-t2g2y-rbuib-35i4q-suhbk-vcudp-54xaw-lqe
-        stake_e8s: 2329215000000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 7889400
-      - controller: svpu3-n53nr-jwunj-6rplv-t2g2y-rbuib-35i4q-suhbk-vcudp-54xaw-lqe
-        stake_e8s: 2329215000000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: svpu3-n53nr-jwunj-6rplv-t2g2y-rbuib-35i4q-suhbk-vcudp-54xaw-lqe
-        stake_e8s: 2329215000000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: svpu3-n53nr-jwunj-6rplv-t2g2y-rbuib-35i4q-suhbk-vcudp-54xaw-lqe
-        stake_e8s: 2329215000000
-        memo: 4
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: e4lte-v3vxs-e4hnj-tkilm-p6yw2-45jct-76lgw-fwdho-7pxy2-kqhlp-pqe
-        stake_e8s: 1500000000000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: e4lte-v3vxs-e4hnj-tkilm-p6yw2-45jct-76lgw-fwdho-7pxy2-kqhlp-pqe
-        stake_e8s: 1500000000000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 7889400
-      - controller: e4lte-v3vxs-e4hnj-tkilm-p6yw2-45jct-76lgw-fwdho-7pxy2-kqhlp-pqe
-        stake_e8s: 1500000000000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: e4lte-v3vxs-e4hnj-tkilm-p6yw2-45jct-76lgw-fwdho-7pxy2-kqhlp-pqe
-        stake_e8s: 1500000000000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: e4lte-v3vxs-e4hnj-tkilm-p6yw2-45jct-76lgw-fwdho-7pxy2-kqhlp-pqe
-        stake_e8s: 1500000000000
-        memo: 4
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: vqqbt-tu73k-rmm25-hyq5o-x5vug-rixzf-cfcf3-oicjz-xi6hr-im6mw-2qe
-        stake_e8s: 500000000000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: vqqbt-tu73k-rmm25-hyq5o-x5vug-rixzf-cfcf3-oicjz-xi6hr-im6mw-2qe
-        stake_e8s: 500000000000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 7889400
-      - controller: vqqbt-tu73k-rmm25-hyq5o-x5vug-rixzf-cfcf3-oicjz-xi6hr-im6mw-2qe
-        stake_e8s: 500000000000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: vqqbt-tu73k-rmm25-hyq5o-x5vug-rixzf-cfcf3-oicjz-xi6hr-im6mw-2qe
-        stake_e8s: 500000000000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: vqqbt-tu73k-rmm25-hyq5o-x5vug-rixzf-cfcf3-oicjz-xi6hr-im6mw-2qe
-        stake_e8s: 500000000000
-        memo: 4
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: qxizu-u6ktn-ejgk5-pu6is-7sxpw-txme6-tta36-kccui-mfae4-vuigw-qqe
-        stake_e8s: 1988185000000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: qxizu-u6ktn-ejgk5-pu6is-7sxpw-txme6-tta36-kccui-mfae4-vuigw-qqe
-        stake_e8s: 1988185000000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 7889400
-      - controller: qxizu-u6ktn-ejgk5-pu6is-7sxpw-txme6-tta36-kccui-mfae4-vuigw-qqe
-        stake_e8s: 1988185000000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: qxizu-u6ktn-ejgk5-pu6is-7sxpw-txme6-tta36-kccui-mfae4-vuigw-qqe
-        stake_e8s: 1988185000000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: qxizu-u6ktn-ejgk5-pu6is-7sxpw-txme6-tta36-kccui-mfae4-vuigw-qqe
-        stake_e8s: 1988185000000
-        memo: 4
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: prnrn-t5fm4-ybwgo-wz6zq-ijo2h-3xve5-cac4e-bm7vu-2doxr-i7ep4-vae
-        stake_e8s: 500000000000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: prnrn-t5fm4-ybwgo-wz6zq-ijo2h-3xve5-cac4e-bm7vu-2doxr-i7ep4-vae
-        stake_e8s: 500000000000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 7889400
-      - controller: prnrn-t5fm4-ybwgo-wz6zq-ijo2h-3xve5-cac4e-bm7vu-2doxr-i7ep4-vae
-        stake_e8s: 500000000000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: prnrn-t5fm4-ybwgo-wz6zq-ijo2h-3xve5-cac4e-bm7vu-2doxr-i7ep4-vae
-        stake_e8s: 500000000000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: prnrn-t5fm4-ybwgo-wz6zq-ijo2h-3xve5-cac4e-bm7vu-2doxr-i7ep4-vae
-        stake_e8s: 500000000000
-        memo: 4
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: cjagz-jwiva-7pbld-2xjxo-5vip3-2jobb-3ivgn-xyxt7-7ekcm-qahxg-cae
-        stake_e8s: 500000000000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: cjagz-jwiva-7pbld-2xjxo-5vip3-2jobb-3ivgn-xyxt7-7ekcm-qahxg-cae
-        stake_e8s: 500000000000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 7889400
-      - controller: cjagz-jwiva-7pbld-2xjxo-5vip3-2jobb-3ivgn-xyxt7-7ekcm-qahxg-cae
-        stake_e8s: 500000000000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: cjagz-jwiva-7pbld-2xjxo-5vip3-2jobb-3ivgn-xyxt7-7ekcm-qahxg-cae
-        stake_e8s: 500000000000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: cjagz-jwiva-7pbld-2xjxo-5vip3-2jobb-3ivgn-xyxt7-7ekcm-qahxg-cae
-        stake_e8s: 500000000000
-        memo: 4
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: behqd-xscda-wivdg-si3oh-q3bbk-on72z-mmg6b-fyfmu-77xjy-5fwtj-lae
-        stake_e8s: 500000000000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: behqd-xscda-wivdg-si3oh-q3bbk-on72z-mmg6b-fyfmu-77xjy-5fwtj-lae
-        stake_e8s: 500000000000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 7889400
-      - controller: behqd-xscda-wivdg-si3oh-q3bbk-on72z-mmg6b-fyfmu-77xjy-5fwtj-lae
-        stake_e8s: 500000000000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: behqd-xscda-wivdg-si3oh-q3bbk-on72z-mmg6b-fyfmu-77xjy-5fwtj-lae
-        stake_e8s: 500000000000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: behqd-xscda-wivdg-si3oh-q3bbk-on72z-mmg6b-fyfmu-77xjy-5fwtj-lae
-        stake_e8s: 500000000000
-        memo: 4
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: 27idm-mgbgp-66xea-62upg-ylw7p-vpxfy-xufbg-nkuj3-azt2s-qdd5i-hqe
-        stake_e8s: 602415000000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: 27idm-mgbgp-66xea-62upg-ylw7p-vpxfy-xufbg-nkuj3-azt2s-qdd5i-hqe
-        stake_e8s: 602415000000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 7889400
-      - controller: 27idm-mgbgp-66xea-62upg-ylw7p-vpxfy-xufbg-nkuj3-azt2s-qdd5i-hqe
-        stake_e8s: 602415000000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: 27idm-mgbgp-66xea-62upg-ylw7p-vpxfy-xufbg-nkuj3-azt2s-qdd5i-hqe
-        stake_e8s: 602415000000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: 27idm-mgbgp-66xea-62upg-ylw7p-vpxfy-xufbg-nkuj3-azt2s-qdd5i-hqe
-        stake_e8s: 602415000000
-        memo: 4
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: 6oboa-fqj3s-fvivx-llg2x-ngj3q-vpivp-vkhr3-mwpdm-236gj-ch2zk-sae
-        stake_e8s: 500000000000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: 6oboa-fqj3s-fvivx-llg2x-ngj3q-vpivp-vkhr3-mwpdm-236gj-ch2zk-sae
-        stake_e8s: 500000000000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 7889400
-      - controller: 6oboa-fqj3s-fvivx-llg2x-ngj3q-vpivp-vkhr3-mwpdm-236gj-ch2zk-sae
-        stake_e8s: 500000000000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: 6oboa-fqj3s-fvivx-llg2x-ngj3q-vpivp-vkhr3-mwpdm-236gj-ch2zk-sae
-        stake_e8s: 500000000000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: 6oboa-fqj3s-fvivx-llg2x-ngj3q-vpivp-vkhr3-mwpdm-236gj-ch2zk-sae
-        stake_e8s: 500000000000
-        memo: 4
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: xe33t-j44bt-lgzwy-5b44d-m2qpp-fwayx-bf3vh-b7f7p-s5746-pvngp-vae
-        stake_e8s: 546660000000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: xe33t-j44bt-lgzwy-5b44d-m2qpp-fwayx-bf3vh-b7f7p-s5746-pvngp-vae
-        stake_e8s: 546660000000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 7889400
-      - controller: xe33t-j44bt-lgzwy-5b44d-m2qpp-fwayx-bf3vh-b7f7p-s5746-pvngp-vae
-        stake_e8s: 546660000000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: xe33t-j44bt-lgzwy-5b44d-m2qpp-fwayx-bf3vh-b7f7p-s5746-pvngp-vae
-        stake_e8s: 546660000000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: xe33t-j44bt-lgzwy-5b44d-m2qpp-fwayx-bf3vh-b7f7p-s5746-pvngp-vae
-        stake_e8s: 546660000000
-        memo: 4
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: yxrec-lphu7-4cfmz-jhfu5-mbqib-kqxcu-xnbfj-unlgo-4d2uw-ycdjc-zqe
-        stake_e8s: 500000000000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: yxrec-lphu7-4cfmz-jhfu5-mbqib-kqxcu-xnbfj-unlgo-4d2uw-ycdjc-zqe
-        stake_e8s: 500000000000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 7889400
-      - controller: yxrec-lphu7-4cfmz-jhfu5-mbqib-kqxcu-xnbfj-unlgo-4d2uw-ycdjc-zqe
-        stake_e8s: 500000000000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: yxrec-lphu7-4cfmz-jhfu5-mbqib-kqxcu-xnbfj-unlgo-4d2uw-ycdjc-zqe
-        stake_e8s: 500000000000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: yxrec-lphu7-4cfmz-jhfu5-mbqib-kqxcu-xnbfj-unlgo-4d2uw-ycdjc-zqe
-        stake_e8s: 500000000000
-        memo: 4
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: jwvyx-bkwm3-e62m7-ic3zy-avbb4-hc5ow-mq4yf-qdlff-v3b5d-3xlwe-hae
-        stake_e8s: 500000000000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: jwvyx-bkwm3-e62m7-ic3zy-avbb4-hc5ow-mq4yf-qdlff-v3b5d-3xlwe-hae
-        stake_e8s: 500000000000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 7889400
-      - controller: jwvyx-bkwm3-e62m7-ic3zy-avbb4-hc5ow-mq4yf-qdlff-v3b5d-3xlwe-hae
-        stake_e8s: 500000000000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: jwvyx-bkwm3-e62m7-ic3zy-avbb4-hc5ow-mq4yf-qdlff-v3b5d-3xlwe-hae
-        stake_e8s: 500000000000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: jwvyx-bkwm3-e62m7-ic3zy-avbb4-hc5ow-mq4yf-qdlff-v3b5d-3xlwe-hae
-        stake_e8s: 500000000000
-        memo: 4
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: jn2lc-kk6vz-blly5-mmzsq-kpuuq-jw6ib-oghpo-ent2u-didrt-is2i6-3ae
-        stake_e8s: 1000000000000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: jn2lc-kk6vz-blly5-mmzsq-kpuuq-jw6ib-oghpo-ent2u-didrt-is2i6-3ae
-        stake_e8s: 1000000000000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 7889400
-      - controller: jn2lc-kk6vz-blly5-mmzsq-kpuuq-jw6ib-oghpo-ent2u-didrt-is2i6-3ae
-        stake_e8s: 1000000000000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: jn2lc-kk6vz-blly5-mmzsq-kpuuq-jw6ib-oghpo-ent2u-didrt-is2i6-3ae
-        stake_e8s: 1000000000000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: jn2lc-kk6vz-blly5-mmzsq-kpuuq-jw6ib-oghpo-ent2u-didrt-is2i6-3ae
-        stake_e8s: 1000000000000
-        memo: 4
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: a773e-howz4-uevuv-obwvk-tsjhf-itbxp-zsvyh-rnnxa-6nqd2-ebcrn-qqe
-        stake_e8s: 217782900000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: a773e-howz4-uevuv-obwvk-tsjhf-itbxp-zsvyh-rnnxa-6nqd2-ebcrn-qqe
-        stake_e8s: 217782900000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 7889400
-      - controller: a773e-howz4-uevuv-obwvk-tsjhf-itbxp-zsvyh-rnnxa-6nqd2-ebcrn-qqe
-        stake_e8s: 217782900000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: a773e-howz4-uevuv-obwvk-tsjhf-itbxp-zsvyh-rnnxa-6nqd2-ebcrn-qqe
-        stake_e8s: 217782900000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: a773e-howz4-uevuv-obwvk-tsjhf-itbxp-zsvyh-rnnxa-6nqd2-ebcrn-qqe
-        stake_e8s: 217782900000
-        memo: 4
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
-      - controller: ml7ds-hp6pl-6lqoi-yryad-kkjmz-kctxl-dmknm-dw6kn-hofw7-h7ssy-vqe
-        stake_e8s: 5383377100000
-        memo: 0
-        dissolve_delay_seconds: 60
-        vesting_period_seconds: 0
-      - controller: ml7ds-hp6pl-6lqoi-yryad-kkjmz-kctxl-dmknm-dw6kn-hofw7-h7ssy-vqe
-        stake_e8s: 5383377100000
-        memo: 1
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 7889400
-      - controller: ml7ds-hp6pl-6lqoi-yryad-kkjmz-kctxl-dmknm-dw6kn-hofw7-h7ssy-vqe
-        stake_e8s: 5383377100000
-        memo: 2
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 15778800
-      - controller: ml7ds-hp6pl-6lqoi-yryad-kkjmz-kctxl-dmknm-dw6kn-hofw7-h7ssy-vqe
-        stake_e8s: 5383377100000
-        memo: 3
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 23668200
-      - controller: ml7ds-hp6pl-6lqoi-yryad-kkjmz-kctxl-dmknm-dw6kn-hofw7-h7ssy-vqe
-        stake_e8s: 5383377100000
-        memo: 4
-        dissolve_delay_seconds: 7889400
-        vesting_period_seconds: 31557600
+# The initial token distribution must satisfy the following preconditions to be
+# valid:
+#    - The sum of all developer tokens in E8s must be less than `u64::MAX`.
+#    - The Swap's initial balance (see group (3) above) must be greater than 0.
+#    - The Swap's initial balance (see group (3) above) must be greater than or
+#      equal to the sum of all developer tokens.
+Distribution:
+    # The initial neurons created when the SNS Governance canister is installed.
+    # Each element in this list specifies one such neuron, including its stake,
+    # controlling principal, memo identifying this neuron (every neuron that
+    # a user has must be identified by a unique memo), dissolve delay, and a
+    # vesting period. Even though these neurons are distributed at genesis,
+    # they are locked in a (restricted) pre-initialization mode until the
+    # decentralization swap is completed. Note that `vesting_period` starts
+    # right after the SNS creation and thus includes the pre-initialization mode
+    # period.
+    Neurons:
+        - principal: 6kkxa-lvvqy-u2vng-ynmzf-2jnko-s75fh-tbcuz-q5lwq-4hzjj-sqdeb-kqe  # dev neuron for proposal
+          stake: 100000000000 e8s # 1000 tokens
+          memo: 0
+          dissolve_delay: 1 years
+          vesting_period: 0sec
+        - principal: pztrv-cxvtd-suxig-xxkro-xynhu-nuvfq-ccxob-otlye-xeh45-uvild-mqe # fleek team
+          stake: 250000000000000 e8s # 2.5 million
+          memo: 0
+          dissolve_delay: 3 months
+          vesting_period: 0sec
+        - principal: pztrv-cxvtd-suxig-xxkro-xynhu-nuvfq-ccxob-otlye-xeh45-uvild-mqe # fleek team
+          stake: 250000000000000 e8s # 2.5 million
+          memo: 1
+          dissolve_delay: 3 months
+          vesting_period: 1 years
+          # 18.124 million out of 18.125 million for team (1000 allocated for dev neuron) 
+        - principal: wj3z7-cbwys-3jjea-5jhv3-v63op-ibhwl-2s4b5-ttpxx-dsxfx-wxmf6-hqe
+          stake: 258914285714285 e8s
+          memo: 0
+          dissolve_delay: 1 months
+          vesting_period: 0 months
+        - principal: wj3z7-cbwys-3jjea-5jhv3-v63op-ibhwl-2s4b5-ttpxx-dsxfx-wxmf6-hqe
+          stake: 258914285714285 e8s
+          memo: 1
+          dissolve_delay: 1 months
+          vesting_period: 6 months
+        - principal: wj3z7-cbwys-3jjea-5jhv3-v63op-ibhwl-2s4b5-ttpxx-dsxfx-wxmf6-hqe
+          stake: 258914285714285 e8s
+          memo: 2
+          dissolve_delay: 1 months
+          vesting_period: 12 months
+        - principal: wj3z7-cbwys-3jjea-5jhv3-v63op-ibhwl-2s4b5-ttpxx-dsxfx-wxmf6-hqe
+          stake: 258914285714285 e8s
+          memo: 3
+          dissolve_delay: 1 months
+          vesting_period: 18 months
+        - principal: wj3z7-cbwys-3jjea-5jhv3-v63op-ibhwl-2s4b5-ttpxx-dsxfx-wxmf6-hqe
+          stake: 258914285714285 e8s
+          memo: 4
+          dissolve_delay: 1 months
+          vesting_period: 24 months
+        - principal: wj3z7-cbwys-3jjea-5jhv3-v63op-ibhwl-2s4b5-ttpxx-dsxfx-wxmf6-hqe
+          stake: 258914285714285 e8s
+          memo: 5
+          dissolve_delay: 1 months
+          vesting_period: 30 months
+        - principal: wj3z7-cbwys-3jjea-5jhv3-v63op-ibhwl-2s4b5-ttpxx-dsxfx-wxmf6-hqe
+          stake: 258914285714290 e8s
+          memo: 6
+          dissolve_delay: 1 months
+          vesting_period: 36 months
+        # 2.5 million allocated for community seed funders 
+        - principal: snuqi-abk2c-jgzep-c7pck-yiavv-mdqfi-o2x2g-h4wuc-kvmjn-7agtx-pae
+          stake: 9305760000000 e8s
+          memo: 0
+          dissolve_delay: 60sec
+          vesting_period: 0 months
+        - principal: snuqi-abk2c-jgzep-c7pck-yiavv-mdqfi-o2x2g-h4wuc-kvmjn-7agtx-pae
+          stake: 9305760000000 e8s
+          memo: 1
+          dissolve_delay: 3 months
+          vesting_period: 3 months
+        - principal: snuqi-abk2c-jgzep-c7pck-yiavv-mdqfi-o2x2g-h4wuc-kvmjn-7agtx-pae
+          stake: 9305760000000 e8s
+          memo: 2
+          dissolve_delay: 3 months
+          vesting_period: 6 months
+        - principal: snuqi-abk2c-jgzep-c7pck-yiavv-mdqfi-o2x2g-h4wuc-kvmjn-7agtx-pae
+          stake: 9305760000000 e8s
+          memo: 3
+          dissolve_delay: 3 months
+          vesting_period: 9 months
+        - principal: snuqi-abk2c-jgzep-c7pck-yiavv-mdqfi-o2x2g-h4wuc-kvmjn-7agtx-pae
+          stake: 9305760000000 e8s
+          memo: 4
+          dissolve_delay: 3 months
+          vesting_period: 12 months
+        - principal: wafik-3ibgo-e3dvl-zbnvc-7azle-5okej-i42b5-gvzi6-3bey6-mlil6-mae
+          stake: 500000000000 e8s
+          memo: 0
+          dissolve_delay: 60sec
+          vesting_period: 0 months
+        - principal: wafik-3ibgo-e3dvl-zbnvc-7azle-5okej-i42b5-gvzi6-3bey6-mlil6-mae
+          stake: 500000000000 e8s
+          memo: 1
+          dissolve_delay: 3 months
+          vesting_period: 3 months
+        - principal: wafik-3ibgo-e3dvl-zbnvc-7azle-5okej-i42b5-gvzi6-3bey6-mlil6-mae
+          stake: 500000000000 e8s
+          memo: 2
+          dissolve_delay: 3 months
+          vesting_period: 6 months
+        - principal: wafik-3ibgo-e3dvl-zbnvc-7azle-5okej-i42b5-gvzi6-3bey6-mlil6-mae
+          stake: 500000000000 e8s
+          memo: 3
+          dissolve_delay: 3 months
+          vesting_period: 9 months
+        - principal: wafik-3ibgo-e3dvl-zbnvc-7azle-5okej-i42b5-gvzi6-3bey6-mlil6-mae
+          stake: 500000000000 e8s
+          memo: 4
+          dissolve_delay: 3 months
+          vesting_period: 12 months
+        - principal: 6waub-jkdtz-im6uc-ojink-oojjl-66qqf-jrmgq-tpcpu-ugs2c-u27g5-4ae
+          stake: 500000000000 e8s
+          memo: 0
+          dissolve_delay: 60sec
+          vesting_period: 0 months
+        - principal: 6waub-jkdtz-im6uc-ojink-oojjl-66qqf-jrmgq-tpcpu-ugs2c-u27g5-4ae
+          stake: 500000000000 e8s
+          memo: 1
+          dissolve_delay: 3 months
+          vesting_period: 3 months
+        - principal: 6waub-jkdtz-im6uc-ojink-oojjl-66qqf-jrmgq-tpcpu-ugs2c-u27g5-4ae
+          stake: 500000000000 e8s
+          memo: 2
+          dissolve_delay: 3 months
+          vesting_period: 6 months
+        - principal: 6waub-jkdtz-im6uc-ojink-oojjl-66qqf-jrmgq-tpcpu-ugs2c-u27g5-4ae
+          stake: 500000000000 e8s
+          memo: 3
+          dissolve_delay: 3 months
+          vesting_period: 9 months
+        - principal: 6waub-jkdtz-im6uc-ojink-oojjl-66qqf-jrmgq-tpcpu-ugs2c-u27g5-4ae
+          stake: 500000000000 e8s
+          memo: 4
+          dissolve_delay: 3 months
+          vesting_period: 12 months
+        - principal: gk24j-rp4ue-otalt-dojqy-aff4v-zlpvd-ymdzu-v72ni-2wrkr-a37wf-fae
+          stake: 500000000000 e8s
+          memo: 0
+          dissolve_delay: 60sec
+          vesting_period: 0 months
+        - principal: gk24j-rp4ue-otalt-dojqy-aff4v-zlpvd-ymdzu-v72ni-2wrkr-a37wf-fae
+          stake: 500000000000 e8s
+          memo: 1
+          dissolve_delay: 3 months
+          vesting_period: 3 months
+        - principal: gk24j-rp4ue-otalt-dojqy-aff4v-zlpvd-ymdzu-v72ni-2wrkr-a37wf-fae
+          stake: 500000000000 e8s
+          memo: 2
+          dissolve_delay: 3 months
+          vesting_period: 6 months
+        - principal: gk24j-rp4ue-otalt-dojqy-aff4v-zlpvd-ymdzu-v72ni-2wrkr-a37wf-fae
+          stake: 500000000000 e8s
+          memo: 3
+          dissolve_delay: 3 months
+          vesting_period: 9 months
+        - principal: gk24j-rp4ue-otalt-dojqy-aff4v-zlpvd-ymdzu-v72ni-2wrkr-a37wf-fae
+          stake: 500000000000 e8s
+          memo: 4
+          dissolve_delay: 3 months
+          vesting_period: 12 months
+        - principal: zosil-ho5ev-kgqrp-ybnjd-lbrgh-brv4q-dnj2v-lj7sb-ijsqu-o65qw-qae
+          stake: 1012000000000 e8s
+          memo: 0
+          dissolve_delay: 60sec
+          vesting_period: 0 months
+        - principal: zosil-ho5ev-kgqrp-ybnjd-lbrgh-brv4q-dnj2v-lj7sb-ijsqu-o65qw-qae
+          stake: 1012000000000 e8s
+          memo: 1
+          dissolve_delay: 3 months
+          vesting_period: 3 months
+        - principal: zosil-ho5ev-kgqrp-ybnjd-lbrgh-brv4q-dnj2v-lj7sb-ijsqu-o65qw-qae
+          stake: 1012000000000 e8s
+          memo: 2
+          dissolve_delay: 3 months
+          vesting_period: 6 months
+        - principal: zosil-ho5ev-kgqrp-ybnjd-lbrgh-brv4q-dnj2v-lj7sb-ijsqu-o65qw-qae
+          stake: 1012000000000 e8s
+          memo: 3
+          dissolve_delay: 3 months
+          vesting_period: 9 months
+        - principal: zosil-ho5ev-kgqrp-ybnjd-lbrgh-brv4q-dnj2v-lj7sb-ijsqu-o65qw-qae
+          stake: 1012000000000 e8s
+          memo: 4
+          dissolve_delay: 3 months
+          vesting_period: 12 months
+        - principal: all6m-dw35d-ogire-ri3gv-hd2t3-nhu64-zgmqe-u34sl-wrvak-7vhny-rqe
+          stake: 500000000000 e8s
+          memo: 0
+          dissolve_delay: 60sec
+          vesting_period: 0 months
+        - principal: all6m-dw35d-ogire-ri3gv-hd2t3-nhu64-zgmqe-u34sl-wrvak-7vhny-rqe
+          stake: 500000000000 e8s
+          memo: 1
+          dissolve_delay: 3 months
+          vesting_period: 3 months
+        - principal: all6m-dw35d-ogire-ri3gv-hd2t3-nhu64-zgmqe-u34sl-wrvak-7vhny-rqe
+          stake: 500000000000 e8s
+          memo: 2
+          dissolve_delay: 3 months
+          vesting_period: 6 months
+        - principal: all6m-dw35d-ogire-ri3gv-hd2t3-nhu64-zgmqe-u34sl-wrvak-7vhny-rqe
+          stake: 500000000000 e8s
+          memo: 3
+          dissolve_delay: 3 months
+          vesting_period: 9 months
+        - principal: all6m-dw35d-ogire-ri3gv-hd2t3-nhu64-zgmqe-u34sl-wrvak-7vhny-rqe
+          stake: 500000000000 e8s
+          memo: 4
+          dissolve_delay: 3 months
+          vesting_period: 12 months
+        - principal: 5pzsx-tcrmw-5ogf4-dwdcr-ojz2z-xqhrk-js33g-cqcw6-dnkg4-dld7w-hqe
+          stake: 250000000000 e8s
+          memo: 0
+          dissolve_delay: 60sec
+          vesting_period: 0 months
+        - principal: 5pzsx-tcrmw-5ogf4-dwdcr-ojz2z-xqhrk-js33g-cqcw6-dnkg4-dld7w-hqe
+          stake: 250000000000 e8s
+          memo: 1
+          dissolve_delay: 3 months
+          vesting_period: 3 months
+        - principal: 5pzsx-tcrmw-5ogf4-dwdcr-ojz2z-xqhrk-js33g-cqcw6-dnkg4-dld7w-hqe
+          stake: 250000000000 e8s
+          memo: 2
+          dissolve_delay: 3 months
+          vesting_period: 6 months
+        - principal: 5pzsx-tcrmw-5ogf4-dwdcr-ojz2z-xqhrk-js33g-cqcw6-dnkg4-dld7w-hqe
+          stake: 250000000000 e8s
+          memo: 3
+          dissolve_delay: 3 months
+          vesting_period: 9 months
+        - principal: 5pzsx-tcrmw-5ogf4-dwdcr-ojz2z-xqhrk-js33g-cqcw6-dnkg4-dld7w-hqe
+          stake: 250000000000 e8s
+          memo: 4
+          dissolve_delay: 3 months
+          vesting_period: 12 months
+        - principal: c6olb-xyr36-cb5wq-fzepc-xsrxd-vw3co-nwvlj-fwm2g-omwr7-paukk-yqe
+          stake: 500000000000 e8s
+          memo: 0
+          dissolve_delay: 60sec
+          vesting_period: 0 months
+        - principal: c6olb-xyr36-cb5wq-fzepc-xsrxd-vw3co-nwvlj-fwm2g-omwr7-paukk-yqe
+          stake: 500000000000 e8s
+          memo: 1
+          dissolve_delay: 3 months
+          vesting_period: 3 months
+        - principal: c6olb-xyr36-cb5wq-fzepc-xsrxd-vw3co-nwvlj-fwm2g-omwr7-paukk-yqe
+          stake: 500000000000 e8s
+          memo: 2
+          dissolve_delay: 3 months
+          vesting_period: 6 months
+        - principal: c6olb-xyr36-cb5wq-fzepc-xsrxd-vw3co-nwvlj-fwm2g-omwr7-paukk-yqe
+          stake: 500000000000 e8s
+          memo: 3
+          dissolve_delay: 3 months
+          vesting_period: 9 months
+        - principal: c6olb-xyr36-cb5wq-fzepc-xsrxd-vw3co-nwvlj-fwm2g-omwr7-paukk-yqe
+          stake: 500000000000 e8s
+          memo: 4
+          dissolve_delay: 3 months
+          vesting_period: 12 months
+        - principal: ww2jx-jrz3a-ycha4-3qvql-hgwim-juh2o-dquln-jrcie-s5wrl-xyims-aqe
+          stake: 5012500000000 e8s
+          memo: 0
+          dissolve_delay: 60sec
+          vesting_period: 0 months
+        - principal: ww2jx-jrz3a-ycha4-3qvql-hgwim-juh2o-dquln-jrcie-s5wrl-xyims-aqe
+          stake: 5012500000000 e8s
+          memo: 1
+          dissolve_delay: 3 months
+          vesting_period: 3 months
+        - principal: ww2jx-jrz3a-ycha4-3qvql-hgwim-juh2o-dquln-jrcie-s5wrl-xyims-aqe
+          stake: 5012500000000 e8s
+          memo: 2
+          dissolve_delay: 3 months
+          vesting_period: 6 months
+        - principal: ww2jx-jrz3a-ycha4-3qvql-hgwim-juh2o-dquln-jrcie-s5wrl-xyims-aqe
+          stake: 5012500000000 e8s
+          memo: 3
+          dissolve_delay: 3 months
+          vesting_period: 9 months
+        - principal: ww2jx-jrz3a-ycha4-3qvql-hgwim-juh2o-dquln-jrcie-s5wrl-xyims-aqe
+          stake: 5012500000000 e8s
+          memo: 4
+          dissolve_delay: 3 months
+          vesting_period: 12 months
+        - principal: mx54a-lbpre-rbl2i-rzgj7-55k2o-gbh2g-he7nq-b3kep-b2fnc-7n6wm-dqe
+          stake: 500000000000 e8s
+          memo: 0
+          dissolve_delay: 60sec
+          vesting_period: 0 months
+        - principal: mx54a-lbpre-rbl2i-rzgj7-55k2o-gbh2g-he7nq-b3kep-b2fnc-7n6wm-dqe
+          stake: 500000000000 e8s
+          memo: 1
+          dissolve_delay: 3 months
+          vesting_period: 3 months
+        - principal: mx54a-lbpre-rbl2i-rzgj7-55k2o-gbh2g-he7nq-b3kep-b2fnc-7n6wm-dqe
+          stake: 500000000000 e8s
+          memo: 2
+          dissolve_delay: 3 months
+          vesting_period: 6 months
+        - principal: mx54a-lbpre-rbl2i-rzgj7-55k2o-gbh2g-he7nq-b3kep-b2fnc-7n6wm-dqe
+          stake: 500000000000 e8s
+          memo: 3
+          dissolve_delay: 3 months
+          vesting_period: 9 months
+        - principal: mx54a-lbpre-rbl2i-rzgj7-55k2o-gbh2g-he7nq-b3kep-b2fnc-7n6wm-dqe
+          stake: 500000000000 e8s
+          memo: 4
+          dissolve_delay: 3 months
+          vesting_period: 12 months
+        - principal: vtjxv-twvir-otpuv-43re5-urhft-o6iyl-ageif-bid2k-xzl2z-ixkhf-oae
+          stake: 550000000000 e8s
+          memo: 0
+          dissolve_delay: 60sec
+          vesting_period: 0 months
+        - principal: vtjxv-twvir-otpuv-43re5-urhft-o6iyl-ageif-bid2k-xzl2z-ixkhf-oae
+          stake: 550000000000 e8s
+          memo: 1
+          dissolve_delay: 3 months
+          vesting_period: 3 months
+        - principal: vtjxv-twvir-otpuv-43re5-urhft-o6iyl-ageif-bid2k-xzl2z-ixkhf-oae
+          stake: 550000000000 e8s
+          memo: 2
+          dissolve_delay: 3 months
+          vesting_period: 6 months
+        - principal: vtjxv-twvir-otpuv-43re5-urhft-o6iyl-ageif-bid2k-xzl2z-ixkhf-oae
+          stake: 550000000000 e8s
+          memo: 3
+          dissolve_delay: 3 months
+          vesting_period: 9 months
+        - principal: vtjxv-twvir-otpuv-43re5-urhft-o6iyl-ageif-bid2k-xzl2z-ixkhf-oae
+          stake: 550000000000 e8s
+          memo: 4
+          dissolve_delay: 3 months
+          vesting_period: 12 months
+        - principal: mt4ed-alxoh-agqdg-xyafm-k47ex-epfms-sekyo-kc6mu-rtvez-4zw2n-aae
+          stake: 500000000000 e8s
+          memo: 0
+          dissolve_delay: 60sec
+          vesting_period: 0 months
+        - principal: mt4ed-alxoh-agqdg-xyafm-k47ex-epfms-sekyo-kc6mu-rtvez-4zw2n-aae
+          stake: 500000000000 e8s
+          memo: 1
+          dissolve_delay: 3 months
+          vesting_period: 3 months
+        - principal: mt4ed-alxoh-agqdg-xyafm-k47ex-epfms-sekyo-kc6mu-rtvez-4zw2n-aae
+          stake: 500000000000 e8s
+          memo: 2
+          dissolve_delay: 3 months
+          vesting_period: 6 months
+        - principal: mt4ed-alxoh-agqdg-xyafm-k47ex-epfms-sekyo-kc6mu-rtvez-4zw2n-aae
+          stake: 500000000000 e8s
+          memo: 3
+          dissolve_delay: 3 months
+          vesting_period: 9 months
+        - principal: mt4ed-alxoh-agqdg-xyafm-k47ex-epfms-sekyo-kc6mu-rtvez-4zw2n-aae
+          stake: 500000000000 e8s
+          memo: 4
+          dissolve_delay: 3 months
+          vesting_period: 12 months
+        - principal: saw7k-3vflg-gg6ci-plkdc-3lhsh-huley-llpjr-fqjfm-bhxl5-34evi-iae
+          stake: 500000000000 e8s
+          memo: 0
+          dissolve_delay: 60sec
+          vesting_period: 0 months
+        - principal: saw7k-3vflg-gg6ci-plkdc-3lhsh-huley-llpjr-fqjfm-bhxl5-34evi-iae
+          stake: 500000000000 e8s
+          memo: 1
+          dissolve_delay: 3 months
+          vesting_period: 3 months
+        - principal: saw7k-3vflg-gg6ci-plkdc-3lhsh-huley-llpjr-fqjfm-bhxl5-34evi-iae
+          stake: 500000000000 e8s
+          memo: 2
+          dissolve_delay: 3 months
+          vesting_period: 6 months
+        - principal: saw7k-3vflg-gg6ci-plkdc-3lhsh-huley-llpjr-fqjfm-bhxl5-34evi-iae
+          stake: 500000000000 e8s
+          memo: 3
+          dissolve_delay: 3 months
+          vesting_period: 9 months
+        - principal: saw7k-3vflg-gg6ci-plkdc-3lhsh-huley-llpjr-fqjfm-bhxl5-34evi-iae
+          stake: 500000000000 e8s
+          memo: 4
+          dissolve_delay: 3 months
+          vesting_period: 12 months
+        - principal: ydaf3-kn5th-c4lah-nvslv-gtcvz-uzlwz-o2l7l-25ldt-oxwwd-3pls5-pae
+          stake: 250000000000 e8s
+          memo: 0
+          dissolve_delay: 60sec
+          vesting_period: 0 months
+        - principal: ydaf3-kn5th-c4lah-nvslv-gtcvz-uzlwz-o2l7l-25ldt-oxwwd-3pls5-pae
+          stake: 250000000000 e8s
+          memo: 1
+          dissolve_delay: 3 months
+          vesting_period: 3 months
+        - principal: ydaf3-kn5th-c4lah-nvslv-gtcvz-uzlwz-o2l7l-25ldt-oxwwd-3pls5-pae
+          stake: 250000000000 e8s
+          memo: 2
+          dissolve_delay: 3 months
+          vesting_period: 6 months
+        - principal: ydaf3-kn5th-c4lah-nvslv-gtcvz-uzlwz-o2l7l-25ldt-oxwwd-3pls5-pae
+          stake: 250000000000 e8s
+          memo: 3
+          dissolve_delay: 3 months
+          vesting_period: 9 months
+        - principal: ydaf3-kn5th-c4lah-nvslv-gtcvz-uzlwz-o2l7l-25ldt-oxwwd-3pls5-pae
+          stake: 250000000000 e8s
+          memo: 4
+          dissolve_delay: 3 months
+          vesting_period: 12 months
+        - principal: ick2m-3xrt5-35pdj-nbiv7-26uo2-lcizt-tzbzf-ylkhj-7mpgv-kvscu-kae
+          stake: 1050000000000 e8s
+          memo: 0
+          dissolve_delay: 60sec
+          vesting_period: 0 months
+        - principal: ick2m-3xrt5-35pdj-nbiv7-26uo2-lcizt-tzbzf-ylkhj-7mpgv-kvscu-kae
+          stake: 1050000000000 e8s
+          memo: 1
+          dissolve_delay: 3 months
+          vesting_period: 3 months
+        - principal: ick2m-3xrt5-35pdj-nbiv7-26uo2-lcizt-tzbzf-ylkhj-7mpgv-kvscu-kae
+          stake: 1050000000000 e8s
+          memo: 2
+          dissolve_delay: 3 months
+          vesting_period: 6 months
+        - principal: ick2m-3xrt5-35pdj-nbiv7-26uo2-lcizt-tzbzf-ylkhj-7mpgv-kvscu-kae
+          stake: 1050000000000 e8s
+          memo: 3
+          dissolve_delay: 3 months
+          vesting_period: 9 months
+        - principal: ick2m-3xrt5-35pdj-nbiv7-26uo2-lcizt-tzbzf-ylkhj-7mpgv-kvscu-kae
+          stake: 1050000000000 e8s
+          memo: 4
+          dissolve_delay: 3 months
+          vesting_period: 12 months
+        - principal: 2axu7-czxyn-crrxs-uoom4-mvh5b-b3gj5-mxswl-jh6ur-kppzf-7dbmh-hqe
+          stake: 500000000000 e8s
+          memo: 0
+          dissolve_delay: 60sec
+          vesting_period: 0 months
+        - principal: 2axu7-czxyn-crrxs-uoom4-mvh5b-b3gj5-mxswl-jh6ur-kppzf-7dbmh-hqe
+          stake: 500000000000 e8s
+          memo: 1
+          dissolve_delay: 3 months
+          vesting_period: 3 months
+        - principal: 2axu7-czxyn-crrxs-uoom4-mvh5b-b3gj5-mxswl-jh6ur-kppzf-7dbmh-hqe
+          stake: 500000000000 e8s
+          memo: 2
+          dissolve_delay: 3 months
+          vesting_period: 6 months
+        - principal: 2axu7-czxyn-crrxs-uoom4-mvh5b-b3gj5-mxswl-jh6ur-kppzf-7dbmh-hqe
+          stake: 500000000000 e8s
+          memo: 3
+          dissolve_delay: 3 months
+          vesting_period: 9 months
+        - principal: 2axu7-czxyn-crrxs-uoom4-mvh5b-b3gj5-mxswl-jh6ur-kppzf-7dbmh-hqe
+          stake: 500000000000 e8s
+          memo: 4
+          dissolve_delay: 3 months
+          vesting_period: 12 months
+        - principal: 2gthi-zrgcu-agik2-wr4ab-lhkrj-uzfsy-bortt-qgw5x-vixpd-sccsm-bqe
+          stake: 500000000000 e8s
+          memo: 0
+          dissolve_delay: 60sec
+          vesting_period: 0 months
+        - principal: 2gthi-zrgcu-agik2-wr4ab-lhkrj-uzfsy-bortt-qgw5x-vixpd-sccsm-bqe
+          stake: 500000000000 e8s
+          memo: 1
+          dissolve_delay: 3 months
+          vesting_period: 3 months
+        - principal: 2gthi-zrgcu-agik2-wr4ab-lhkrj-uzfsy-bortt-qgw5x-vixpd-sccsm-bqe
+          stake: 500000000000 e8s
+          memo: 2
+          dissolve_delay: 3 months
+          vesting_period: 6 months
+        - principal: 2gthi-zrgcu-agik2-wr4ab-lhkrj-uzfsy-bortt-qgw5x-vixpd-sccsm-bqe
+          stake: 500000000000 e8s
+          memo: 3
+          dissolve_delay: 3 months
+          vesting_period: 9 months
+        - principal: 2gthi-zrgcu-agik2-wr4ab-lhkrj-uzfsy-bortt-qgw5x-vixpd-sccsm-bqe
+          stake: 500000000000 e8s
+          memo: 4
+          dissolve_delay: 3 months
+          vesting_period: 12 months
+        - principal: 3up6w-taamq-4mcvy-ol5ui-b2lhz-qwtw5-5aurp-fjrjb-4a57r-tpy44-fae
+          stake: 500000000000 e8s
+          memo: 0
+          dissolve_delay: 60sec
+          vesting_period: 0 months
+        - principal: 3up6w-taamq-4mcvy-ol5ui-b2lhz-qwtw5-5aurp-fjrjb-4a57r-tpy44-fae
+          stake: 500000000000 e8s
+          memo: 1
+          dissolve_delay: 3 months
+          vesting_period: 3 months
+        - principal: 3up6w-taamq-4mcvy-ol5ui-b2lhz-qwtw5-5aurp-fjrjb-4a57r-tpy44-fae
+          stake: 500000000000 e8s
+          memo: 2
+          dissolve_delay: 3 months
+          vesting_period: 6 months
+        - principal: 3up6w-taamq-4mcvy-ol5ui-b2lhz-qwtw5-5aurp-fjrjb-4a57r-tpy44-fae
+          stake: 500000000000 e8s
+          memo: 3
+          dissolve_delay: 3 months
+          vesting_period: 9 months
+        - principal: 3up6w-taamq-4mcvy-ol5ui-b2lhz-qwtw5-5aurp-fjrjb-4a57r-tpy44-fae
+          stake: 500000000000 e8s
+          memo: 4
+          dissolve_delay: 3 months
+          vesting_period: 12 months
+        - principal: absmb-a2x7z-zxga3-xsee4-4lf2n-w5cc6-ri3az-pqmpx-oerge-yrjrk-uae
+          stake: 507500000000 e8s
+          memo: 0
+          dissolve_delay: 60sec
+          vesting_period: 0 months
+        - principal: absmb-a2x7z-zxga3-xsee4-4lf2n-w5cc6-ri3az-pqmpx-oerge-yrjrk-uae
+          stake: 507500000000 e8s
+          memo: 1
+          dissolve_delay: 3 months
+          vesting_period: 3 months
+        - principal: absmb-a2x7z-zxga3-xsee4-4lf2n-w5cc6-ri3az-pqmpx-oerge-yrjrk-uae
+          stake: 507500000000 e8s
+          memo: 2
+          dissolve_delay: 3 months
+          vesting_period: 6 months
+        - principal: absmb-a2x7z-zxga3-xsee4-4lf2n-w5cc6-ri3az-pqmpx-oerge-yrjrk-uae
+          stake: 507500000000 e8s
+          memo: 3
+          dissolve_delay: 3 months
+          vesting_period: 9 months
+        - principal: absmb-a2x7z-zxga3-xsee4-4lf2n-w5cc6-ri3az-pqmpx-oerge-yrjrk-uae
+          stake: 507500000000 e8s
+          memo: 4
+          dissolve_delay: 3 months
+          vesting_period: 12 months
+        - principal: wgizu-oh3b7-dza6g-l6pcc-hjil3-pclmv-adeqn-k2god-z4omc-cgjzq-sae
+          stake: 500000000000 e8s
+          memo: 0
+          dissolve_delay: 60sec
+          vesting_period: 0 months
+        - principal: wgizu-oh3b7-dza6g-l6pcc-hjil3-pclmv-adeqn-k2god-z4omc-cgjzq-sae
+          stake: 500000000000 e8s
+          memo: 1
+          dissolve_delay: 3 months
+          vesting_period: 3 months
+        - principal: wgizu-oh3b7-dza6g-l6pcc-hjil3-pclmv-adeqn-k2god-z4omc-cgjzq-sae
+          stake: 500000000000 e8s
+          memo: 2
+          dissolve_delay: 3 months
+          vesting_period: 6 months
+        - principal: wgizu-oh3b7-dza6g-l6pcc-hjil3-pclmv-adeqn-k2god-z4omc-cgjzq-sae
+          stake: 500000000000 e8s
+          memo: 3
+          dissolve_delay: 3 months
+          vesting_period: 9 months
+        - principal: wgizu-oh3b7-dza6g-l6pcc-hjil3-pclmv-adeqn-k2god-z4omc-cgjzq-sae
+          stake: 500000000000 e8s
+          memo: 4
+          dissolve_delay: 3 months
+          vesting_period: 12 months
+        - principal: lcyeu-p6tby-i4uw5-mvkiy-rp3sb-5elnq-5xfiz-rsduf-7itwj-2d2wm-nae
+          stake: 541500000000 e8s
+          memo: 0
+          dissolve_delay: 60sec
+          vesting_period: 0 months
+        - principal: lcyeu-p6tby-i4uw5-mvkiy-rp3sb-5elnq-5xfiz-rsduf-7itwj-2d2wm-nae
+          stake: 541500000000 e8s
+          memo: 1
+          dissolve_delay: 3 months
+          vesting_period: 3 months
+        - principal: lcyeu-p6tby-i4uw5-mvkiy-rp3sb-5elnq-5xfiz-rsduf-7itwj-2d2wm-nae
+          stake: 541500000000 e8s
+          memo: 2
+          dissolve_delay: 3 months
+          vesting_period: 6 months
+        - principal: lcyeu-p6tby-i4uw5-mvkiy-rp3sb-5elnq-5xfiz-rsduf-7itwj-2d2wm-nae
+          stake: 541500000000 e8s
+          memo: 3
+          dissolve_delay: 3 months
+          vesting_period: 9 months
+        - principal: lcyeu-p6tby-i4uw5-mvkiy-rp3sb-5elnq-5xfiz-rsduf-7itwj-2d2wm-nae
+          stake: 541500000000 e8s
+          memo: 4
+          dissolve_delay: 3 months
+          vesting_period: 12 months
+        - principal: airdr-s3anz-vkwqu-3d77h-ccbwc-k5sfc-yjrfv-sdwc4-n5ijm-p37eq-fae
+          stake: 500000000000 e8s
+          memo: 0
+          dissolve_delay: 60sec
+          vesting_period: 0 months
+        - principal: airdr-s3anz-vkwqu-3d77h-ccbwc-k5sfc-yjrfv-sdwc4-n5ijm-p37eq-fae
+          stake: 500000000000 e8s
+          memo: 1
+          dissolve_delay: 3 months
+          vesting_period: 3 months
+        - principal: airdr-s3anz-vkwqu-3d77h-ccbwc-k5sfc-yjrfv-sdwc4-n5ijm-p37eq-fae
+          stake: 500000000000 e8s
+          memo: 2
+          dissolve_delay: 3 months
+          vesting_period: 6 months
+        - principal: airdr-s3anz-vkwqu-3d77h-ccbwc-k5sfc-yjrfv-sdwc4-n5ijm-p37eq-fae
+          stake: 500000000000 e8s
+          memo: 3
+          dissolve_delay: 3 months
+          vesting_period: 9 months
+        - principal: airdr-s3anz-vkwqu-3d77h-ccbwc-k5sfc-yjrfv-sdwc4-n5ijm-p37eq-fae
+          stake: 500000000000 e8s
+          memo: 4
+          dissolve_delay: 3 months
+          vesting_period: 12 months
+        - principal: lhynn-heral-nybs2-6pnwh-v4xfc-f24i5-2yufy-h6zus-oiijg-4xzyd-gae
+          stake: 500000000000 e8s
+          memo: 0
+          dissolve_delay: 60sec
+          vesting_period: 0 months
+        - principal: lhynn-heral-nybs2-6pnwh-v4xfc-f24i5-2yufy-h6zus-oiijg-4xzyd-gae
+          stake: 500000000000 e8s
+          memo: 1
+          dissolve_delay: 3 months
+          vesting_period: 3 months
+        - principal: lhynn-heral-nybs2-6pnwh-v4xfc-f24i5-2yufy-h6zus-oiijg-4xzyd-gae
+          stake: 500000000000 e8s
+          memo: 2
+          dissolve_delay: 3 months
+          vesting_period: 6 months
+        - principal: lhynn-heral-nybs2-6pnwh-v4xfc-f24i5-2yufy-h6zus-oiijg-4xzyd-gae
+          stake: 500000000000 e8s
+          memo: 3
+          dissolve_delay: 3 months
+          vesting_period: 9 months
+        - principal: lhynn-heral-nybs2-6pnwh-v4xfc-f24i5-2yufy-h6zus-oiijg-4xzyd-gae
+          stake: 500000000000 e8s
+          memo: 4
+          dissolve_delay: 3 months
+          vesting_period: 12 months
+        - principal: cczkc-2yxxs-5d25d-ffp4m-jag2i-5r4rt-dxsry-xrnu7-r3yr3-4oixq-sqe
+          stake: 610350000000 e8s
+          memo: 0
+          dissolve_delay: 60sec
+          vesting_period: 0 months
+        - principal: cczkc-2yxxs-5d25d-ffp4m-jag2i-5r4rt-dxsry-xrnu7-r3yr3-4oixq-sqe
+          stake: 610350000000 e8s
+          memo: 1
+          dissolve_delay: 3 months
+          vesting_period: 3 months
+        - principal: cczkc-2yxxs-5d25d-ffp4m-jag2i-5r4rt-dxsry-xrnu7-r3yr3-4oixq-sqe
+          stake: 610350000000 e8s
+          memo: 2
+          dissolve_delay: 3 months
+          vesting_period: 6 months
+        - principal: cczkc-2yxxs-5d25d-ffp4m-jag2i-5r4rt-dxsry-xrnu7-r3yr3-4oixq-sqe
+          stake: 610350000000 e8s
+          memo: 3
+          dissolve_delay: 3 months
+          vesting_period: 9 months
+        - principal: cczkc-2yxxs-5d25d-ffp4m-jag2i-5r4rt-dxsry-xrnu7-r3yr3-4oixq-sqe
+          stake: 610350000000 e8s
+          memo: 4
+          dissolve_delay: 3 months
+          vesting_period: 12 months
+        - principal: nxiqs-ture2-t73uf-mgvm6-sxytg-ylgmh-e6z6d-dw3jp-fcduw-7w72q-vqe
+          stake: 1250000000000 e8s
+          memo: 0
+          dissolve_delay: 60sec
+          vesting_period: 0 months
+        - principal: nxiqs-ture2-t73uf-mgvm6-sxytg-ylgmh-e6z6d-dw3jp-fcduw-7w72q-vqe
+          stake: 1250000000000 e8s
+          memo: 1
+          dissolve_delay: 3 months
+          vesting_period: 3 months
+        - principal: nxiqs-ture2-t73uf-mgvm6-sxytg-ylgmh-e6z6d-dw3jp-fcduw-7w72q-vqe
+          stake: 1250000000000 e8s
+          memo: 2
+          dissolve_delay: 3 months
+          vesting_period: 6 months
+        - principal: nxiqs-ture2-t73uf-mgvm6-sxytg-ylgmh-e6z6d-dw3jp-fcduw-7w72q-vqe
+          stake: 1250000000000 e8s
+          memo: 3
+          dissolve_delay: 3 months
+          vesting_period: 9 months
+        - principal: nxiqs-ture2-t73uf-mgvm6-sxytg-ylgmh-e6z6d-dw3jp-fcduw-7w72q-vqe
+          stake: 1250000000000 e8s
+          memo: 4
+          dissolve_delay: 3 months
+          vesting_period: 12 months
+        - principal: zlthp-jyed5-cou5n-zpymw-b46ud-4o6ul-j6vby-grwkw-ihwyi-psvep-rae
+          stake: 2500000000000 e8s
+          memo: 0
+          dissolve_delay: 60sec
+          vesting_period: 0 months
+        - principal: zlthp-jyed5-cou5n-zpymw-b46ud-4o6ul-j6vby-grwkw-ihwyi-psvep-rae
+          stake: 2500000000000 e8s
+          memo: 1
+          dissolve_delay: 3 months
+          vesting_period: 3 months
+        - principal: zlthp-jyed5-cou5n-zpymw-b46ud-4o6ul-j6vby-grwkw-ihwyi-psvep-rae
+          stake: 2500000000000 e8s
+          memo: 2
+          dissolve_delay: 3 months
+          vesting_period: 6 months
+        - principal: zlthp-jyed5-cou5n-zpymw-b46ud-4o6ul-j6vby-grwkw-ihwyi-psvep-rae
+          stake: 2500000000000 e8s
+          memo: 3
+          dissolve_delay: 3 months
+          vesting_period: 9 months
+        - principal: zlthp-jyed5-cou5n-zpymw-b46ud-4o6ul-j6vby-grwkw-ihwyi-psvep-rae
+          stake: 2500000000000 e8s
+          memo: 4
+          dissolve_delay: 3 months
+          vesting_period: 12 months
+        - principal: 7oppw-5ebmd-erxsk-ncwx3-2pnmf-4wdkh-5glsb-fmmb3-lmhvw-vrdgx-aae
+          stake: 500000000000 e8s
+          memo: 0
+          dissolve_delay: 60sec
+          vesting_period: 0 months
+        - principal: 7oppw-5ebmd-erxsk-ncwx3-2pnmf-4wdkh-5glsb-fmmb3-lmhvw-vrdgx-aae
+          stake: 500000000000 e8s
+          memo: 1
+          dissolve_delay: 3 months
+          vesting_period: 3 months
+        - principal: 7oppw-5ebmd-erxsk-ncwx3-2pnmf-4wdkh-5glsb-fmmb3-lmhvw-vrdgx-aae
+          stake: 500000000000 e8s
+          memo: 2
+          dissolve_delay: 3 months
+          vesting_period: 6 months
+        - principal: 7oppw-5ebmd-erxsk-ncwx3-2pnmf-4wdkh-5glsb-fmmb3-lmhvw-vrdgx-aae
+          stake: 500000000000 e8s
+          memo: 3
+          dissolve_delay: 3 months
+          vesting_period: 9 months
+        - principal: 7oppw-5ebmd-erxsk-ncwx3-2pnmf-4wdkh-5glsb-fmmb3-lmhvw-vrdgx-aae
+          stake: 500000000000 e8s
+          memo: 4
+          dissolve_delay: 3 months
+          vesting_period: 12 months
+        - principal: i4rub-bvxmi-wrcvv-4nl2q-bpuab-cflvh-7cwot-sa2bu-ajmlu-ufj7n-hae
+          stake: 592755000000 e8s
+          memo: 0
+          dissolve_delay: 60sec
+          vesting_period: 0 months
+        - principal: i4rub-bvxmi-wrcvv-4nl2q-bpuab-cflvh-7cwot-sa2bu-ajmlu-ufj7n-hae
+          stake: 592755000000 e8s
+          memo: 1
+          dissolve_delay: 3 months
+          vesting_period: 3 months
+        - principal: i4rub-bvxmi-wrcvv-4nl2q-bpuab-cflvh-7cwot-sa2bu-ajmlu-ufj7n-hae
+          stake: 592755000000 e8s
+          memo: 2
+          dissolve_delay: 3 months
+          vesting_period: 6 months
+        - principal: i4rub-bvxmi-wrcvv-4nl2q-bpuab-cflvh-7cwot-sa2bu-ajmlu-ufj7n-hae
+          stake: 592755000000 e8s
+          memo: 3
+          dissolve_delay: 3 months
+          vesting_period: 9 months
+        - principal: i4rub-bvxmi-wrcvv-4nl2q-bpuab-cflvh-7cwot-sa2bu-ajmlu-ufj7n-hae
+          stake: 592755000000 e8s
+          memo: 4
+          dissolve_delay: 3 months
+          vesting_period: 12 months
+        - principal: trag2-cpiwz-omz4t-h5hc2-ddwi2-j57h4-6nwql-luslo-esh5y-kw6wf-kae
+          stake: 500000000000 e8s
+          memo: 0
+          dissolve_delay: 60sec
+          vesting_period: 0 months
+        - principal: trag2-cpiwz-omz4t-h5hc2-ddwi2-j57h4-6nwql-luslo-esh5y-kw6wf-kae
+          stake: 500000000000 e8s
+          memo: 1
+          dissolve_delay: 3 months
+          vesting_period: 3 months
+        - principal: trag2-cpiwz-omz4t-h5hc2-ddwi2-j57h4-6nwql-luslo-esh5y-kw6wf-kae
+          stake: 500000000000 e8s
+          memo: 2
+          dissolve_delay: 3 months
+          vesting_period: 6 months
+        - principal: trag2-cpiwz-omz4t-h5hc2-ddwi2-j57h4-6nwql-luslo-esh5y-kw6wf-kae
+          stake: 500000000000 e8s
+          memo: 3
+          dissolve_delay: 3 months
+          vesting_period: 9 months
+        - principal: trag2-cpiwz-omz4t-h5hc2-ddwi2-j57h4-6nwql-luslo-esh5y-kw6wf-kae
+          stake: 500000000000 e8s
+          memo: 4
+          dissolve_delay: 3 months
+          vesting_period: 12 months
+        - principal: ipgdv-pf7j7-et34y-zrazs-aqnil-w2umz-offhu-gmsvr-u6pmx-klf53-2ae
+          stake: 750000000000 e8s
+          memo: 0
+          dissolve_delay: 60sec
+          vesting_period: 0 months
+        - principal: ipgdv-pf7j7-et34y-zrazs-aqnil-w2umz-offhu-gmsvr-u6pmx-klf53-2ae
+          stake: 750000000000 e8s
+          memo: 1
+          dissolve_delay: 3 months
+          vesting_period: 3 months
+        - principal: ipgdv-pf7j7-et34y-zrazs-aqnil-w2umz-offhu-gmsvr-u6pmx-klf53-2ae
+          stake: 750000000000 e8s
+          memo: 2
+          dissolve_delay: 3 months
+          vesting_period: 6 months
+        - principal: ipgdv-pf7j7-et34y-zrazs-aqnil-w2umz-offhu-gmsvr-u6pmx-klf53-2ae
+          stake: 750000000000 e8s
+          memo: 3
+          dissolve_delay: 3 months
+          vesting_period: 9 months
+        - principal: ipgdv-pf7j7-et34y-zrazs-aqnil-w2umz-offhu-gmsvr-u6pmx-klf53-2ae
+          stake: 750000000000 e8s
+          memo: 4
+          dissolve_delay: 3 months
+          vesting_period: 12 months
+        - principal: o2glf-b6pob-yk6l7-urxow-pswqi-ymrj5-xx6py-d5ts6-6m736-shf3l-3ae
+          stake: 750000000000 e8s
+          memo: 0
+          dissolve_delay: 60sec
+          vesting_period: 0 months
+        - principal: o2glf-b6pob-yk6l7-urxow-pswqi-ymrj5-xx6py-d5ts6-6m736-shf3l-3ae
+          stake: 750000000000 e8s
+          memo: 1
+          dissolve_delay: 3 months
+          vesting_period: 3 months
+        - principal: o2glf-b6pob-yk6l7-urxow-pswqi-ymrj5-xx6py-d5ts6-6m736-shf3l-3ae
+          stake: 750000000000 e8s
+          memo: 2
+          dissolve_delay: 3 months
+          vesting_period: 6 months
+        - principal: o2glf-b6pob-yk6l7-urxow-pswqi-ymrj5-xx6py-d5ts6-6m736-shf3l-3ae
+          stake: 750000000000 e8s
+          memo: 3
+          dissolve_delay: 3 months
+          vesting_period: 9 months
+        - principal: o2glf-b6pob-yk6l7-urxow-pswqi-ymrj5-xx6py-d5ts6-6m736-shf3l-3ae
+          stake: 750000000000 e8s
+          memo: 4
+          dissolve_delay: 3 months
+          vesting_period: 12 months
+        - principal: svpu3-n53nr-jwunj-6rplv-t2g2y-rbuib-35i4q-suhbk-vcudp-54xaw-lqe
+          stake: 2329215000000 e8s
+          memo: 0
+          dissolve_delay: 60sec
+          vesting_period: 0 months
+        - principal: svpu3-n53nr-jwunj-6rplv-t2g2y-rbuib-35i4q-suhbk-vcudp-54xaw-lqe
+          stake: 2329215000000 e8s
+          memo: 1
+          dissolve_delay: 3 months
+          vesting_period: 3 months
+        - principal: svpu3-n53nr-jwunj-6rplv-t2g2y-rbuib-35i4q-suhbk-vcudp-54xaw-lqe
+          stake: 2329215000000 e8s
+          memo: 2
+          dissolve_delay: 3 months
+          vesting_period: 6 months
+        - principal: svpu3-n53nr-jwunj-6rplv-t2g2y-rbuib-35i4q-suhbk-vcudp-54xaw-lqe
+          stake: 2329215000000 e8s
+          memo: 3
+          dissolve_delay: 3 months
+          vesting_period: 9 months
+        - principal: svpu3-n53nr-jwunj-6rplv-t2g2y-rbuib-35i4q-suhbk-vcudp-54xaw-lqe
+          stake: 2329215000000 e8s
+          memo: 4
+          dissolve_delay: 3 months
+          vesting_period: 12 months
+        - principal: e4lte-v3vxs-e4hnj-tkilm-p6yw2-45jct-76lgw-fwdho-7pxy2-kqhlp-pqe
+          stake: 1500000000000 e8s
+          memo: 0
+          dissolve_delay: 60sec
+          vesting_period: 0 months
+        - principal: e4lte-v3vxs-e4hnj-tkilm-p6yw2-45jct-76lgw-fwdho-7pxy2-kqhlp-pqe
+          stake: 1500000000000 e8s
+          memo: 1
+          dissolve_delay: 3 months
+          vesting_period: 3 months
+        - principal: e4lte-v3vxs-e4hnj-tkilm-p6yw2-45jct-76lgw-fwdho-7pxy2-kqhlp-pqe
+          stake: 1500000000000 e8s
+          memo: 2
+          dissolve_delay: 3 months
+          vesting_period: 6 months
+        - principal: e4lte-v3vxs-e4hnj-tkilm-p6yw2-45jct-76lgw-fwdho-7pxy2-kqhlp-pqe
+          stake: 1500000000000 e8s
+          memo: 3
+          dissolve_delay: 3 months
+          vesting_period: 9 months
+        - principal: e4lte-v3vxs-e4hnj-tkilm-p6yw2-45jct-76lgw-fwdho-7pxy2-kqhlp-pqe
+          stake: 1500000000000 e8s
+          memo: 4
+          dissolve_delay: 3 months
+          vesting_period: 12 months
+        - principal: vqqbt-tu73k-rmm25-hyq5o-x5vug-rixzf-cfcf3-oicjz-xi6hr-im6mw-2qe
+          stake: 500000000000 e8s
+          memo: 0
+          dissolve_delay: 60sec
+          vesting_period: 0 months
+        - principal: vqqbt-tu73k-rmm25-hyq5o-x5vug-rixzf-cfcf3-oicjz-xi6hr-im6mw-2qe
+          stake: 500000000000 e8s
+          memo: 1
+          dissolve_delay: 3 months
+          vesting_period: 3 months
+        - principal: vqqbt-tu73k-rmm25-hyq5o-x5vug-rixzf-cfcf3-oicjz-xi6hr-im6mw-2qe
+          stake: 500000000000 e8s
+          memo: 2
+          dissolve_delay: 3 months
+          vesting_period: 6 months
+        - principal: vqqbt-tu73k-rmm25-hyq5o-x5vug-rixzf-cfcf3-oicjz-xi6hr-im6mw-2qe
+          stake: 500000000000 e8s
+          memo: 3
+          dissolve_delay: 3 months
+          vesting_period: 9 months
+        - principal: vqqbt-tu73k-rmm25-hyq5o-x5vug-rixzf-cfcf3-oicjz-xi6hr-im6mw-2qe
+          stake: 500000000000 e8s
+          memo: 4
+          dissolve_delay: 3 months
+          vesting_period: 12 months
+        - principal: qxizu-u6ktn-ejgk5-pu6is-7sxpw-txme6-tta36-kccui-mfae4-vuigw-qqe
+          stake: 1988185000000 e8s
+          memo: 0
+          dissolve_delay: 60sec
+          vesting_period: 0 months
+        - principal: qxizu-u6ktn-ejgk5-pu6is-7sxpw-txme6-tta36-kccui-mfae4-vuigw-qqe
+          stake: 1988185000000 e8s
+          memo: 1
+          dissolve_delay: 3 months
+          vesting_period: 3 months
+        - principal: qxizu-u6ktn-ejgk5-pu6is-7sxpw-txme6-tta36-kccui-mfae4-vuigw-qqe
+          stake: 1988185000000 e8s
+          memo: 2
+          dissolve_delay: 3 months
+          vesting_period: 6 months
+        - principal: qxizu-u6ktn-ejgk5-pu6is-7sxpw-txme6-tta36-kccui-mfae4-vuigw-qqe
+          stake: 1988185000000 e8s
+          memo: 3
+          dissolve_delay: 3 months
+          vesting_period: 9 months
+        - principal: qxizu-u6ktn-ejgk5-pu6is-7sxpw-txme6-tta36-kccui-mfae4-vuigw-qqe
+          stake: 1988185000000 e8s
+          memo: 4
+          dissolve_delay: 3 months
+          vesting_period: 12 months
+        - principal: prnrn-t5fm4-ybwgo-wz6zq-ijo2h-3xve5-cac4e-bm7vu-2doxr-i7ep4-vae
+          stake: 500000000000 e8s
+          memo: 0
+          dissolve_delay: 60sec
+          vesting_period: 0 months
+        - principal: prnrn-t5fm4-ybwgo-wz6zq-ijo2h-3xve5-cac4e-bm7vu-2doxr-i7ep4-vae
+          stake: 500000000000 e8s
+          memo: 1
+          dissolve_delay: 3 months
+          vesting_period: 3 months
+        - principal: prnrn-t5fm4-ybwgo-wz6zq-ijo2h-3xve5-cac4e-bm7vu-2doxr-i7ep4-vae
+          stake: 500000000000 e8s
+          memo: 2
+          dissolve_delay: 3 months
+          vesting_period: 6 months
+        - principal: prnrn-t5fm4-ybwgo-wz6zq-ijo2h-3xve5-cac4e-bm7vu-2doxr-i7ep4-vae
+          stake: 500000000000 e8s
+          memo: 3
+          dissolve_delay: 3 months
+          vesting_period: 9 months
+        - principal: prnrn-t5fm4-ybwgo-wz6zq-ijo2h-3xve5-cac4e-bm7vu-2doxr-i7ep4-vae
+          stake: 500000000000 e8s
+          memo: 4
+          dissolve_delay: 3 months
+          vesting_period: 12 months
+        - principal: cjagz-jwiva-7pbld-2xjxo-5vip3-2jobb-3ivgn-xyxt7-7ekcm-qahxg-cae
+          stake: 500000000000 e8s
+          memo: 0
+          dissolve_delay: 60sec
+          vesting_period: 0 months
+        - principal: cjagz-jwiva-7pbld-2xjxo-5vip3-2jobb-3ivgn-xyxt7-7ekcm-qahxg-cae
+          stake: 500000000000 e8s
+          memo: 1
+          dissolve_delay: 3 months
+          vesting_period: 3 months
+        - principal: cjagz-jwiva-7pbld-2xjxo-5vip3-2jobb-3ivgn-xyxt7-7ekcm-qahxg-cae
+          stake: 500000000000 e8s
+          memo: 2
+          dissolve_delay: 3 months
+          vesting_period: 6 months
+        - principal: cjagz-jwiva-7pbld-2xjxo-5vip3-2jobb-3ivgn-xyxt7-7ekcm-qahxg-cae
+          stake: 500000000000 e8s
+          memo: 3
+          dissolve_delay: 3 months
+          vesting_period: 9 months
+        - principal: cjagz-jwiva-7pbld-2xjxo-5vip3-2jobb-3ivgn-xyxt7-7ekcm-qahxg-cae
+          stake: 500000000000 e8s
+          memo: 4
+          dissolve_delay: 3 months
+          vesting_period: 12 months
+        - principal: behqd-xscda-wivdg-si3oh-q3bbk-on72z-mmg6b-fyfmu-77xjy-5fwtj-lae
+          stake: 500000000000 e8s
+          memo: 0
+          dissolve_delay: 60sec
+          vesting_period: 0 months
+        - principal: behqd-xscda-wivdg-si3oh-q3bbk-on72z-mmg6b-fyfmu-77xjy-5fwtj-lae
+          stake: 500000000000 e8s
+          memo: 1
+          dissolve_delay: 3 months
+          vesting_period: 3 months
+        - principal: behqd-xscda-wivdg-si3oh-q3bbk-on72z-mmg6b-fyfmu-77xjy-5fwtj-lae
+          stake: 500000000000 e8s
+          memo: 2
+          dissolve_delay: 3 months
+          vesting_period: 6 months
+        - principal: behqd-xscda-wivdg-si3oh-q3bbk-on72z-mmg6b-fyfmu-77xjy-5fwtj-lae
+          stake: 500000000000 e8s
+          memo: 3
+          dissolve_delay: 3 months
+          vesting_period: 9 months
+        - principal: behqd-xscda-wivdg-si3oh-q3bbk-on72z-mmg6b-fyfmu-77xjy-5fwtj-lae
+          stake: 500000000000 e8s
+          memo: 4
+          dissolve_delay: 3 months
+          vesting_period: 12 months
+        - principal: 27idm-mgbgp-66xea-62upg-ylw7p-vpxfy-xufbg-nkuj3-azt2s-qdd5i-hqe
+          stake: 602415000000 e8s
+          memo: 0
+          dissolve_delay: 60sec
+          vesting_period: 0 months
+        - principal: 27idm-mgbgp-66xea-62upg-ylw7p-vpxfy-xufbg-nkuj3-azt2s-qdd5i-hqe
+          stake: 602415000000 e8s
+          memo: 1
+          dissolve_delay: 3 months
+          vesting_period: 3 months
+        - principal: 27idm-mgbgp-66xea-62upg-ylw7p-vpxfy-xufbg-nkuj3-azt2s-qdd5i-hqe
+          stake: 602415000000 e8s
+          memo: 2
+          dissolve_delay: 3 months
+          vesting_period: 6 months
+        - principal: 27idm-mgbgp-66xea-62upg-ylw7p-vpxfy-xufbg-nkuj3-azt2s-qdd5i-hqe
+          stake: 602415000000 e8s
+          memo: 3
+          dissolve_delay: 3 months
+          vesting_period: 9 months
+        - principal: 27idm-mgbgp-66xea-62upg-ylw7p-vpxfy-xufbg-nkuj3-azt2s-qdd5i-hqe
+          stake: 602415000000 e8s
+          memo: 4
+          dissolve_delay: 3 months
+          vesting_period: 12 months
+        - principal: 6oboa-fqj3s-fvivx-llg2x-ngj3q-vpivp-vkhr3-mwpdm-236gj-ch2zk-sae
+          stake: 500000000000 e8s
+          memo: 0
+          dissolve_delay: 60sec
+          vesting_period: 0 months
+        - principal: 6oboa-fqj3s-fvivx-llg2x-ngj3q-vpivp-vkhr3-mwpdm-236gj-ch2zk-sae
+          stake: 500000000000 e8s
+          memo: 1
+          dissolve_delay: 3 months
+          vesting_period: 3 months
+        - principal: 6oboa-fqj3s-fvivx-llg2x-ngj3q-vpivp-vkhr3-mwpdm-236gj-ch2zk-sae
+          stake: 500000000000 e8s
+          memo: 2
+          dissolve_delay: 3 months
+          vesting_period: 6 months
+        - principal: 6oboa-fqj3s-fvivx-llg2x-ngj3q-vpivp-vkhr3-mwpdm-236gj-ch2zk-sae
+          stake: 500000000000 e8s
+          memo: 3
+          dissolve_delay: 3 months
+          vesting_period: 9 months
+        - principal: 6oboa-fqj3s-fvivx-llg2x-ngj3q-vpivp-vkhr3-mwpdm-236gj-ch2zk-sae
+          stake: 500000000000 e8s
+          memo: 4
+          dissolve_delay: 3 months
+          vesting_period: 12 months
+        - principal: xe33t-j44bt-lgzwy-5b44d-m2qpp-fwayx-bf3vh-b7f7p-s5746-pvngp-vae
+          stake: 546660000000 e8s
+          memo: 0
+          dissolve_delay: 60sec
+          vesting_period: 0 months
+        - principal: xe33t-j44bt-lgzwy-5b44d-m2qpp-fwayx-bf3vh-b7f7p-s5746-pvngp-vae
+          stake: 546660000000 e8s
+          memo: 1
+          dissolve_delay: 3 months
+          vesting_period: 3 months
+        - principal: xe33t-j44bt-lgzwy-5b44d-m2qpp-fwayx-bf3vh-b7f7p-s5746-pvngp-vae
+          stake: 546660000000 e8s
+          memo: 2
+          dissolve_delay: 3 months
+          vesting_period: 6 months
+        - principal: xe33t-j44bt-lgzwy-5b44d-m2qpp-fwayx-bf3vh-b7f7p-s5746-pvngp-vae
+          stake: 546660000000 e8s
+          memo: 3
+          dissolve_delay: 3 months
+          vesting_period: 9 months
+        - principal: xe33t-j44bt-lgzwy-5b44d-m2qpp-fwayx-bf3vh-b7f7p-s5746-pvngp-vae
+          stake: 546660000000 e8s
+          memo: 4
+          dissolve_delay: 3 months
+          vesting_period: 12 months
+        - principal: yxrec-lphu7-4cfmz-jhfu5-mbqib-kqxcu-xnbfj-unlgo-4d2uw-ycdjc-zqe
+          stake: 500000000000 e8s
+          memo: 0
+          dissolve_delay: 60sec
+          vesting_period: 0 months
+        - principal: yxrec-lphu7-4cfmz-jhfu5-mbqib-kqxcu-xnbfj-unlgo-4d2uw-ycdjc-zqe
+          stake: 500000000000 e8s
+          memo: 1
+          dissolve_delay: 3 months
+          vesting_period: 3 months
+        - principal: yxrec-lphu7-4cfmz-jhfu5-mbqib-kqxcu-xnbfj-unlgo-4d2uw-ycdjc-zqe
+          stake: 500000000000 e8s
+          memo: 2
+          dissolve_delay: 3 months
+          vesting_period: 6 months
+        - principal: yxrec-lphu7-4cfmz-jhfu5-mbqib-kqxcu-xnbfj-unlgo-4d2uw-ycdjc-zqe
+          stake: 500000000000 e8s
+          memo: 3
+          dissolve_delay: 3 months
+          vesting_period: 9 months
+        - principal: yxrec-lphu7-4cfmz-jhfu5-mbqib-kqxcu-xnbfj-unlgo-4d2uw-ycdjc-zqe
+          stake: 500000000000 e8s
+          memo: 4
+          dissolve_delay: 3 months
+          vesting_period: 12 months
+        - principal: jwvyx-bkwm3-e62m7-ic3zy-avbb4-hc5ow-mq4yf-qdlff-v3b5d-3xlwe-hae
+          stake: 500000000000 e8s
+          memo: 0
+          dissolve_delay: 60sec
+          vesting_period: 0 months
+        - principal: jwvyx-bkwm3-e62m7-ic3zy-avbb4-hc5ow-mq4yf-qdlff-v3b5d-3xlwe-hae
+          stake: 500000000000 e8s
+          memo: 1
+          dissolve_delay: 3 months
+          vesting_period: 3 months
+        - principal: jwvyx-bkwm3-e62m7-ic3zy-avbb4-hc5ow-mq4yf-qdlff-v3b5d-3xlwe-hae
+          stake: 500000000000 e8s
+          memo: 2
+          dissolve_delay: 3 months
+          vesting_period: 6 months
+        - principal: jwvyx-bkwm3-e62m7-ic3zy-avbb4-hc5ow-mq4yf-qdlff-v3b5d-3xlwe-hae
+          stake: 500000000000 e8s
+          memo: 3
+          dissolve_delay: 3 months
+          vesting_period: 9 months
+        - principal: jwvyx-bkwm3-e62m7-ic3zy-avbb4-hc5ow-mq4yf-qdlff-v3b5d-3xlwe-hae
+          stake: 500000000000 e8s
+          memo: 4
+          dissolve_delay: 3 months
+          vesting_period: 12 months
+        - principal: jn2lc-kk6vz-blly5-mmzsq-kpuuq-jw6ib-oghpo-ent2u-didrt-is2i6-3ae
+          stake: 1000000000000 e8s
+          memo: 0
+          dissolve_delay: 60sec
+          vesting_period: 0 months
+        - principal: jn2lc-kk6vz-blly5-mmzsq-kpuuq-jw6ib-oghpo-ent2u-didrt-is2i6-3ae
+          stake: 1000000000000 e8s
+          memo: 1
+          dissolve_delay: 3 months
+          vesting_period: 3 months
+        - principal: jn2lc-kk6vz-blly5-mmzsq-kpuuq-jw6ib-oghpo-ent2u-didrt-is2i6-3ae
+          stake: 1000000000000 e8s
+          memo: 2
+          dissolve_delay: 3 months
+          vesting_period: 6 months
+        - principal: jn2lc-kk6vz-blly5-mmzsq-kpuuq-jw6ib-oghpo-ent2u-didrt-is2i6-3ae
+          stake: 1000000000000 e8s
+          memo: 3
+          dissolve_delay: 3 months
+          vesting_period: 9 months
+        - principal: jn2lc-kk6vz-blly5-mmzsq-kpuuq-jw6ib-oghpo-ent2u-didrt-is2i6-3ae
+          stake: 1000000000000 e8s
+          memo: 4
+          dissolve_delay: 3 months
+          vesting_period: 12 months
+        - principal: a773e-howz4-uevuv-obwvk-tsjhf-itbxp-zsvyh-rnnxa-6nqd2-ebcrn-qqe
+          stake: 217782900000 e8s
+          memo: 0
+          dissolve_delay: 60sec
+          vesting_period: 0 months
+        - principal: a773e-howz4-uevuv-obwvk-tsjhf-itbxp-zsvyh-rnnxa-6nqd2-ebcrn-qqe
+          stake: 217782900000 e8s
+          memo: 1
+          dissolve_delay: 3 months
+          vesting_period: 3 months
+        - principal: a773e-howz4-uevuv-obwvk-tsjhf-itbxp-zsvyh-rnnxa-6nqd2-ebcrn-qqe
+          stake: 217782900000 e8s
+          memo: 2
+          dissolve_delay: 3 months
+          vesting_period: 6 months
+        - principal: a773e-howz4-uevuv-obwvk-tsjhf-itbxp-zsvyh-rnnxa-6nqd2-ebcrn-qqe
+          stake: 217782900000 e8s
+          memo: 3
+          dissolve_delay: 3 months
+          vesting_period: 9 months
+        - principal: a773e-howz4-uevuv-obwvk-tsjhf-itbxp-zsvyh-rnnxa-6nqd2-ebcrn-qqe
+          stake: 217782900000 e8s
+          memo: 4
+          dissolve_delay: 3 months
+          vesting_period: 12 months
+        - principal: auyhc-d7e62-dprls-douen-yk4mw-aib6v-z7nxh-gdzl6-y5ulu-srl77-sqe
+          stake: 500000000000 e8s
+          memo: 0
+          dissolve_delay: 60sec
+          vesting_period: 0 months
+        - principal: auyhc-d7e62-dprls-douen-yk4mw-aib6v-z7nxh-gdzl6-y5ulu-srl77-sqe
+          stake: 500000000000 e8s
+          memo: 1
+          dissolve_delay: 3 months
+          vesting_period: 3 months
+        - principal: auyhc-d7e62-dprls-douen-yk4mw-aib6v-z7nxh-gdzl6-y5ulu-srl77-sqe
+          stake: 500000000000 e8s
+          memo: 2
+          dissolve_delay: 3 months
+          vesting_period: 6 months
+        - principal: auyhc-d7e62-dprls-douen-yk4mw-aib6v-z7nxh-gdzl6-y5ulu-srl77-sqe
+          stake: 500000000000 e8s
+          memo: 3
+          dissolve_delay: 3 months
+          vesting_period: 9 months
+        - principal: auyhc-d7e62-dprls-douen-yk4mw-aib6v-z7nxh-gdzl6-y5ulu-srl77-sqe
+          stake: 500000000000 e8s
+          memo: 4
+          dissolve_delay: 3 months
+          vesting_period: 12 months
+        - principal: ml7ds-hp6pl-6lqoi-yryad-kkjmz-kctxl-dmknm-dw6kn-hofw7-h7ssy-vqe
+          stake: 4883377100000 e8s
+          memo: 0
+          dissolve_delay: 60sec
+          vesting_period: 0 months
+        - principal: ml7ds-hp6pl-6lqoi-yryad-kkjmz-kctxl-dmknm-dw6kn-hofw7-h7ssy-vqe
+          stake: 4883377100000 e8s
+          memo: 1
+          dissolve_delay: 3 months
+          vesting_period: 3 months
+        - principal: ml7ds-hp6pl-6lqoi-yryad-kkjmz-kctxl-dmknm-dw6kn-hofw7-h7ssy-vqe
+          stake: 4883377100000 e8s
+          memo: 2
+          dissolve_delay: 3 months
+          vesting_period: 6 months
+        - principal: ml7ds-hp6pl-6lqoi-yryad-kkjmz-kctxl-dmknm-dw6kn-hofw7-h7ssy-vqe
+          stake: 4883377100000 e8s
+          memo: 3
+          dissolve_delay: 3 months
+          vesting_period: 9 months
+        - principal: ml7ds-hp6pl-6lqoi-yryad-kkjmz-kctxl-dmknm-dw6kn-hofw7-h7ssy-vqe
+          stake: 4883377100000 e8s
+          memo: 4
+          dissolve_delay: 3 months
+          vesting_period: 12 months
+
+
+    # The initial SNS token balances of the various canisters of the SNS.
+    InitialBalances:
+        # The initial SNS token balance of the SNS Governance canister is known
+        # as the treasury. This is initialized in a special sub-account, as the
+        # main account of Governance is the minting account of the SNS Ledger.
+        governance: 73125000 tokens
+
+        # The initial SNS token balance of the Swap canister is what will be
+        # available for the decentralization swap. These tokens will be swapped
+        # for ICP.
+        swap: 26250000 tokens
+
+    # Checksum of the total number of tokens distributed in thissection.
+    # +    18.125 million  (team)
+    # +    7.5 million (seed funders)
+    # +    5.875 million (airdrop) 
+    # +    68.5 million    (governance)
+    # +    25 million    (swap)
+    # --------------
+    total: 125000000 tokens
+
+# Configuration of the decentralization swap parameters. Choose these parameters
+# carefully, if a decentralization swap fails, the SNS will restore the dapp
+# canister(s) to the fallback controllers (defined in
+# `fallback_controller_principals`) and you will need to start over.
+Swap:
+    # The minimum number of participants that must participate for the
+    # decentralization swap to succeed. If a decentralization swap finishes due
+    # to the deadline or the maximum target being reached, and if there are less
+    # than `minimum_participants`, the swap will fail.
+    minimum_participants: 200
+
+    # The minimum number of ICP that is required for a decentralization swap to
+    # succeed. This number divided by the number of SNS tokens being offered
+    # gives the reserve price of the swap, i.e., the minimum number of ICP per
+    # SNS token. If this amount is not achieved, the swap will fail.
+    minimum_icp: 500000 tokens
+
+    # The maximum number of ICP that is targeted by this decentralization swap.
+    # If this amount is achieved with sufficient participation, the swap will
+    # succeed immediately, without waiting for the deadline. This means that
+    # a participant knows the minimum number of SNS tokens received per invested
+    # ICP. If this amount is achieved without reaching `minimum_participants`,
+    # the swap will immediately fail without waiting for the due date.
+    maximum_icp: 1200000 tokens
+
+    # The minimum amount of ICP that each participant must contribute
+    # to participate.
+    minimum_participant_icp:     5 tokens
+
+    # The maximum amount of ICP that each participant must contribute
+    # to participate.
+    maximum_participant_icp: 150000 tokens
+
+    restricted_countries:
+        - US
+        - KP
+        - CU
+        - SD
+        - SY
+        - IR
+        - VE
+    # Configuration of the vesting schedule of the neuron basket, i.e., the SNS
+    # neurons that a participants will receive from a successful
+    # decentralization swap.
+    VestingSchedule:
+        # The number of events in the vesting schedule. This translates to how
+        # many neurons will be in each participant's neuron basket. Note that
+        # the first neuron in each neuron basket will have zero dissolve delay.
+        # This value should thus be greater than or equal to `2`.
+        events: 5
+
+        # The interval at which the schedule will be increased per event. The
+        # first neuron in the basket will be unlocked with zero dissolve delay.
+        # Each other neuron in the schedule will have its dissolve delay
+        # increased by `interval` compared to the previous one. For example,
+        # if `events` is set to `3` and `interval` is `1 month`, then each
+        # participant's neuron basket will have three neurons (with equal stake)
+        # with dissolve delays zero, 1 month, and 2 months. Note that the notion
+        # of `Distribution.neurons.vesting_period` applies only to developer
+        # neurons. While neuron basket neurons do not use `vesting_period`, they
+        # have a vesting schedule.
+        interval: 90 days
+
+    # Absolute time of day when the decentralization swap is supposed to start.
+    #
+    # An algorithm will be applied to allow at least 24 hours between the time
+    # of execution of the CreateServiceNervousSystem proposal and swap start.
+    # For example, if start_time is 23:30 UTC and the proposal is adopted and
+    # executed at 23:20 UTC, then the swap start will be at 23:30 UTC the next
+    # day (i.e., in 24 hours and 10 min from the proposal execution time).
+    #
+    # WARNING: Swap start_time works differently on mainnet and in testing.
+    #
+    # On mainnet:
+    # - Setting start_time to some value (e.g., 23:30 UTC) will allow the swap
+    #   participants to be prepared for the swap in advance, e.g.,
+    #   by obtaining ICPs that they would like to participate with.
+    # - If start_time is not specified, the actual start time of the swap will
+    #   be chosen at random (allowing at least 24 hours and less than 48 hours,
+    #   as described above).
+    #
+    # In testing:
+    # - Setting start_time to some value works the same as explained above.
+    # - If start_time is not specified, the swap will begin immediately after
+    #   the CreateServiceNervousSystem proposal is executed. This facilitates
+    #   testing in an accelerated manner.
+    #
+    # start_time: 23:30 UTC  # Intentionally commented out for testing.
+
+    # The duration of the decentralization swap. When `start_time` is calculated
+    # during CreateServiceNervousSystem proposal execution, this `duration` will
+    # be added to that absolute time and set as the swap's deadline.
+    duration: 10 days
+
+    # The amount of ICP that will be contributed to the decentralization swap by
+    # the Neurons' Fund if the CreateServiceNervousSystem proposal is adopted.
+    neurons_fund_investment_icp: 299000 tokens
