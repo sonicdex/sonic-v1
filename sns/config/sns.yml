@@ -24,39 +24,38 @@ NnsProposal:
 
     # The description of the proposal. Must be a string of 10 to 2,000 bytes.
     summary: |
-        ## Sonic SNS Proposal for DAO  
-        This is the proposal for the NNS to create an SNS DAO to govern the
-        SONIC DAO.  
-        ## Purpose  
-        Sonic DEX is an open-source, fully on-chain, and audited DeFi suite developed on the Internet Computer.  
-        ## Proposed Token Distribution  
-        Initial Total supply: 125 Million  
-        * 53.80% reserved for the SNS treasury.  
-        * 21% to be distributed by the NNS run decentralisation sale including CF. 
-        * 14.5% allocated to the team which vest over 36 months.  
-        * 2% allocated to seed investors which vest over 12 months.  
-        * 4% allocated to fleek team which vests over 12 months.  
-        * 4.7% allocated to LBP participants & other airdrops which vests over 12 months. 
-        For more information, read [Tokenomics](https://docs.google.com/spreadsheets/d/1X2gQENfw5eKkVos2F9fd3QwDotggG2hZGjGzDbCgld0/edit?usp=sharing)  
-        ## Governance  
-        The governance model includes staking, voting, and other relevant details. The minimum amount of SNS tokens to stake a neuron is 5. The minimum dissolve delay for a neuron to cast votes on proposals is 1 month.  
-        ## Decentralisation Sale  
-        Min participation: 5 ICP  
-        Max participation: 150,000 ICP  
-        Max to be raised: 1,200,000 ICP  
-        Min to be raised: 500,000 ICP  
-        Min participants: 200  
-        ## The Dapp  
-        The Sonic Dex is composed of multiple canisters with the SNS directly controlling the following canisters:  
-        * 3xwpq-ziaaa-aaaah-qcn4a-cai (sonic swap)  
-        * eukbz-7iaaa-aaaah-ac5tq-cai (sonic frontend)  
-        * fxgi7-lqaaa-aaaah-ac5va-cai (sonic analytics)  
-        * utozz-siaaa-aaaam-qaaxq-cai (wicp)  
-        * aanaa-xaaaa-aaaah-aaeiq-cai (xtc)  
-        * lfzsk-7qaaa-aaaah-adk2q-cai (sonic lbp beta)  
-        ## Verification  
-        Above details can be verified through  
-        [Whitepaper](https://sonicdex.gitbook.io/sonic-whitepaper/), [Docs](https://docs.sonic.ooo/) & [Github](https://github.com/sonicdex/)  
+      ## Sonic SNS Proposal for DAO  
+      **NOTE** : We are resubmitting our proposal due to a mistake in our previous submission regarding the SNS guidelines and the requested community fund percentage. We value transparency and wish to ensure our proposal accurately represents our intentions. Thank you for your understanding and continued support.    
+
+      This is the proposal for the NNS to create an SNS DAO to govern the SONIC DAO.  
+      ## Proposed Token Distribution  
+      Initial Total supply: 125 Million  
+      * 53.80% reserved for the SNS treasury.  
+      * 21% to be distributed by the NNS run decentralisation sale including CF. 
+      * 14.5% allocated to the team which vest over 36 months.  
+      * 2% allocated to seed investors which vest over 12 months.  
+      * 4% allocated to fleek team which vests over 12 months.  
+      * 4.7% allocated to LBP participants & other airdrops which vests over 12 months. 
+      For more information, read [Tokenomics](https://docs.google.com/spreadsheets/d/1X2gQENfw5eKkVos2F9fd3QwDotggG2hZGjGzDbCgld0/edit?usp=sharing)  
+      ## Governance  
+      The governance model includes staking, voting, and other relevant details. The minimum amount of SNS tokens to stake a neuron is 5. The minimum dissolve delay for a neuron to cast votes on proposals is 1 month.  
+      ## Decentralisation Sale  
+      Min participation: 5 ICP  
+      Max participation: 150,000 ICP  
+      Max to be raised: 1,200,000 ICP  
+      Min to be raised: 500,000 ICP  
+      Min participants: 200  
+      ## The Dapp  
+      The Sonic Dex is composed of multiple canisters with the SNS directly controlling the following canisters:  
+      * 3xwpq-ziaaa-aaaah-qcn4a-cai (sonic swap)  
+      * eukbz-7iaaa-aaaah-ac5tq-cai (sonic frontend)  
+      * fxgi7-lqaaa-aaaah-ac5va-cai (sonic analytics)  
+      * utozz-siaaa-aaaam-qaaxq-cai (wicp)  
+      * aanaa-xaaaa-aaaah-aaeiq-cai (xtc)  
+      * lfzsk-7qaaa-aaaah-adk2q-cai (sonic lbp beta)  
+      ## Verification  
+      Above details can be verified through  
+      [Whitepaper](https://sonicdex.gitbook.io/sonic-whitepaper/), [Docs](https://docs.sonic.ooo/) & [Github](https://github.com/sonicdex/)  
       
 # If the SNS launch attempt fails, control over the dapp canister(s) is given to
 # these principals. In most use cases, this is chosen to be the original set of
@@ -105,7 +104,7 @@ Token:
 Proposals:
     # The cost of making an SNS proposal that is rejected by the SNS neuron
     # holders.
-    rejection_fee: 125 tokens
+    rejection_fee: 12500000000 e8s
 
     # The initial voting period of an SNS proposal. A proposal's voting period
     # may be increased during its lifecycle due to the wait-for-quiet algorithm
@@ -118,7 +117,7 @@ Proposals:
 # but will affect the SNS itself.
 Neurons:
     # The minimum amount of SNS tokens to stake a neuron.
-    minimum_creation_stake: 5 tokens
+    minimum_creation_stake: 500000000 e8s
 
 # Configuration of SNS voting. These fields have no effect on the NNS proposal
 # created by this file, but will affect the SNS itself.
@@ -230,12 +229,12 @@ Distribution:
           stake: 100000000000 e8s # 1000 tokens
           memo: 0
           dissolve_delay: 1 years
-          vesting_period: 0sec
+          vesting_period: 0 seconds
         - principal: pztrv-cxvtd-suxig-xxkro-xynhu-nuvfq-ccxob-otlye-xeh45-uvild-mqe # fleek team
           stake: 250000000000000 e8s # 2.5 million
           memo: 0
           dissolve_delay: 3 months
-          vesting_period: 0sec
+          vesting_period: 0 seconds
         - principal: pztrv-cxvtd-suxig-xxkro-xynhu-nuvfq-ccxob-otlye-xeh45-uvild-mqe # fleek team
           stake: 250000000000000 e8s # 2.5 million
           memo: 1
@@ -281,7 +280,7 @@ Distribution:
         - principal: snuqi-abk2c-jgzep-c7pck-yiavv-mdqfi-o2x2g-h4wuc-kvmjn-7agtx-pae
           stake: 9305760000000 e8s
           memo: 0
-          dissolve_delay: 60sec
+          dissolve_delay: 60 seconds
           vesting_period: 0 months
         - principal: snuqi-abk2c-jgzep-c7pck-yiavv-mdqfi-o2x2g-h4wuc-kvmjn-7agtx-pae
           stake: 9305760000000 e8s
@@ -306,7 +305,7 @@ Distribution:
         - principal: wafik-3ibgo-e3dvl-zbnvc-7azle-5okej-i42b5-gvzi6-3bey6-mlil6-mae
           stake: 500000000000 e8s
           memo: 0
-          dissolve_delay: 60sec
+          dissolve_delay: 60 seconds
           vesting_period: 0 months
         - principal: wafik-3ibgo-e3dvl-zbnvc-7azle-5okej-i42b5-gvzi6-3bey6-mlil6-mae
           stake: 500000000000 e8s
@@ -331,7 +330,7 @@ Distribution:
         - principal: 6waub-jkdtz-im6uc-ojink-oojjl-66qqf-jrmgq-tpcpu-ugs2c-u27g5-4ae
           stake: 500000000000 e8s
           memo: 0
-          dissolve_delay: 60sec
+          dissolve_delay: 60 seconds
           vesting_period: 0 months
         - principal: 6waub-jkdtz-im6uc-ojink-oojjl-66qqf-jrmgq-tpcpu-ugs2c-u27g5-4ae
           stake: 500000000000 e8s
@@ -356,7 +355,7 @@ Distribution:
         - principal: gk24j-rp4ue-otalt-dojqy-aff4v-zlpvd-ymdzu-v72ni-2wrkr-a37wf-fae
           stake: 500000000000 e8s
           memo: 0
-          dissolve_delay: 60sec
+          dissolve_delay: 60 seconds
           vesting_period: 0 months
         - principal: gk24j-rp4ue-otalt-dojqy-aff4v-zlpvd-ymdzu-v72ni-2wrkr-a37wf-fae
           stake: 500000000000 e8s
@@ -381,7 +380,7 @@ Distribution:
         - principal: zosil-ho5ev-kgqrp-ybnjd-lbrgh-brv4q-dnj2v-lj7sb-ijsqu-o65qw-qae
           stake: 1012000000000 e8s
           memo: 0
-          dissolve_delay: 60sec
+          dissolve_delay: 60 seconds
           vesting_period: 0 months
         - principal: zosil-ho5ev-kgqrp-ybnjd-lbrgh-brv4q-dnj2v-lj7sb-ijsqu-o65qw-qae
           stake: 1012000000000 e8s
@@ -406,7 +405,7 @@ Distribution:
         - principal: all6m-dw35d-ogire-ri3gv-hd2t3-nhu64-zgmqe-u34sl-wrvak-7vhny-rqe
           stake: 500000000000 e8s
           memo: 0
-          dissolve_delay: 60sec
+          dissolve_delay: 60 seconds
           vesting_period: 0 months
         - principal: all6m-dw35d-ogire-ri3gv-hd2t3-nhu64-zgmqe-u34sl-wrvak-7vhny-rqe
           stake: 500000000000 e8s
@@ -431,7 +430,7 @@ Distribution:
         - principal: 5pzsx-tcrmw-5ogf4-dwdcr-ojz2z-xqhrk-js33g-cqcw6-dnkg4-dld7w-hqe
           stake: 250000000000 e8s
           memo: 0
-          dissolve_delay: 60sec
+          dissolve_delay: 60 seconds
           vesting_period: 0 months
         - principal: 5pzsx-tcrmw-5ogf4-dwdcr-ojz2z-xqhrk-js33g-cqcw6-dnkg4-dld7w-hqe
           stake: 250000000000 e8s
@@ -456,7 +455,7 @@ Distribution:
         - principal: c6olb-xyr36-cb5wq-fzepc-xsrxd-vw3co-nwvlj-fwm2g-omwr7-paukk-yqe
           stake: 500000000000 e8s
           memo: 0
-          dissolve_delay: 60sec
+          dissolve_delay: 60 seconds
           vesting_period: 0 months
         - principal: c6olb-xyr36-cb5wq-fzepc-xsrxd-vw3co-nwvlj-fwm2g-omwr7-paukk-yqe
           stake: 500000000000 e8s
@@ -481,7 +480,7 @@ Distribution:
         - principal: ww2jx-jrz3a-ycha4-3qvql-hgwim-juh2o-dquln-jrcie-s5wrl-xyims-aqe
           stake: 5012500000000 e8s
           memo: 0
-          dissolve_delay: 60sec
+          dissolve_delay: 60 seconds
           vesting_period: 0 months
         - principal: ww2jx-jrz3a-ycha4-3qvql-hgwim-juh2o-dquln-jrcie-s5wrl-xyims-aqe
           stake: 5012500000000 e8s
@@ -506,7 +505,7 @@ Distribution:
         - principal: mx54a-lbpre-rbl2i-rzgj7-55k2o-gbh2g-he7nq-b3kep-b2fnc-7n6wm-dqe
           stake: 500000000000 e8s
           memo: 0
-          dissolve_delay: 60sec
+          dissolve_delay: 60 seconds
           vesting_period: 0 months
         - principal: mx54a-lbpre-rbl2i-rzgj7-55k2o-gbh2g-he7nq-b3kep-b2fnc-7n6wm-dqe
           stake: 500000000000 e8s
@@ -531,7 +530,7 @@ Distribution:
         - principal: vtjxv-twvir-otpuv-43re5-urhft-o6iyl-ageif-bid2k-xzl2z-ixkhf-oae
           stake: 550000000000 e8s
           memo: 0
-          dissolve_delay: 60sec
+          dissolve_delay: 60 seconds
           vesting_period: 0 months
         - principal: vtjxv-twvir-otpuv-43re5-urhft-o6iyl-ageif-bid2k-xzl2z-ixkhf-oae
           stake: 550000000000 e8s
@@ -556,7 +555,7 @@ Distribution:
         - principal: mt4ed-alxoh-agqdg-xyafm-k47ex-epfms-sekyo-kc6mu-rtvez-4zw2n-aae
           stake: 500000000000 e8s
           memo: 0
-          dissolve_delay: 60sec
+          dissolve_delay: 60 seconds
           vesting_period: 0 months
         - principal: mt4ed-alxoh-agqdg-xyafm-k47ex-epfms-sekyo-kc6mu-rtvez-4zw2n-aae
           stake: 500000000000 e8s
@@ -581,7 +580,7 @@ Distribution:
         - principal: saw7k-3vflg-gg6ci-plkdc-3lhsh-huley-llpjr-fqjfm-bhxl5-34evi-iae
           stake: 500000000000 e8s
           memo: 0
-          dissolve_delay: 60sec
+          dissolve_delay: 60 seconds
           vesting_period: 0 months
         - principal: saw7k-3vflg-gg6ci-plkdc-3lhsh-huley-llpjr-fqjfm-bhxl5-34evi-iae
           stake: 500000000000 e8s
@@ -606,7 +605,7 @@ Distribution:
         - principal: ydaf3-kn5th-c4lah-nvslv-gtcvz-uzlwz-o2l7l-25ldt-oxwwd-3pls5-pae
           stake: 250000000000 e8s
           memo: 0
-          dissolve_delay: 60sec
+          dissolve_delay: 60 seconds
           vesting_period: 0 months
         - principal: ydaf3-kn5th-c4lah-nvslv-gtcvz-uzlwz-o2l7l-25ldt-oxwwd-3pls5-pae
           stake: 250000000000 e8s
@@ -631,7 +630,7 @@ Distribution:
         - principal: ick2m-3xrt5-35pdj-nbiv7-26uo2-lcizt-tzbzf-ylkhj-7mpgv-kvscu-kae
           stake: 1050000000000 e8s
           memo: 0
-          dissolve_delay: 60sec
+          dissolve_delay: 60 seconds
           vesting_period: 0 months
         - principal: ick2m-3xrt5-35pdj-nbiv7-26uo2-lcizt-tzbzf-ylkhj-7mpgv-kvscu-kae
           stake: 1050000000000 e8s
@@ -656,7 +655,7 @@ Distribution:
         - principal: 2axu7-czxyn-crrxs-uoom4-mvh5b-b3gj5-mxswl-jh6ur-kppzf-7dbmh-hqe
           stake: 500000000000 e8s
           memo: 0
-          dissolve_delay: 60sec
+          dissolve_delay: 60 seconds
           vesting_period: 0 months
         - principal: 2axu7-czxyn-crrxs-uoom4-mvh5b-b3gj5-mxswl-jh6ur-kppzf-7dbmh-hqe
           stake: 500000000000 e8s
@@ -681,7 +680,7 @@ Distribution:
         - principal: 2gthi-zrgcu-agik2-wr4ab-lhkrj-uzfsy-bortt-qgw5x-vixpd-sccsm-bqe
           stake: 500000000000 e8s
           memo: 0
-          dissolve_delay: 60sec
+          dissolve_delay: 60 seconds
           vesting_period: 0 months
         - principal: 2gthi-zrgcu-agik2-wr4ab-lhkrj-uzfsy-bortt-qgw5x-vixpd-sccsm-bqe
           stake: 500000000000 e8s
@@ -706,7 +705,7 @@ Distribution:
         - principal: 3up6w-taamq-4mcvy-ol5ui-b2lhz-qwtw5-5aurp-fjrjb-4a57r-tpy44-fae
           stake: 500000000000 e8s
           memo: 0
-          dissolve_delay: 60sec
+          dissolve_delay: 60 seconds
           vesting_period: 0 months
         - principal: 3up6w-taamq-4mcvy-ol5ui-b2lhz-qwtw5-5aurp-fjrjb-4a57r-tpy44-fae
           stake: 500000000000 e8s
@@ -731,7 +730,7 @@ Distribution:
         - principal: absmb-a2x7z-zxga3-xsee4-4lf2n-w5cc6-ri3az-pqmpx-oerge-yrjrk-uae
           stake: 507500000000 e8s
           memo: 0
-          dissolve_delay: 60sec
+          dissolve_delay: 60 seconds
           vesting_period: 0 months
         - principal: absmb-a2x7z-zxga3-xsee4-4lf2n-w5cc6-ri3az-pqmpx-oerge-yrjrk-uae
           stake: 507500000000 e8s
@@ -756,7 +755,7 @@ Distribution:
         - principal: wgizu-oh3b7-dza6g-l6pcc-hjil3-pclmv-adeqn-k2god-z4omc-cgjzq-sae
           stake: 500000000000 e8s
           memo: 0
-          dissolve_delay: 60sec
+          dissolve_delay: 60 seconds
           vesting_period: 0 months
         - principal: wgizu-oh3b7-dza6g-l6pcc-hjil3-pclmv-adeqn-k2god-z4omc-cgjzq-sae
           stake: 500000000000 e8s
@@ -781,7 +780,7 @@ Distribution:
         - principal: lcyeu-p6tby-i4uw5-mvkiy-rp3sb-5elnq-5xfiz-rsduf-7itwj-2d2wm-nae
           stake: 541500000000 e8s
           memo: 0
-          dissolve_delay: 60sec
+          dissolve_delay: 60 seconds
           vesting_period: 0 months
         - principal: lcyeu-p6tby-i4uw5-mvkiy-rp3sb-5elnq-5xfiz-rsduf-7itwj-2d2wm-nae
           stake: 541500000000 e8s
@@ -806,7 +805,7 @@ Distribution:
         - principal: airdr-s3anz-vkwqu-3d77h-ccbwc-k5sfc-yjrfv-sdwc4-n5ijm-p37eq-fae
           stake: 500000000000 e8s
           memo: 0
-          dissolve_delay: 60sec
+          dissolve_delay: 60 seconds
           vesting_period: 0 months
         - principal: airdr-s3anz-vkwqu-3d77h-ccbwc-k5sfc-yjrfv-sdwc4-n5ijm-p37eq-fae
           stake: 500000000000 e8s
@@ -831,7 +830,7 @@ Distribution:
         - principal: lhynn-heral-nybs2-6pnwh-v4xfc-f24i5-2yufy-h6zus-oiijg-4xzyd-gae
           stake: 500000000000 e8s
           memo: 0
-          dissolve_delay: 60sec
+          dissolve_delay: 60 seconds
           vesting_period: 0 months
         - principal: lhynn-heral-nybs2-6pnwh-v4xfc-f24i5-2yufy-h6zus-oiijg-4xzyd-gae
           stake: 500000000000 e8s
@@ -856,7 +855,7 @@ Distribution:
         - principal: cczkc-2yxxs-5d25d-ffp4m-jag2i-5r4rt-dxsry-xrnu7-r3yr3-4oixq-sqe
           stake: 610350000000 e8s
           memo: 0
-          dissolve_delay: 60sec
+          dissolve_delay: 60 seconds
           vesting_period: 0 months
         - principal: cczkc-2yxxs-5d25d-ffp4m-jag2i-5r4rt-dxsry-xrnu7-r3yr3-4oixq-sqe
           stake: 610350000000 e8s
@@ -881,7 +880,7 @@ Distribution:
         - principal: nxiqs-ture2-t73uf-mgvm6-sxytg-ylgmh-e6z6d-dw3jp-fcduw-7w72q-vqe
           stake: 1250000000000 e8s
           memo: 0
-          dissolve_delay: 60sec
+          dissolve_delay: 60 seconds
           vesting_period: 0 months
         - principal: nxiqs-ture2-t73uf-mgvm6-sxytg-ylgmh-e6z6d-dw3jp-fcduw-7w72q-vqe
           stake: 1250000000000 e8s
@@ -906,7 +905,7 @@ Distribution:
         - principal: zlthp-jyed5-cou5n-zpymw-b46ud-4o6ul-j6vby-grwkw-ihwyi-psvep-rae
           stake: 2500000000000 e8s
           memo: 0
-          dissolve_delay: 60sec
+          dissolve_delay: 60 seconds
           vesting_period: 0 months
         - principal: zlthp-jyed5-cou5n-zpymw-b46ud-4o6ul-j6vby-grwkw-ihwyi-psvep-rae
           stake: 2500000000000 e8s
@@ -931,7 +930,7 @@ Distribution:
         - principal: 7oppw-5ebmd-erxsk-ncwx3-2pnmf-4wdkh-5glsb-fmmb3-lmhvw-vrdgx-aae
           stake: 500000000000 e8s
           memo: 0
-          dissolve_delay: 60sec
+          dissolve_delay: 60 seconds
           vesting_period: 0 months
         - principal: 7oppw-5ebmd-erxsk-ncwx3-2pnmf-4wdkh-5glsb-fmmb3-lmhvw-vrdgx-aae
           stake: 500000000000 e8s
@@ -956,7 +955,7 @@ Distribution:
         - principal: i4rub-bvxmi-wrcvv-4nl2q-bpuab-cflvh-7cwot-sa2bu-ajmlu-ufj7n-hae
           stake: 592755000000 e8s
           memo: 0
-          dissolve_delay: 60sec
+          dissolve_delay: 60 seconds
           vesting_period: 0 months
         - principal: i4rub-bvxmi-wrcvv-4nl2q-bpuab-cflvh-7cwot-sa2bu-ajmlu-ufj7n-hae
           stake: 592755000000 e8s
@@ -981,7 +980,7 @@ Distribution:
         - principal: trag2-cpiwz-omz4t-h5hc2-ddwi2-j57h4-6nwql-luslo-esh5y-kw6wf-kae
           stake: 500000000000 e8s
           memo: 0
-          dissolve_delay: 60sec
+          dissolve_delay: 60 seconds
           vesting_period: 0 months
         - principal: trag2-cpiwz-omz4t-h5hc2-ddwi2-j57h4-6nwql-luslo-esh5y-kw6wf-kae
           stake: 500000000000 e8s
@@ -1006,7 +1005,7 @@ Distribution:
         - principal: ipgdv-pf7j7-et34y-zrazs-aqnil-w2umz-offhu-gmsvr-u6pmx-klf53-2ae
           stake: 750000000000 e8s
           memo: 0
-          dissolve_delay: 60sec
+          dissolve_delay: 60 seconds
           vesting_period: 0 months
         - principal: ipgdv-pf7j7-et34y-zrazs-aqnil-w2umz-offhu-gmsvr-u6pmx-klf53-2ae
           stake: 750000000000 e8s
@@ -1031,7 +1030,7 @@ Distribution:
         - principal: o2glf-b6pob-yk6l7-urxow-pswqi-ymrj5-xx6py-d5ts6-6m736-shf3l-3ae
           stake: 750000000000 e8s
           memo: 0
-          dissolve_delay: 60sec
+          dissolve_delay: 60 seconds
           vesting_period: 0 months
         - principal: o2glf-b6pob-yk6l7-urxow-pswqi-ymrj5-xx6py-d5ts6-6m736-shf3l-3ae
           stake: 750000000000 e8s
@@ -1056,7 +1055,7 @@ Distribution:
         - principal: svpu3-n53nr-jwunj-6rplv-t2g2y-rbuib-35i4q-suhbk-vcudp-54xaw-lqe
           stake: 2329215000000 e8s
           memo: 0
-          dissolve_delay: 60sec
+          dissolve_delay: 60 seconds
           vesting_period: 0 months
         - principal: svpu3-n53nr-jwunj-6rplv-t2g2y-rbuib-35i4q-suhbk-vcudp-54xaw-lqe
           stake: 2329215000000 e8s
@@ -1081,7 +1080,7 @@ Distribution:
         - principal: e4lte-v3vxs-e4hnj-tkilm-p6yw2-45jct-76lgw-fwdho-7pxy2-kqhlp-pqe
           stake: 1500000000000 e8s
           memo: 0
-          dissolve_delay: 60sec
+          dissolve_delay: 60 seconds
           vesting_period: 0 months
         - principal: e4lte-v3vxs-e4hnj-tkilm-p6yw2-45jct-76lgw-fwdho-7pxy2-kqhlp-pqe
           stake: 1500000000000 e8s
@@ -1106,7 +1105,7 @@ Distribution:
         - principal: vqqbt-tu73k-rmm25-hyq5o-x5vug-rixzf-cfcf3-oicjz-xi6hr-im6mw-2qe
           stake: 500000000000 e8s
           memo: 0
-          dissolve_delay: 60sec
+          dissolve_delay: 60 seconds
           vesting_period: 0 months
         - principal: vqqbt-tu73k-rmm25-hyq5o-x5vug-rixzf-cfcf3-oicjz-xi6hr-im6mw-2qe
           stake: 500000000000 e8s
@@ -1131,7 +1130,7 @@ Distribution:
         - principal: qxizu-u6ktn-ejgk5-pu6is-7sxpw-txme6-tta36-kccui-mfae4-vuigw-qqe
           stake: 1988185000000 e8s
           memo: 0
-          dissolve_delay: 60sec
+          dissolve_delay: 60 seconds
           vesting_period: 0 months
         - principal: qxizu-u6ktn-ejgk5-pu6is-7sxpw-txme6-tta36-kccui-mfae4-vuigw-qqe
           stake: 1988185000000 e8s
@@ -1156,7 +1155,7 @@ Distribution:
         - principal: prnrn-t5fm4-ybwgo-wz6zq-ijo2h-3xve5-cac4e-bm7vu-2doxr-i7ep4-vae
           stake: 500000000000 e8s
           memo: 0
-          dissolve_delay: 60sec
+          dissolve_delay: 60 seconds
           vesting_period: 0 months
         - principal: prnrn-t5fm4-ybwgo-wz6zq-ijo2h-3xve5-cac4e-bm7vu-2doxr-i7ep4-vae
           stake: 500000000000 e8s
@@ -1181,7 +1180,7 @@ Distribution:
         - principal: cjagz-jwiva-7pbld-2xjxo-5vip3-2jobb-3ivgn-xyxt7-7ekcm-qahxg-cae
           stake: 500000000000 e8s
           memo: 0
-          dissolve_delay: 60sec
+          dissolve_delay: 60 seconds
           vesting_period: 0 months
         - principal: cjagz-jwiva-7pbld-2xjxo-5vip3-2jobb-3ivgn-xyxt7-7ekcm-qahxg-cae
           stake: 500000000000 e8s
@@ -1206,7 +1205,7 @@ Distribution:
         - principal: behqd-xscda-wivdg-si3oh-q3bbk-on72z-mmg6b-fyfmu-77xjy-5fwtj-lae
           stake: 500000000000 e8s
           memo: 0
-          dissolve_delay: 60sec
+          dissolve_delay: 60 seconds
           vesting_period: 0 months
         - principal: behqd-xscda-wivdg-si3oh-q3bbk-on72z-mmg6b-fyfmu-77xjy-5fwtj-lae
           stake: 500000000000 e8s
@@ -1231,7 +1230,7 @@ Distribution:
         - principal: 27idm-mgbgp-66xea-62upg-ylw7p-vpxfy-xufbg-nkuj3-azt2s-qdd5i-hqe
           stake: 602415000000 e8s
           memo: 0
-          dissolve_delay: 60sec
+          dissolve_delay: 60 seconds
           vesting_period: 0 months
         - principal: 27idm-mgbgp-66xea-62upg-ylw7p-vpxfy-xufbg-nkuj3-azt2s-qdd5i-hqe
           stake: 602415000000 e8s
@@ -1256,7 +1255,7 @@ Distribution:
         - principal: 6oboa-fqj3s-fvivx-llg2x-ngj3q-vpivp-vkhr3-mwpdm-236gj-ch2zk-sae
           stake: 500000000000 e8s
           memo: 0
-          dissolve_delay: 60sec
+          dissolve_delay: 60 seconds
           vesting_period: 0 months
         - principal: 6oboa-fqj3s-fvivx-llg2x-ngj3q-vpivp-vkhr3-mwpdm-236gj-ch2zk-sae
           stake: 500000000000 e8s
@@ -1281,7 +1280,7 @@ Distribution:
         - principal: xe33t-j44bt-lgzwy-5b44d-m2qpp-fwayx-bf3vh-b7f7p-s5746-pvngp-vae
           stake: 546660000000 e8s
           memo: 0
-          dissolve_delay: 60sec
+          dissolve_delay: 60 seconds
           vesting_period: 0 months
         - principal: xe33t-j44bt-lgzwy-5b44d-m2qpp-fwayx-bf3vh-b7f7p-s5746-pvngp-vae
           stake: 546660000000 e8s
@@ -1306,7 +1305,7 @@ Distribution:
         - principal: yxrec-lphu7-4cfmz-jhfu5-mbqib-kqxcu-xnbfj-unlgo-4d2uw-ycdjc-zqe
           stake: 500000000000 e8s
           memo: 0
-          dissolve_delay: 60sec
+          dissolve_delay: 60 seconds
           vesting_period: 0 months
         - principal: yxrec-lphu7-4cfmz-jhfu5-mbqib-kqxcu-xnbfj-unlgo-4d2uw-ycdjc-zqe
           stake: 500000000000 e8s
@@ -1331,7 +1330,7 @@ Distribution:
         - principal: jwvyx-bkwm3-e62m7-ic3zy-avbb4-hc5ow-mq4yf-qdlff-v3b5d-3xlwe-hae
           stake: 500000000000 e8s
           memo: 0
-          dissolve_delay: 60sec
+          dissolve_delay: 60 seconds
           vesting_period: 0 months
         - principal: jwvyx-bkwm3-e62m7-ic3zy-avbb4-hc5ow-mq4yf-qdlff-v3b5d-3xlwe-hae
           stake: 500000000000 e8s
@@ -1356,7 +1355,7 @@ Distribution:
         - principal: jn2lc-kk6vz-blly5-mmzsq-kpuuq-jw6ib-oghpo-ent2u-didrt-is2i6-3ae
           stake: 1000000000000 e8s
           memo: 0
-          dissolve_delay: 60sec
+          dissolve_delay: 60 seconds
           vesting_period: 0 months
         - principal: jn2lc-kk6vz-blly5-mmzsq-kpuuq-jw6ib-oghpo-ent2u-didrt-is2i6-3ae
           stake: 1000000000000 e8s
@@ -1381,7 +1380,7 @@ Distribution:
         - principal: a773e-howz4-uevuv-obwvk-tsjhf-itbxp-zsvyh-rnnxa-6nqd2-ebcrn-qqe
           stake: 217782900000 e8s
           memo: 0
-          dissolve_delay: 60sec
+          dissolve_delay: 60 seconds
           vesting_period: 0 months
         - principal: a773e-howz4-uevuv-obwvk-tsjhf-itbxp-zsvyh-rnnxa-6nqd2-ebcrn-qqe
           stake: 217782900000 e8s
@@ -1406,7 +1405,7 @@ Distribution:
         - principal: auyhc-d7e62-dprls-douen-yk4mw-aib6v-z7nxh-gdzl6-y5ulu-srl77-sqe
           stake: 500000000000 e8s
           memo: 0
-          dissolve_delay: 60sec
+          dissolve_delay: 60 seconds
           vesting_period: 0 months
         - principal: auyhc-d7e62-dprls-douen-yk4mw-aib6v-z7nxh-gdzl6-y5ulu-srl77-sqe
           stake: 500000000000 e8s
@@ -1431,7 +1430,7 @@ Distribution:
         - principal: ml7ds-hp6pl-6lqoi-yryad-kkjmz-kctxl-dmknm-dw6kn-hofw7-h7ssy-vqe
           stake: 4883377100000 e8s
           memo: 0
-          dissolve_delay: 60sec
+          dissolve_delay: 60 seconds
           vesting_period: 0 months
         - principal: ml7ds-hp6pl-6lqoi-yryad-kkjmz-kctxl-dmknm-dw6kn-hofw7-h7ssy-vqe
           stake: 4883377100000 e8s
@@ -1460,12 +1459,12 @@ Distribution:
         # The initial SNS token balance of the SNS Governance canister is known
         # as the treasury. This is initialized in a special sub-account, as the
         # main account of Governance is the minting account of the SNS Ledger.
-        governance: 73125000 tokens
+        governance: 7312500000000000 e8s
 
         # The initial SNS token balance of the Swap canister is what will be
         # available for the decentralization swap. These tokens will be swapped
         # for ICP.
-        swap: 26250000 tokens
+        swap: 2625000000000000 e8s
 
     # Checksum of the total number of tokens distributed in thissection.
     # +    18.125 million  (team)
@@ -1474,7 +1473,7 @@ Distribution:
     # +    68.5 million    (governance)
     # +    25 million    (swap)
     # --------------
-    total: 125000000 tokens
+    total: 12500000000000000 e8s
 
 # Configuration of the decentralization swap parameters. Choose these parameters
 # carefully, if a decentralization swap fails, the SNS will restore the dapp
@@ -1491,7 +1490,7 @@ Swap:
     # succeed. This number divided by the number of SNS tokens being offered
     # gives the reserve price of the swap, i.e., the minimum number of ICP per
     # SNS token. If this amount is not achieved, the swap will fail.
-    minimum_icp: 500000 tokens
+    minimum_icp: 50000000000000 e8s
 
     # The maximum number of ICP that is targeted by this decentralization swap.
     # If this amount is achieved with sufficient participation, the swap will
@@ -1499,15 +1498,15 @@ Swap:
     # a participant knows the minimum number of SNS tokens received per invested
     # ICP. If this amount is achieved without reaching `minimum_participants`,
     # the swap will immediately fail without waiting for the due date.
-    maximum_icp: 1200000 tokens
+    maximum_icp: 120000000000000 e8s
 
     # The minimum amount of ICP that each participant must contribute
     # to participate.
-    minimum_participant_icp:     5 tokens
+    minimum_participant_icp:     500000000 e8s
 
     # The maximum amount of ICP that each participant must contribute
     # to participate.
-    maximum_participant_icp: 150000 tokens
+    maximum_participant_icp: 15000000000000 e8s
 
     restricted_countries:
         - US
@@ -1572,4 +1571,4 @@ Swap:
 
     # The amount of ICP that will be contributed to the decentralization swap by
     # the Neurons' Fund if the CreateServiceNervousSystem proposal is adopted.
-    neurons_fund_investment_icp: 299000 tokens
+    neurons_fund_investment_icp: 26000000000000 e8s
