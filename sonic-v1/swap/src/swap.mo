@@ -26,6 +26,7 @@ import Nat32 "mo:base/Nat32";
 import Blob "mo:base/Blob";
 import Hex "./Hex";
 import Bool "mo:base/Bool";
+import Error "mo:base/Error";
 
 shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     type Errors = {
@@ -73,9 +74,9 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         fee : Nat;
     };
     type CapDetails={
-        CapV1RouterId:Text;
+        CapV1RootBucketId:?Text;
         CapV1Status:Bool;
-        CapV2RouterId:Text;
+        CapV2RootBucketId:?Text;
         CapV2Status:Bool
     };
     public type TokenActor = actor {
@@ -250,6 +251,18 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         amount1 : Nat
     };
 
+    type WithdrawState={
+        tokenId:Text;
+        userPId:Principal;
+        value:Nat;
+        refundStatus:Bool
+    };
+
+    type WithdrawRefundReceipt = {
+        #Ok: Bool;
+        #Err: Text;
+    };
+
     public type TokenInfo = Tokens.TokenInfo;
     public type TokenInfoExt = Tokens.TokenInfoExt;
     public type TokenInfoWithType = Tokens.TokenInfoWithType; 
@@ -284,6 +297,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     private var rewardTokens=HashMap.HashMap<Text, RewardTokens>(1, Text.equal, Text.hash);
     private var rewardInfo = HashMap.HashMap<Principal, [RewardInfo]>(1, Principal.equal, Principal.hash);
     private var blocklistedUsers = HashMap.HashMap<Principal, Bool>(1, Principal.equal, Principal.hash);   
+    private var faileWithdraws = HashMap.HashMap<Text, WithdrawState>(1, Text.equal, Text.hash);   
 
     // admins
     private var auths = HashMap.HashMap<Principal, Bool>(1, Principal.equal, Principal.hash);
@@ -299,6 +313,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     private stable var rewardTokenEntries : [(Text,RewardTokens)] = [];
     private stable var rewardInfoEntries : [(Principal,[RewardInfo])] = [];
     private stable var blocklistedUserEntries: [(Principal, Bool)] = [];
+    private stable var faileWithdrawEntries: [(Text, WithdrawState)] = [];
 
     // variables not used : added for future use
     private stable var daoCanisterIdForLiquidity : Text = "";
@@ -651,9 +666,9 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
 
     public query func getCapDetails(): async CapDetails {
         return ({
-            CapV1RouterId=cap.getRouterId();
+            CapV1RootBucketId=cap.getRootBucketId();
             CapV1Status=capV1Enabled;
-            CapV2RouterId=capV2.getRouterId();
+            CapV2RootBucketId=capV2.getRootBucketId();
             CapV2Status=capV2Enabled;
         });
     };
@@ -1180,7 +1195,26 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                     };
                 };
             } catch (e) {
-                ignore tokens.mint(tid, msg.caller, value);
+                // ignore tokens.mint(tid, msg.caller, value);
+                faileWithdraws.put(Int.toText(Time.now()),{
+                    tokenId=tid; 
+                    userPId=msg.caller; 
+                    value=value; 
+                    refundStatus=false
+                });
+                ignore addRecord(
+                    msg.caller, "withdraw-failed", 
+                    [
+                        ("tokenId", #Text(tid)),
+                        ("from", #Principal(msg.caller)),
+                        ("to", #Principal(msg.caller)),
+                        ("amount", #U64(u64(value))),
+                        ("fee", #U64(u64(tokens.getFee(tid)))),
+                        ("balance", #U64(u64(tokens.balanceOf(tid, msg.caller)))),
+                        ("totalSupply", #U64(u64(tokens.totalSupply(tid)))),
+                        ("Error", #Text(Error.message(e))),
+                    ]
+                );
                 return #err("token transfer failed:" # tid);
             };
             ignore addRecord(
@@ -1202,7 +1236,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             return #err("burn token failed:" # tid);
         };
     };
-
+    /*
     public shared(msg) func withdrawTo(tokenId: Principal, to: Principal, value: Nat) : async TxReceipt {
         let tid: Text = Principal.toText(tokenId);
         if (tokens.hasToken(tid) == false)
@@ -1256,6 +1290,34 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             return #ok(txcounter - 1);
         } else {
             return #err("burn token failed:" # tid);
+        };
+    };
+    */
+    public shared(msg) func failedWithdrawRefund(transactionId: Text) : async WithdrawRefundReceipt {        
+        if (_checkAuth(msg.caller) == false) {
+          return #Err("unauthorized");
+        };        
+
+        switch(faileWithdraws.get(transactionId)){
+            case(?trans){
+                if(trans.refundStatus){
+                   return #Err("The refund has already been processed.");     
+                };
+                var tid:Text=trans.tokenId;
+                var userPId:Principal=trans.userPId;
+                var value:Nat=trans.value;
+                ignore tokens.mint(tid, userPId, value);
+                faileWithdraws.put(transactionId,{
+                    tokenId=tid; 
+                    userPId=userPId; 
+                    value=value; 
+                    refundStatus=true;
+                });
+                #Ok(true);
+            };
+            case(_){
+                return #Err("transaction not found");
+            };
         };
     };
 
@@ -2318,6 +2380,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         };
     };
 
+    /*
     public shared(msg) func transfer(tokenId: Text, to: Principal, value: Nat) : async Bool {
         if(Text.contains(tokenId, lppattern)) {
             if(lptokens.transfer(tokenId, msg.caller, to, value) == true) {
@@ -2358,7 +2421,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             return false;
         };
     };
-
+    */
     public shared(msg) func transferFrom(tokenId: Text, from: Principal, to: Principal, value: Nat) : async Bool {
         if(Text.contains(tokenId, lppattern)) {
             if(lptokens.transferFrom(tokenId, msg.caller, from, to, value) == true) {
@@ -2544,6 +2607,11 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     /*
     * state export
     */
+    public shared query(msg) func exportFaileWithdraws() : async [(Text,WithdrawState)] {
+        assert(_checkAuth(msg.caller));
+        return Iter.toArray(faileWithdraws.entries())
+    };
+
     public shared query(msg) func exportSwapInfo() : async SwapInfoExt{
         assert(_checkAuth(msg.caller));        
         return 
@@ -2764,6 +2832,8 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             #getCapDetails : () -> ();
             #setCapV1EnableStatus : () -> Bool;
             #setCapV2EnableStatus : () -> Bool;
+            #exportFaileWithdraws : () ->();
+            #failedWithdrawRefund : () -> Text;
         }}) : Bool 
         {
             if(_checkBlocklist(caller)){
@@ -2797,7 +2867,8 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 case (#monitorMetrics _) { _checkAuth(caller) };  
                 case (#getBlocklistedUsers _) { _checkAuth(caller) };
                 case (#addUserToBlocklist _) { _checkAuth(caller) };
-                case (#removeUserFromBlocklist _) { _checkAuth(caller) };               
+                case (#removeUserFromBlocklist _) { _checkAuth(caller) };
+                case (#failedWithdrawRefund _) { _checkAuth(caller) };           
 
                 //non-admin functions                
                 case (#initiateICRC1Transfer _) { 
@@ -3039,6 +3110,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 case (#exportRewardInfo _) { true };
                 case (#getCapDetails _) { true };
                 case (#historySize _) { true };
+                case (#exportFaileWithdraws _) { true };
             }
         };
 
@@ -3053,6 +3125,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         rewardTokenEntries := Iter.toArray(rewardTokens.entries());
         rewardInfoEntries := Iter.toArray(rewardInfo.entries());
         blocklistedUserEntries := Iter.toArray(blocklistedUsers.entries());
+        faileWithdrawEntries := Iter.toArray(faileWithdraws.entries());
     };
 
     system func postupgrade() {
@@ -3066,6 +3139,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         rewardTokens:= HashMap.fromIter<Text,RewardTokens>(rewardTokenEntries.vals(), 1, Text.equal, Text.hash);
         rewardInfo := HashMap.fromIter<Principal, [RewardInfo]>(rewardInfoEntries.vals(), 1, Principal.equal, Principal.hash);
         blocklistedUsers := HashMap.fromIter<Principal, Bool>(blocklistedUserEntries.vals(), 1, Principal.equal, Principal.hash);
+        faileWithdraws := HashMap.fromIter<Text, WithdrawState>(faileWithdrawEntries.vals(), 1, Text.equal, Text.hash);
         lppattern := #text ":";
         depositTransactionsEntries := [];
         rewardPairsEntries := [];
@@ -3076,5 +3150,6 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         tokensEntries := [];
         authsEntries := [];
         blocklistedUserEntries := [];
+        faileWithdrawEntries := [];
     };
 };

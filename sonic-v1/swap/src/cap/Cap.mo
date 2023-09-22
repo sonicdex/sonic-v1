@@ -48,6 +48,10 @@ module {
             router_id;
         };
 
+        public func getRootBucketId(): ?Text{
+            rootBucket;
+        };
+
         public func insert(event: Root.IndefiniteEvent) : async Result.Result<Nat64, Types.InsertTransactionError> {
             await awaitForHandshake();
 
