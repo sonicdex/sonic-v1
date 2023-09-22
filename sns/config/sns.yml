@@ -234,7 +234,7 @@ Distribution:
           stake: 250000000000000 e8s # 2.5 million
           memo: 0
           dissolve_delay: 3 months
-          vesting_period: 0 seconds
+          vesting_period: 3 months
         - principal: pztrv-cxvtd-suxig-xxkro-xynhu-nuvfq-ccxob-otlye-xeh45-uvild-mqe # fleek team
           stake: 250000000000000 e8s # 2.5 million
           memo: 1
