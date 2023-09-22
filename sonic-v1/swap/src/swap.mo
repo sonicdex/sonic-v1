@@ -2318,6 +2318,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         };
     };
 
+    /*
     public shared(msg) func transfer(tokenId: Text, to: Principal, value: Nat) : async Bool {
         if(Text.contains(tokenId, lppattern)) {
             if(lptokens.transfer(tokenId, msg.caller, to, value) == true) {
@@ -2358,7 +2359,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             return false;
         };
     };
-
+    */
     public shared(msg) func transferFrom(tokenId: Text, from: Principal, to: Principal, value: Nat) : async Bool {
         if(Text.contains(tokenId, lppattern)) {
             if(lptokens.transferFrom(tokenId, msg.caller, from, to, value) == true) {
