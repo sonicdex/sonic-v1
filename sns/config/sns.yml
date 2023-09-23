@@ -228,8 +228,8 @@ Distribution:
         - principal: 6kkxa-lvvqy-u2vng-ynmzf-2jnko-s75fh-tbcuz-q5lwq-4hzjj-sqdeb-kqe  # dev neuron for proposal
           stake: 100000000000 e8s # 1000 tokens
           memo: 0
-          dissolve_delay: 1 years
-          vesting_period: 0 seconds
+          dissolve_delay: 1 months
+          vesting_period: 1 years
         - principal: pztrv-cxvtd-suxig-xxkro-xynhu-nuvfq-ccxob-otlye-xeh45-uvild-mqe # fleek team
           stake: 250000000000000 e8s # 2.5 million
           memo: 0
@@ -245,7 +245,7 @@ Distribution:
           stake: 258914285714285 e8s
           memo: 0
           dissolve_delay: 1 months
-          vesting_period: 0 months
+          vesting_period: 1 months
         - principal: wj3z7-cbwys-3jjea-5jhv3-v63op-ibhwl-2s4b5-ttpxx-dsxfx-wxmf6-hqe
           stake: 258914285714285 e8s
           memo: 1
@@ -281,7 +281,7 @@ Distribution:
           stake: 9305760000000 e8s
           memo: 0
           dissolve_delay: 60 seconds
-          vesting_period: 0 months
+          vesting_period: 1 months
         - principal: snuqi-abk2c-jgzep-c7pck-yiavv-mdqfi-o2x2g-h4wuc-kvmjn-7agtx-pae
           stake: 9305760000000 e8s
           memo: 1
@@ -306,7 +306,7 @@ Distribution:
           stake: 500000000000 e8s
           memo: 0
           dissolve_delay: 60 seconds
-          vesting_period: 0 months
+          vesting_period: 1 months
         - principal: wafik-3ibgo-e3dvl-zbnvc-7azle-5okej-i42b5-gvzi6-3bey6-mlil6-mae
           stake: 500000000000 e8s
           memo: 1
@@ -331,7 +331,7 @@ Distribution:
           stake: 500000000000 e8s
           memo: 0
           dissolve_delay: 60 seconds
-          vesting_period: 0 months
+          vesting_period: 1 months
         - principal: 6waub-jkdtz-im6uc-ojink-oojjl-66qqf-jrmgq-tpcpu-ugs2c-u27g5-4ae
           stake: 500000000000 e8s
           memo: 1
@@ -356,7 +356,7 @@ Distribution:
           stake: 500000000000 e8s
           memo: 0
           dissolve_delay: 60 seconds
-          vesting_period: 0 months
+          vesting_period: 1 months
         - principal: gk24j-rp4ue-otalt-dojqy-aff4v-zlpvd-ymdzu-v72ni-2wrkr-a37wf-fae
           stake: 500000000000 e8s
           memo: 1
@@ -381,7 +381,7 @@ Distribution:
           stake: 1012000000000 e8s
           memo: 0
           dissolve_delay: 60 seconds
-          vesting_period: 0 months
+          vesting_period: 1 months
         - principal: zosil-ho5ev-kgqrp-ybnjd-lbrgh-brv4q-dnj2v-lj7sb-ijsqu-o65qw-qae
           stake: 1012000000000 e8s
           memo: 1
@@ -406,7 +406,7 @@ Distribution:
           stake: 500000000000 e8s
           memo: 0
           dissolve_delay: 60 seconds
-          vesting_period: 0 months
+          vesting_period: 1 months
         - principal: all6m-dw35d-ogire-ri3gv-hd2t3-nhu64-zgmqe-u34sl-wrvak-7vhny-rqe
           stake: 500000000000 e8s
           memo: 1
@@ -431,7 +431,7 @@ Distribution:
           stake: 250000000000 e8s
           memo: 0
           dissolve_delay: 60 seconds
-          vesting_period: 0 months
+          vesting_period: 1 months
         - principal: 5pzsx-tcrmw-5ogf4-dwdcr-ojz2z-xqhrk-js33g-cqcw6-dnkg4-dld7w-hqe
           stake: 250000000000 e8s
           memo: 1
@@ -456,7 +456,7 @@ Distribution:
           stake: 500000000000 e8s
           memo: 0
           dissolve_delay: 60 seconds
-          vesting_period: 0 months
+          vesting_period: 1 months
         - principal: c6olb-xyr36-cb5wq-fzepc-xsrxd-vw3co-nwvlj-fwm2g-omwr7-paukk-yqe
           stake: 500000000000 e8s
           memo: 1
@@ -481,7 +481,7 @@ Distribution:
           stake: 5012500000000 e8s
           memo: 0
           dissolve_delay: 60 seconds
-          vesting_period: 0 months
+          vesting_period: 1 months
         - principal: ww2jx-jrz3a-ycha4-3qvql-hgwim-juh2o-dquln-jrcie-s5wrl-xyims-aqe
           stake: 5012500000000 e8s
           memo: 1
@@ -506,7 +506,7 @@ Distribution:
           stake: 500000000000 e8s
           memo: 0
           dissolve_delay: 60 seconds
-          vesting_period: 0 months
+          vesting_period: 1 months
         - principal: mx54a-lbpre-rbl2i-rzgj7-55k2o-gbh2g-he7nq-b3kep-b2fnc-7n6wm-dqe
           stake: 500000000000 e8s
           memo: 1
@@ -531,7 +531,7 @@ Distribution:
           stake: 550000000000 e8s
           memo: 0
           dissolve_delay: 60 seconds
-          vesting_period: 0 months
+          vesting_period: 1 months
         - principal: vtjxv-twvir-otpuv-43re5-urhft-o6iyl-ageif-bid2k-xzl2z-ixkhf-oae
           stake: 550000000000 e8s
           memo: 1
@@ -556,7 +556,7 @@ Distribution:
           stake: 500000000000 e8s
           memo: 0
           dissolve_delay: 60 seconds
-          vesting_period: 0 months
+          vesting_period: 1 months
         - principal: mt4ed-alxoh-agqdg-xyafm-k47ex-epfms-sekyo-kc6mu-rtvez-4zw2n-aae
           stake: 500000000000 e8s
           memo: 1
@@ -581,7 +581,7 @@ Distribution:
           stake: 500000000000 e8s
           memo: 0
           dissolve_delay: 60 seconds
-          vesting_period: 0 months
+          vesting_period: 1 months
         - principal: saw7k-3vflg-gg6ci-plkdc-3lhsh-huley-llpjr-fqjfm-bhxl5-34evi-iae
           stake: 500000000000 e8s
           memo: 1
@@ -606,7 +606,7 @@ Distribution:
           stake: 250000000000 e8s
           memo: 0
           dissolve_delay: 60 seconds
-          vesting_period: 0 months
+          vesting_period: 1 months
         - principal: ydaf3-kn5th-c4lah-nvslv-gtcvz-uzlwz-o2l7l-25ldt-oxwwd-3pls5-pae
           stake: 250000000000 e8s
           memo: 1
@@ -631,7 +631,7 @@ Distribution:
           stake: 1050000000000 e8s
           memo: 0
           dissolve_delay: 60 seconds
-          vesting_period: 0 months
+          vesting_period: 1 months
         - principal: ick2m-3xrt5-35pdj-nbiv7-26uo2-lcizt-tzbzf-ylkhj-7mpgv-kvscu-kae
           stake: 1050000000000 e8s
           memo: 1
@@ -656,7 +656,7 @@ Distribution:
           stake: 500000000000 e8s
           memo: 0
           dissolve_delay: 60 seconds
-          vesting_period: 0 months
+          vesting_period: 1 months
         - principal: 2axu7-czxyn-crrxs-uoom4-mvh5b-b3gj5-mxswl-jh6ur-kppzf-7dbmh-hqe
           stake: 500000000000 e8s
           memo: 1
@@ -681,7 +681,7 @@ Distribution:
           stake: 500000000000 e8s
           memo: 0
           dissolve_delay: 60 seconds
-          vesting_period: 0 months
+          vesting_period: 1 months
         - principal: 2gthi-zrgcu-agik2-wr4ab-lhkrj-uzfsy-bortt-qgw5x-vixpd-sccsm-bqe
           stake: 500000000000 e8s
           memo: 1
@@ -706,7 +706,7 @@ Distribution:
           stake: 500000000000 e8s
           memo: 0
           dissolve_delay: 60 seconds
-          vesting_period: 0 months
+          vesting_period: 1 months
         - principal: 3up6w-taamq-4mcvy-ol5ui-b2lhz-qwtw5-5aurp-fjrjb-4a57r-tpy44-fae
           stake: 500000000000 e8s
           memo: 1
@@ -731,7 +731,7 @@ Distribution:
           stake: 507500000000 e8s
           memo: 0
           dissolve_delay: 60 seconds
-          vesting_period: 0 months
+          vesting_period: 1 months
         - principal: absmb-a2x7z-zxga3-xsee4-4lf2n-w5cc6-ri3az-pqmpx-oerge-yrjrk-uae
           stake: 507500000000 e8s
           memo: 1
@@ -756,7 +756,7 @@ Distribution:
           stake: 500000000000 e8s
           memo: 0
           dissolve_delay: 60 seconds
-          vesting_period: 0 months
+          vesting_period: 1 months
         - principal: wgizu-oh3b7-dza6g-l6pcc-hjil3-pclmv-adeqn-k2god-z4omc-cgjzq-sae
           stake: 500000000000 e8s
           memo: 1
@@ -781,7 +781,7 @@ Distribution:
           stake: 541500000000 e8s
           memo: 0
           dissolve_delay: 60 seconds
-          vesting_period: 0 months
+          vesting_period: 1 months
         - principal: lcyeu-p6tby-i4uw5-mvkiy-rp3sb-5elnq-5xfiz-rsduf-7itwj-2d2wm-nae
           stake: 541500000000 e8s
           memo: 1
@@ -806,7 +806,7 @@ Distribution:
           stake: 500000000000 e8s
           memo: 0
           dissolve_delay: 60 seconds
-          vesting_period: 0 months
+          vesting_period: 1 months
         - principal: airdr-s3anz-vkwqu-3d77h-ccbwc-k5sfc-yjrfv-sdwc4-n5ijm-p37eq-fae
           stake: 500000000000 e8s
           memo: 1
@@ -831,7 +831,7 @@ Distribution:
           stake: 500000000000 e8s
           memo: 0
           dissolve_delay: 60 seconds
-          vesting_period: 0 months
+          vesting_period: 1 months
         - principal: lhynn-heral-nybs2-6pnwh-v4xfc-f24i5-2yufy-h6zus-oiijg-4xzyd-gae
           stake: 500000000000 e8s
           memo: 1
@@ -856,7 +856,7 @@ Distribution:
           stake: 610350000000 e8s
           memo: 0
           dissolve_delay: 60 seconds
-          vesting_period: 0 months
+          vesting_period: 1 months
         - principal: cczkc-2yxxs-5d25d-ffp4m-jag2i-5r4rt-dxsry-xrnu7-r3yr3-4oixq-sqe
           stake: 610350000000 e8s
           memo: 1
@@ -881,7 +881,7 @@ Distribution:
           stake: 1250000000000 e8s
           memo: 0
           dissolve_delay: 60 seconds
-          vesting_period: 0 months
+          vesting_period: 1 months
         - principal: nxiqs-ture2-t73uf-mgvm6-sxytg-ylgmh-e6z6d-dw3jp-fcduw-7w72q-vqe
           stake: 1250000000000 e8s
           memo: 1
@@ -906,7 +906,7 @@ Distribution:
           stake: 2500000000000 e8s
           memo: 0
           dissolve_delay: 60 seconds
-          vesting_period: 0 months
+          vesting_period: 1 months
         - principal: zlthp-jyed5-cou5n-zpymw-b46ud-4o6ul-j6vby-grwkw-ihwyi-psvep-rae
           stake: 2500000000000 e8s
           memo: 1
@@ -931,7 +931,7 @@ Distribution:
           stake: 500000000000 e8s
           memo: 0
           dissolve_delay: 60 seconds
-          vesting_period: 0 months
+          vesting_period: 1 months
         - principal: 7oppw-5ebmd-erxsk-ncwx3-2pnmf-4wdkh-5glsb-fmmb3-lmhvw-vrdgx-aae
           stake: 500000000000 e8s
           memo: 1
@@ -956,7 +956,7 @@ Distribution:
           stake: 592755000000 e8s
           memo: 0
           dissolve_delay: 60 seconds
-          vesting_period: 0 months
+          vesting_period: 1 months
         - principal: i4rub-bvxmi-wrcvv-4nl2q-bpuab-cflvh-7cwot-sa2bu-ajmlu-ufj7n-hae
           stake: 592755000000 e8s
           memo: 1
@@ -981,7 +981,7 @@ Distribution:
           stake: 500000000000 e8s
           memo: 0
           dissolve_delay: 60 seconds
-          vesting_period: 0 months
+          vesting_period: 1 months
         - principal: trag2-cpiwz-omz4t-h5hc2-ddwi2-j57h4-6nwql-luslo-esh5y-kw6wf-kae
           stake: 500000000000 e8s
           memo: 1
@@ -1006,7 +1006,7 @@ Distribution:
           stake: 750000000000 e8s
           memo: 0
           dissolve_delay: 60 seconds
-          vesting_period: 0 months
+          vesting_period: 1 months
         - principal: ipgdv-pf7j7-et34y-zrazs-aqnil-w2umz-offhu-gmsvr-u6pmx-klf53-2ae
           stake: 750000000000 e8s
           memo: 1
@@ -1031,7 +1031,7 @@ Distribution:
           stake: 750000000000 e8s
           memo: 0
           dissolve_delay: 60 seconds
-          vesting_period: 0 months
+          vesting_period: 1 months
         - principal: o2glf-b6pob-yk6l7-urxow-pswqi-ymrj5-xx6py-d5ts6-6m736-shf3l-3ae
           stake: 750000000000 e8s
           memo: 1
@@ -1056,7 +1056,7 @@ Distribution:
           stake: 2329215000000 e8s
           memo: 0
           dissolve_delay: 60 seconds
-          vesting_period: 0 months
+          vesting_period: 1 months
         - principal: svpu3-n53nr-jwunj-6rplv-t2g2y-rbuib-35i4q-suhbk-vcudp-54xaw-lqe
           stake: 2329215000000 e8s
           memo: 1
@@ -1081,7 +1081,7 @@ Distribution:
           stake: 1500000000000 e8s
           memo: 0
           dissolve_delay: 60 seconds
-          vesting_period: 0 months
+          vesting_period: 1 months
         - principal: e4lte-v3vxs-e4hnj-tkilm-p6yw2-45jct-76lgw-fwdho-7pxy2-kqhlp-pqe
           stake: 1500000000000 e8s
           memo: 1
@@ -1106,7 +1106,7 @@ Distribution:
           stake: 500000000000 e8s
           memo: 0
           dissolve_delay: 60 seconds
-          vesting_period: 0 months
+          vesting_period: 1 months
         - principal: vqqbt-tu73k-rmm25-hyq5o-x5vug-rixzf-cfcf3-oicjz-xi6hr-im6mw-2qe
           stake: 500000000000 e8s
           memo: 1
@@ -1131,7 +1131,7 @@ Distribution:
           stake: 1988185000000 e8s
           memo: 0
           dissolve_delay: 60 seconds
-          vesting_period: 0 months
+          vesting_period: 1 months
         - principal: qxizu-u6ktn-ejgk5-pu6is-7sxpw-txme6-tta36-kccui-mfae4-vuigw-qqe
           stake: 1988185000000 e8s
           memo: 1
@@ -1156,7 +1156,7 @@ Distribution:
           stake: 500000000000 e8s
           memo: 0
           dissolve_delay: 60 seconds
-          vesting_period: 0 months
+          vesting_period: 1 months
         - principal: prnrn-t5fm4-ybwgo-wz6zq-ijo2h-3xve5-cac4e-bm7vu-2doxr-i7ep4-vae
           stake: 500000000000 e8s
           memo: 1
@@ -1181,7 +1181,7 @@ Distribution:
           stake: 500000000000 e8s
           memo: 0
           dissolve_delay: 60 seconds
-          vesting_period: 0 months
+          vesting_period: 1 months
         - principal: cjagz-jwiva-7pbld-2xjxo-5vip3-2jobb-3ivgn-xyxt7-7ekcm-qahxg-cae
           stake: 500000000000 e8s
           memo: 1
@@ -1206,7 +1206,7 @@ Distribution:
           stake: 500000000000 e8s
           memo: 0
           dissolve_delay: 60 seconds
-          vesting_period: 0 months
+          vesting_period: 1 months
         - principal: behqd-xscda-wivdg-si3oh-q3bbk-on72z-mmg6b-fyfmu-77xjy-5fwtj-lae
           stake: 500000000000 e8s
           memo: 1
@@ -1231,7 +1231,7 @@ Distribution:
           stake: 602415000000 e8s
           memo: 0
           dissolve_delay: 60 seconds
-          vesting_period: 0 months
+          vesting_period: 1 months
         - principal: 27idm-mgbgp-66xea-62upg-ylw7p-vpxfy-xufbg-nkuj3-azt2s-qdd5i-hqe
           stake: 602415000000 e8s
           memo: 1
@@ -1256,7 +1256,7 @@ Distribution:
           stake: 500000000000 e8s
           memo: 0
           dissolve_delay: 60 seconds
-          vesting_period: 0 months
+          vesting_period: 1 months
         - principal: 6oboa-fqj3s-fvivx-llg2x-ngj3q-vpivp-vkhr3-mwpdm-236gj-ch2zk-sae
           stake: 500000000000 e8s
           memo: 1
@@ -1281,7 +1281,7 @@ Distribution:
           stake: 546660000000 e8s
           memo: 0
           dissolve_delay: 60 seconds
-          vesting_period: 0 months
+          vesting_period: 1 months
         - principal: xe33t-j44bt-lgzwy-5b44d-m2qpp-fwayx-bf3vh-b7f7p-s5746-pvngp-vae
           stake: 546660000000 e8s
           memo: 1
@@ -1306,7 +1306,7 @@ Distribution:
           stake: 500000000000 e8s
           memo: 0
           dissolve_delay: 60 seconds
-          vesting_period: 0 months
+          vesting_period: 1 months
         - principal: yxrec-lphu7-4cfmz-jhfu5-mbqib-kqxcu-xnbfj-unlgo-4d2uw-ycdjc-zqe
           stake: 500000000000 e8s
           memo: 1
@@ -1331,7 +1331,7 @@ Distribution:
           stake: 500000000000 e8s
           memo: 0
           dissolve_delay: 60 seconds
-          vesting_period: 0 months
+          vesting_period: 1 months
         - principal: jwvyx-bkwm3-e62m7-ic3zy-avbb4-hc5ow-mq4yf-qdlff-v3b5d-3xlwe-hae
           stake: 500000000000 e8s
           memo: 1
@@ -1356,7 +1356,7 @@ Distribution:
           stake: 1000000000000 e8s
           memo: 0
           dissolve_delay: 60 seconds
-          vesting_period: 0 months
+          vesting_period: 1 months
         - principal: jn2lc-kk6vz-blly5-mmzsq-kpuuq-jw6ib-oghpo-ent2u-didrt-is2i6-3ae
           stake: 1000000000000 e8s
           memo: 1
@@ -1381,7 +1381,7 @@ Distribution:
           stake: 217782900000 e8s
           memo: 0
           dissolve_delay: 60 seconds
-          vesting_period: 0 months
+          vesting_period: 1 months
         - principal: a773e-howz4-uevuv-obwvk-tsjhf-itbxp-zsvyh-rnnxa-6nqd2-ebcrn-qqe
           stake: 217782900000 e8s
           memo: 1
@@ -1406,7 +1406,7 @@ Distribution:
           stake: 500000000000 e8s
           memo: 0
           dissolve_delay: 60 seconds
-          vesting_period: 0 months
+          vesting_period: 1 months
         - principal: auyhc-d7e62-dprls-douen-yk4mw-aib6v-z7nxh-gdzl6-y5ulu-srl77-sqe
           stake: 500000000000 e8s
           memo: 1
@@ -1431,7 +1431,7 @@ Distribution:
           stake: 4883377100000 e8s
           memo: 0
           dissolve_delay: 60 seconds
-          vesting_period: 0 months
+          vesting_period: 1 months
         - principal: ml7ds-hp6pl-6lqoi-yryad-kkjmz-kctxl-dmknm-dw6kn-hofw7-h7ssy-vqe
           stake: 4883377100000 e8s
           memo: 1
