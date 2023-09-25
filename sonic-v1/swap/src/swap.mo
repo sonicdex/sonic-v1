@@ -3031,14 +3031,16 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                         true
                     };                 
                 };
-                // case (#transfer _) { 
-                //     if(Principal.isAnonymous(caller)){
-                //         false
-                //     }
-                //     else{
-                //         true
-                //     };                 
-                // };
+                /*
+                case (#transfer _) { 
+                    if(Principal.isAnonymous(caller)){
+                        false
+                    }
+                    else{
+                        true
+                    };                 
+                };
+                */
                 case (#transferFrom _) { 
                     if(Principal.isAnonymous(caller)){
                         false
