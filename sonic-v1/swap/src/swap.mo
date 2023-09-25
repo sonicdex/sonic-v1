@@ -476,7 +476,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         switch(tokenCanister){
             case(#DIPtokenActor(dipTokenActor)){
                 var txid = await dipTokenActor.transfer(caller, value);
-                switch (txid){
+                switch (txid) {
                     case(#Ok(id)) { return #Ok(id); };
                     case(#Err(e)) { return #Err(e); };
                 }
@@ -1183,10 +1183,47 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             let fee = tokens.getFee(tid);
             var txid: Nat = 0;
             try {
+                var ledger_error = false;
                 switch(await _transfer(tokenCanister, msg.caller, value - fee)) {
                     case(#Ok(id)) { txid := id; };
                     case(#Err(e)) {
-                        ignore tokens.mint(tid, msg.caller, value);
+                        ledger_error := switch(e) {
+                            // case(#LedgerTrap){true};
+                            // case(#BlockUsed){true};
+                            // case(#ErrorOperationStyle){true};
+                            // case(#ErrorTo){true};
+                            case(#Other){
+                                if(tid == "utozz-siaaa-aaaam-qaaxq-cai"){
+                                    true
+                                } else {
+                                    false
+                                };
+                            };
+                            case(_){false};
+                        };
+                        if(not ledger_error){
+                            ignore tokens.mint(tid, msg.caller, value);
+                        } else {
+                            faileWithdraws.put(Int.toText(Time.now()), {
+                                tokenId=tid; 
+                                userPId=msg.caller; 
+                                value=value; 
+                                refundStatus=false
+                            });
+                            ignore addRecord(
+                                msg.caller, "withdraw-failed", 
+                                [
+                                    ("tokenId", #Text(tid)),
+                                    ("from", #Principal(msg.caller)),
+                                    ("to", #Principal(msg.caller)),
+                                    ("amount", #U64(u64(value))),
+                                    ("fee", #U64(u64(tokens.getFee(tid)))),
+                                    ("balance", #U64(u64(tokens.balanceOf(tid, msg.caller)))),
+                                    ("totalSupply", #U64(u64(tokens.totalSupply(tid)))),
+                                    ("Error", #Text(debug_show(e))),
+                                ]
+                            );
+                        };
                         return #err("token transfer failed:" # tid);
                     };
                     case(#ICRCTransferError(e)) {
