@@ -143,6 +143,8 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     };
 
     public type TxReceipt = Result.Result<Nat, Text>;
+    public type TxReceiptSwap = Result.Result<(Nat,Nat), Text>;
+    public type TxReceiptRemoveLiquidity = Result.Result<(Nat,Nat,Nat), Text>;
     public type ICRC1SubAccountBalance = Result.Result<Nat, Text>;
     public type TransferReceipt = { 
         #Ok: Nat;
@@ -1768,7 +1770,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         amount1Min: Nat,
         to: Principal,
         deadline: Int
-        ): async TxReceipt {
+        ): async TxReceiptRemoveLiquidity {
         if (Time.now() > deadline)
             return #err("tx expired");
 
@@ -1861,7 +1863,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             ]
         );
         txcounter +=1;
-        return #ok(txcounter - 1);
+        return #ok(txcounter - 1, amount0, amount1);
     };
 
     private func _getReserves(t0: Text, t1: Text): (Nat, Nat) {
@@ -1956,7 +1958,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         path: [Text],
         to: Principal,
         deadline: Int
-        ): async TxReceipt {
+        ): async TxReceiptSwap {
         if (Time.now() > deadline)
             return #err("tx expired");
 
@@ -1976,7 +1978,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             ignore addRecord(msg.caller, "swap", o);
             txcounter += 1;
         };
-        return #ok(txcounter - 1);
+        return #ok(txcounter - 1,amounts[1]);
     };
 
     private func _resetRewardInfo(userPId : Principal, tid0:Text, tid1:Text){        
@@ -2881,9 +2883,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 };
                 case (#deposit d) { 
                     var tid: Text=Principal.toText(d().0);      
-                    var value: Nat=d().1;
-                    var fee: Nat=tokens.getFee(tid);
-                    if (tokens.hasToken(tid) == false or Nat.less(value,fee) or Principal.isAnonymous(caller)){
+                    if (tokens.hasToken(tid) == false or Principal.isAnonymous(caller)){
                         return false;
                     }   
                     else{
@@ -2913,9 +2913,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 };
                 case (#withdraw d) { 
                     var tid: Text=Principal.toText(d().0);
-                    var value: Nat=d().1;
-                    var fee: Nat=tokens.getFee(tid); 
-                    if (tokens.hasToken(tid) == false or Nat.less(value,fee) or Principal.isAnonymous(caller)){
+                    if (tokens.hasToken(tid) == false or Principal.isAnonymous(caller)){
                         return false;
                     }   
                     else{
@@ -3028,14 +3026,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
 
                     if (Time.now() > deadline){
                         return false;
-                    };
-
-                    var amountdatas = _getAmountsOut(amountIn, path);
-                    var amounts = amountdatas.0;
-                    
-                    if(amounts[0] > tokens.balanceOf(path[0], caller)) {
-                        return false;
-                    };                    
+                    };                                       
                     
                     return true;
                 };
