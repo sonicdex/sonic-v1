@@ -2820,13 +2820,13 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             #swapExactTokensForTokens : () -> (Nat, Nat, [Text], Principal, Int);
             #symbol : () -> Text;
             #totalSupply : () -> Text;
-            #transfer : () -> (Text, Principal, Nat);
+            // #transfer : () -> (Text, Principal, Nat);
             #transferFrom : () -> (Text, Principal, Principal, Nat);
             #updateAllTokenMetadata : () -> ();
             #updateTokenFees : () -> ();
             #updateTokenMetadata : () -> Text;
             #withdraw : () -> (Principal, Nat);
-            #withdrawTo : () -> (Principal, Principal, Nat);
+            // #withdrawTo : () -> (Principal, Principal, Nat);
             #getBlocklistedUsers : () -> ();
             #addUserToBlocklist : () -> Principal;
             #removeUserFromBlocklist : () -> Principal;
@@ -2920,18 +2920,18 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                         return true;
                     };
                 };
-                case (#withdrawTo d) { 
-                    var tid: Text=Principal.toText(d().0);
-                    var to: Principal=d().1;
-                    var value: Nat=d().2;
-                    var fee: Nat=tokens.getFee(tid);
-                    if (tokens.hasToken(tid) == false  or Principal.isAnonymous(to) or Nat.less(value,fee) or Principal.isAnonymous(caller)){
-                        return false;
-                    }   
-                    else{
-                        return true;
-                    };
-                };
+                // case (#withdrawTo d) { 
+                //     var tid: Text=Principal.toText(d().0);
+                //     var to: Principal=d().1;
+                //     var value: Nat=d().2;
+                //     var fee: Nat=tokens.getFee(tid);
+                //     if (tokens.hasToken(tid) == false  or Principal.isAnonymous(to) or Nat.less(value,fee) or Principal.isAnonymous(caller)){
+                //         return false;
+                //     }   
+                //     else{
+                //         return true;
+                //     };
+                // };
                 case (#createPair d) { 
                     var token0: Principal=d().0;
                     var token1: Principal=d().1;
@@ -3038,14 +3038,14 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                         true
                     };                 
                 };
-                case (#transfer _) { 
-                    if(Principal.isAnonymous(caller)){
-                        false
-                    }
-                    else{
-                        true
-                    };                 
-                };
+                // case (#transfer _) { 
+                //     if(Principal.isAnonymous(caller)){
+                //         false
+                //     }
+                //     else{
+                //         true
+                //     };                 
+                // };
                 case (#transferFrom _) { 
                     if(Principal.isAnonymous(caller)){
                         false
