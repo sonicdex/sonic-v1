@@ -2918,18 +2918,20 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                         return true;
                     };
                 };
-                // case (#withdrawTo d) { 
-                //     var tid: Text=Principal.toText(d().0);
-                //     var to: Principal=d().1;
-                //     var value: Nat=d().2;
-                //     var fee: Nat=tokens.getFee(tid);
-                //     if (tokens.hasToken(tid) == false  or Principal.isAnonymous(to) or Nat.less(value,fee) or Principal.isAnonymous(caller)){
-                //         return false;
-                //     }   
-                //     else{
-                //         return true;
-                //     };
-                // };
+                /*
+                case (#withdrawTo d) { 
+                    var tid: Text=Principal.toText(d().0);
+                    var to: Principal=d().1;
+                    var value: Nat=d().2;
+                    var fee: Nat=tokens.getFee(tid);
+                    if (tokens.hasToken(tid) == false  or Principal.isAnonymous(to) or Nat.less(value,fee) or Principal.isAnonymous(caller)){
+                        return false;
+                    }   
+                    else{
+                        return true;
+                    };
+                };
+                */
                 case (#createPair d) { 
                     var token0: Principal=d().0;
                     var token1: Principal=d().1;
