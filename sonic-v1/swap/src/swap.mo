@@ -1816,11 +1816,25 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             var amount1calculated=(amount1Part0*amount1Part1)/(amount1Part0+amount1Part1);
 
             if (amount0 < amount0calculated or amount1 < amount1calculated)
-                return #err("insufficient output amount");    
+                return #err("insufficient output amount : " # debug_show({
+                    amount0 = amount0;
+                    amount1 = amount1;
+                    amount0Part0 = amount0Part0;
+                    amount0Part1 = amount0Part1;
+                    amount1Part0 = amount1Part0;
+                    amount1Part1 = amount1Part1;
+                    amount0calculated = amount0calculated;
+                    amount1calculated = amount1calculated;
+                }));    
         }
         else{
             if (amount0 < amount0M or amount1 < amount1M)
-               return #err("insufficient output amount");            
+               return #err("insufficient output : " # debug_show({
+                 amount0 = amount0;
+                 amount1 = amount1;
+                 amount0M = amount0M;
+                 amount1M = amount1M;
+               }));            
         };
         
         // burn user lp
