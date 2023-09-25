@@ -143,8 +143,6 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     };
 
     public type TxReceipt = Result.Result<Nat, Text>;
-    public type TxReceiptSwap = Result.Result<(Nat,Nat), Text>;
-    public type TxReceiptRemoveLiquidity = Result.Result<(Nat,Nat,Nat), Text>;
     public type ICRC1SubAccountBalance = Result.Result<Nat, Text>;
     public type TransferReceipt = { 
         #Ok: Nat;
@@ -1770,7 +1768,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         amount1Min: Nat,
         to: Principal,
         deadline: Int
-        ): async TxReceiptRemoveLiquidity {
+        ): async TxReceipt {
         if (Time.now() > deadline)
             return #err("tx expired");
 
@@ -1863,7 +1861,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             ]
         );
         txcounter +=1;
-        return #ok(txcounter - 1, amount0, amount1);
+        return #ok(txcounter - 1);
     };
 
     private func _getReserves(t0: Text, t1: Text): (Nat, Nat) {
@@ -1958,7 +1956,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         path: [Text],
         to: Principal,
         deadline: Int
-        ): async TxReceiptSwap {
+        ): async TxReceipt {
         if (Time.now() > deadline)
             return #err("tx expired");
 
@@ -1978,7 +1976,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             ignore addRecord(msg.caller, "swap", o);
             txcounter += 1;
         };
-        return #ok(txcounter - 1,amounts[1]);
+        return #ok(txcounter - 1);
     };
 
     private func _resetRewardInfo(userPId : Principal, tid0:Text, tid1:Text){        
@@ -2967,8 +2965,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                     if(Principal.isAnonymous(caller)){
                         return false;
                     };
-                    if (Time.now() > deadline)
-                        return false;
+                    
                     if (amount0Desired == 0 or amount1Desired == 0)
                         return false;
 
@@ -2998,8 +2995,6 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                     if(Principal.isAnonymous(caller)){
                         return false;
                     };
-                    if (Time.now() > deadline)
-                        return false;
 
                     let tid0: Text = Principal.toText(token0);
                     let tid1: Text = Principal.toText(token1);
@@ -3023,10 +3018,6 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                     if(Principal.isAnonymous(caller)){
                         return false;
                     };
-
-                    if (Time.now() > deadline){
-                        return false;
-                    };                                       
                     
                     return true;
                 };
