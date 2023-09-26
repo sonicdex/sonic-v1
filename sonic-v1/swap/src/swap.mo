@@ -1993,7 +1993,10 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         return #ok(txcounter - 1);
     };
 
-    private func _resetRewardInfo(userPId : Principal, tid0:Text, tid1:Text){        
+    private func _resetRewardInfo(userPId : Principal, tid0:Text, tid1:Text){   
+        if(feeOn==false){
+            return;
+        };
         var rewards:[RewardInfo]=[];
         switch(rewardInfo.get(userPId))
         {
@@ -2043,6 +2046,9 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     };
 
     private func _updateRewardPoint(path: [Text], amount: Nat){
+        if(feeOn==false){
+            return;
+        };
         let tid0: Text = path[0];
         let tid1: Text = path[1];
 
@@ -2078,6 +2084,9 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     };
 
     private func processReward(tid0 :Text, tid1 :Text, totalSupply:Nat){
+        if(feeOn==false){
+            return;
+        };
         let (t0, t1) = Utils.sortTokens(tid0, tid1);
         let pair_str = t0 # ":" # t1;
         var reserve0:Nat = 0;
