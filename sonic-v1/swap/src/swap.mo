@@ -264,8 +264,9 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     };
 
     type SwapLastTransaction = {
-        SwapOutAmount: Nat;
-        RemoveLiquidityOutAmount: (Nat, Nat);
+        #SwapOutAmount: Nat;
+        #RemoveLiquidityOutAmount: (Nat, Nat);
+        #NotFound:Bool;
     };
 
     public type TokenInfo = Tokens.TokenInfo;
@@ -1853,10 +1854,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         pair.totalSupply -= lpAmount;
         pairs.put(pair.id, pair);
         _resetRewardInfo(msg.caller, tid0, tid1);
-        swapLastTransaction.put(msg.caller,{
-            SwapOutAmount=0;
-            RemoveLiquidityOutAmount=(amount0,amount1)
-        });
+        swapLastTransaction.put(msg.caller,#RemoveLiquidityOutAmount(amount0,amount1));
         ignore addRecord(
             msg.caller, "removeLiquidity", 
             [
@@ -1986,10 +1984,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             ignore addRecord(msg.caller, "swap", o);
             txcounter += 1;
         };
-        swapLastTransaction.put(msg.caller,{
-            SwapOutAmount=amounts[1];
-            RemoveLiquidityOutAmount=(0,0)
-        });
+        swapLastTransaction.put(msg.caller,#SwapOutAmount(amounts[1]));
         return #ok(txcounter - 1);
     };
 
@@ -2149,24 +2144,13 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     /*
     * public info query functions
     */
-    public shared query(msg) func getSwapLastTransaction(): async Nat {
+    public shared query(msg) func getLastTransactionOutAmount(): async SwapLastTransaction {
         switch(swapLastTransaction.get(msg.caller)){
             case(?trans){
-                return trans.SwapOutAmount;
+                return trans;
             };
             case(_){
-                return 0;
-            }
-        }
-    };
-
-    public shared query(msg) func getLiquidityLastTransaction(): async (Nat,Nat) {
-        switch(swapLastTransaction.get(msg.caller)){
-            case(?trans){
-                return trans.RemoveLiquidityOutAmount;
-            };
-            case(_){
-                return (0, 0);
+                return #NotFound(true);
             }
         }
     };
@@ -2879,8 +2863,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             #setCapV2EnableStatus : () -> Bool;
             #exportFaileWithdraws : () ->();
             #failedWithdrawRefund : () -> Text;
-            #getSwapLastTransaction : () -> ();
-            #getLiquidityLastTransaction : () -> ();
+            #getLastTransactionOutAmount : () -> ();
         }}) : Bool 
         {
             if(_checkBlocklist(caller)){
@@ -3144,8 +3127,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 case (#getCapDetails _) { true };
                 case (#historySize _) { true };
                 case (#exportFaileWithdraws _) { true };
-                case (#getSwapLastTransaction _) { true };
-                case (#getLiquidityLastTransaction _) { true };
+                case (#getLastTransactionOutAmount _) { true };
             }
         };
 
