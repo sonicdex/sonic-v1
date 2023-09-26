@@ -2286,7 +2286,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     public shared func getUserICRC1SubAccount(userPId: Principal) : async Text{
         let subaccount = getICRC1SubAccount(userPId);
         var depositAId=Hex.encode(Blob.toArray(
-            Account.accountIdentifier(Principal.fromText("3xwpq-ziaaa-aaaah-qcn4a-cai"), 
+            Account.accountIdentifier(Principal.fromActor(this), 
             subaccount)
         ));
         return depositAId;
@@ -2715,7 +2715,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             var trans={
                 transactionOwner = data.transactionOwner;
                 depositAId=Hex.encode(Blob.toArray(Account.accountIdentifier(
-                    Principal.fromText("3xwpq-ziaaa-aaaah-qcn4a-cai"), 
+                    Principal.fromActor(this), 
                     data.subaccount
                 )));
                 subaccount = data.subaccount;
