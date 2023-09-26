@@ -1571,4 +1571,4 @@ Swap:
 
     # The amount of ICP that will be contributed to the decentralization swap by
     # the Neurons' Fund if the CreateServiceNervousSystem proposal is adopted.
-    neurons_fund_investment_icp: 26000000000000 e8s
+    neurons_fund_investment_icp: 26500000000000 e8s
