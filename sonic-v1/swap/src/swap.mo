@@ -38,7 +38,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         #BlockUsed;
         #ErrorOperationStyle;
         #ErrorTo;
-        #Other;
+        #Other:Text;
     };
     type ICRCTransferError = {
         #BadFee;
@@ -1196,7 +1196,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                     case(#Err(e)) {
                         // ignore tokens.mint(tid, msg.caller, value);
                         var ledger_error = switch(e) {
-                            case(#Other){
+                            case(#Other(errMsg)){
                                 if(tid == "utozz-siaaa-aaaam-qaaxq-cai"){
                                     true
                                 } else {
