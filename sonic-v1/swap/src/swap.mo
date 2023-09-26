@@ -2238,12 +2238,12 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         return (Array.freeze(res), temp.size());
     };
 
-    public shared func getUserICRC1SubAccount(userPId: Principal) : async ICRCTxReceipt{
+    public shared func getUserICRC1SubAccount(userPId: Principal) : async Text{
         let subaccount = Utils.generateSubaccount({
             caller = userPId;
             id = depositCounterV2;
         });
-        return #Ok(Blob.toArray(subaccount));
+        return Hex.encode(Blob.toArray(Account.accountIdentifier(userPId, subaccount)));
     };  
 
     public query func getUserBalances(user: Principal): async [(Text, Nat)] {
