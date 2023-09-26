@@ -27,6 +27,7 @@ import Blob "mo:base/Blob";
 import Hex "./Hex";
 import Bool "mo:base/Bool";
 import Error "mo:base/Error";
+import Account "./Account";
 
 shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     type Errors = {
@@ -263,6 +264,12 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         #Err: Text;
     };
 
+    type SwapLastTransaction = {
+        #SwapOutAmount: Nat;
+        #RemoveLiquidityOutAmount: (Nat, Nat);
+        #NotFound:Bool;
+    };
+
     public type TokenInfo = Tokens.TokenInfo;
     public type TokenInfoExt = Tokens.TokenInfoExt;
     public type TokenInfoWithType = Tokens.TokenInfoWithType; 
@@ -298,6 +305,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     private var rewardInfo = HashMap.HashMap<Principal, [RewardInfo]>(1, Principal.equal, Principal.hash);
     private var blocklistedUsers = HashMap.HashMap<Principal, Bool>(1, Principal.equal, Principal.hash);   
     private var faileWithdraws = HashMap.HashMap<Text, WithdrawState>(1, Text.equal, Text.hash);   
+    private var swapLastTransaction = HashMap.HashMap<Principal, SwapLastTransaction>(1, Principal.equal, Principal.hash);    
 
     // admins
     private var auths = HashMap.HashMap<Principal, Bool>(1, Principal.equal, Principal.hash);
@@ -1861,6 +1869,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         pair.totalSupply -= lpAmount;
         pairs.put(pair.id, pair);
         _resetRewardInfo(msg.caller, tid0, tid1);
+        swapLastTransaction.put(msg.caller,#RemoveLiquidityOutAmount(amount0,amount1));
         ignore addRecord(
             msg.caller, "removeLiquidity", 
             [
@@ -1990,10 +1999,14 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             ignore addRecord(msg.caller, "swap", o);
             txcounter += 1;
         };
+        swapLastTransaction.put(msg.caller,#SwapOutAmount(amounts[1]));
         return #ok(txcounter - 1);
     };
 
-    private func _resetRewardInfo(userPId : Principal, tid0:Text, tid1:Text){        
+    private func _resetRewardInfo(userPId : Principal, tid0:Text, tid1:Text){   
+        if(feeOn==false){
+            return;
+        };
         var rewards:[RewardInfo]=[];
         switch(rewardInfo.get(userPId))
         {
@@ -2043,6 +2056,9 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     };
 
     private func _updateRewardPoint(path: [Text], amount: Nat){
+        if(feeOn==false){
+            return;
+        };
         let tid0: Text = path[0];
         let tid1: Text = path[1];
 
@@ -2078,6 +2094,9 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     };
 
     private func processReward(tid0 :Text, tid1 :Text, totalSupply:Nat){
+        if(feeOn==false){
+            return;
+        };
         let (t0, t1) = Utils.sortTokens(tid0, tid1);
         let pair_str = t0 # ":" # t1;
         var reserve0:Nat = 0;
@@ -2140,6 +2159,17 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     /*
     * public info query functions
     */
+    public shared query(msg) func getLastTransactionOutAmount(): async SwapLastTransaction {
+        switch(swapLastTransaction.get(msg.caller)){
+            case(?trans){
+                return trans;
+            };
+            case(_){
+                return #NotFound(true);
+            }
+        }
+    };
+
     public query func historySize(): async Nat {
         return txcounter;
     };
@@ -2221,6 +2251,10 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         };
         return (Array.freeze(res), temp.size());
     };
+
+    public shared func getUserICRC1SubAccount(userPId: Principal) : async Text{
+        return Hex.encode(Blob.toArray(getICRC1SubAccount(userPId)));
+    };  
 
     public query func getUserBalances(user: Principal): async [(Text, Nat)] {
         return tokens.getBalances(user);
@@ -2640,7 +2674,17 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
 
     public shared query(msg) func exportSubAccounts() : async [(Principal,DepositSubAccounts)] {
         assert(_checkAuth(msg.caller));
-        return Iter.toArray(depositTransactions.entries())
+        var temp=HashMap.HashMap<Principal, DepositSubAccounts>(1, Principal.equal, Principal.hash);
+        for(data in depositTransactions.vals()){
+            var trans={
+                transactionOwner = data.transactionOwner;
+                depositAId=Hex.encode(Blob.toArray(Account.accountIdentifier(data.transactionOwner, data.subaccount)));
+                subaccount = data.subaccount;
+                created_at = data.created_at;
+            };
+            temp.put(data.transactionOwner,trans);
+        };
+        return Iter.toArray(temp.entries())
     };
 
     public shared query(msg) func exportBalances(tokenId: Text): async ?[(Principal, Nat)] {
@@ -2807,6 +2851,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             #getSupportedTokenListSome : () -> (Nat, Nat);
             #getSwapInfo : () -> ();
             #getTokenMetadata : () -> Text;
+            #getUserICRC1SubAccount : ()-> Principal;
             #getUserBalances : () -> Principal;
             #getUserInfo : () -> Principal;
             #getUserInfoAbove : () -> (Principal, Nat, Nat);
@@ -2848,6 +2893,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             #setCapV2EnableStatus : () -> Bool;
             #exportFaileWithdraws : () ->();
             #failedWithdrawRefund : () -> Text;
+            #getLastTransactionOutAmount : () -> ();
         }}) : Bool 
         {
             if(_checkBlocklist(caller)){
@@ -3083,6 +3129,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 case (#getSupportedTokenList _) { true };
                 case (#getSupportedTokenListSome _) { true };
                 case (#getSupportedTokenListByName _) { true };
+                case (#getUserICRC1SubAccount _) { true };
                 case (#getUserBalances _) { true };
                 case (#getUserLPBalances _) { true };
                 case (#getUserLPBalancesAbove _) { true };
@@ -3111,6 +3158,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 case (#getCapDetails _) { true };
                 case (#historySize _) { true };
                 case (#exportFaileWithdraws _) { true };
+                case (#getLastTransactionOutAmount _) { true };
             }
         };
 
