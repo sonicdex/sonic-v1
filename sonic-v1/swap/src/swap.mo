@@ -38,7 +38,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         #BlockUsed;
         #ErrorOperationStyle;
         #ErrorTo;
-        #Other;
+        #Other:Text;
     };
     type ICRCTransferError = {
         #BadFee;
@@ -1194,7 +1194,35 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 switch(await _transfer(tokenCanister, msg.caller, value - fee)) {
                     case(#Ok(id)) { txid := id; };
                     case(#Err(e)) {
-                        ignore tokens.mint(tid, msg.caller, value);
+                        // ignore tokens.mint(tid, msg.caller, value);
+                        var ledger_error = switch(e) {
+                            case(#Other(errMsg)){
+                                if(tid == "utozz-siaaa-aaaam-qaaxq-cai"){
+                                    true
+                                } else {
+                                    false
+                                };
+                            };
+                            case(_){false};
+                        };
+                        if(not ledger_error){
+                            ignore tokens.mint(tid, msg.caller, value);
+                        } else {
+                            addFailedWithdraws(tid, msg.caller, value);
+                            ignore addRecord(
+                                msg.caller, "withdraw-failed", 
+                                [
+                                    ("tokenId", #Text(tid)),
+                                    ("from", #Principal(msg.caller)),
+                                    ("to", #Principal(msg.caller)),
+                                    ("amount", #U64(u64(value))),
+                                    ("fee", #U64(u64(tokens.getFee(tid)))),
+                                    ("balance", #U64(u64(tokens.balanceOf(tid, msg.caller)))),
+                                    ("totalSupply", #U64(u64(tokens.totalSupply(tid)))),
+                                    ("Error", #Text(debug_show(e))),
+                                ]
+                            );
+                        };
                         return #err("token transfer failed:" # tid);
                     };
                     case(#ICRCTransferError(e)) {
@@ -1204,12 +1232,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 };
             } catch (e) {
                 // ignore tokens.mint(tid, msg.caller, value);
-                faileWithdraws.put(Int.toText(Time.now()),{
-                    tokenId=tid; 
-                    userPId=msg.caller; 
-                    value=value; 
-                    refundStatus=false
-                });
+                addFailedWithdraws(tid, msg.caller, value);
                 ignore addRecord(
                     msg.caller, "withdraw-failed", 
                     [
@@ -1243,6 +1266,14 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         } else {
             return #err("burn token failed:" # tid);
         };
+    };
+    private func addFailedWithdraws(tokenId:Text, userPId:Principal, value:Nat){
+        faileWithdraws.put(Int.toText(Time.now()),{
+            tokenId=tokenId; 
+            userPId=userPId; 
+            value=value; 
+            refundStatus=false
+        });
     };
     /*
     public shared(msg) func withdrawTo(tokenId: Principal, to: Principal, value: Nat) : async TxReceipt {
