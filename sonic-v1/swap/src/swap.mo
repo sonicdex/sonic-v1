@@ -27,6 +27,7 @@ import Blob "mo:base/Blob";
 import Hex "./Hex";
 import Bool "mo:base/Bool";
 import Error "mo:base/Error";
+import Account "./Account";
 
 shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     type Errors = {
@@ -2237,6 +2238,14 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         return (Array.freeze(res), temp.size());
     };
 
+    public shared func getUserICRC1SubAccount(userPId: Principal) : async ICRCTxReceipt{
+        let subaccount = Utils.generateSubaccount({
+            caller = userPId;
+            id = depositCounterV2;
+        });
+        return #Ok(Blob.toArray(subaccount));
+    };  
+
     public query func getUserBalances(user: Principal): async [(Text, Nat)] {
         return tokens.getBalances(user);
     };
@@ -2655,7 +2664,17 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
 
     public shared query(msg) func exportSubAccounts() : async [(Principal,DepositSubAccounts)] {
         assert(_checkAuth(msg.caller));
-        return Iter.toArray(depositTransactions.entries())
+        var temp=HashMap.HashMap<Principal, DepositSubAccounts>(1, Principal.equal, Principal.hash);
+        for(data in depositTransactions.vals()){
+            var trans={
+                transactionOwner = data.transactionOwner;
+                depositAId=Hex.encode(Blob.toArray(Account.accountIdentifier(data.transactionOwner, data.subaccount)));
+                subaccount = data.subaccount;
+                created_at = data.created_at;
+            };
+            temp.put(data.transactionOwner,trans);
+        };
+        return Iter.toArray(temp.entries())
     };
 
     public shared query(msg) func exportBalances(tokenId: Text): async ?[(Principal, Nat)] {
@@ -2822,6 +2841,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             #getSupportedTokenListSome : () -> (Nat, Nat);
             #getSwapInfo : () -> ();
             #getTokenMetadata : () -> Text;
+            #getUserICRC1SubAccount : ()-> Principal;
             #getUserBalances : () -> Principal;
             #getUserInfo : () -> Principal;
             #getUserInfoAbove : () -> (Principal, Nat, Nat);
@@ -3099,6 +3119,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 case (#getSupportedTokenList _) { true };
                 case (#getSupportedTokenListSome _) { true };
                 case (#getSupportedTokenListByName _) { true };
+                case (#getUserICRC1SubAccount _) { true };
                 case (#getUserBalances _) { true };
                 case (#getUserLPBalances _) { true };
                 case (#getUserLPBalancesAbove _) { true };
