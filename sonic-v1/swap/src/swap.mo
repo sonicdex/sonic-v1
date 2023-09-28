@@ -1197,7 +1197,10 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                         // ignore tokens.mint(tid, msg.caller, value);
                         var ledger_error = switch(e) {
                             case(#Other(errMsg)){
-                                if(tid == "utozz-siaaa-aaaam-qaaxq-cai"){
+                                if(tid == "utozz-siaaa-aaaam-qaaxq-cai" 
+                                    or tid == "lzvjb-wyaaa-aaaam-qarua-cai" 
+                                    or tid == "djjfs-tyaaa-aaaak-qagtq-cai" )
+                                {
                                     true
                                 } else {
                                     false
