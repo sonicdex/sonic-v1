@@ -382,8 +382,8 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 return #ICRC1TokenActor(tokenCanister);
             };
             case("ICRC2"){
-                //ICRC2 not implemented.
-                Prelude.unreachable();
+                var tokenCanister : ICRC2TokenActor = actor(tokenId);                          
+                return #ICRC2TokenActor(tokenCanister);
             };
             case(_){
                 Prelude.unreachable();
@@ -907,6 +907,15 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         return #ok(txcounter - 1);
     };
 
+    public func updateTokenType(tokenId: Principal, tokenType: Text) : async Bool{
+        let tid : Text = Principal.toText(tokenId);
+        if (Option.isNull(tokenTypes.get(tid)) == false) {
+            tokenTypes.put(tid, tokenType);
+            return true;
+        };
+        return false;
+    };
+
     private func effectiveDepositAmount(tokenId : Text, value : Nat) : Nat {
         switch(tokenTypes.get(tokenId)) {
             case(?tokenType) {
@@ -1041,7 +1050,8 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         if (tokens.hasToken(tid) == false)
             return #err("token not exist");
 
-        let tokenCanister = _getTokenActor(tid);
+        var tokenActor : ICRC2TokenActor = actor(tid);                          
+        var tokenCanister : TokenActorVariable = #ICRC2TokenActor(tokenActor);                         
         var balance = await _balanceOf(tokenCanister, msg.caller);
         let tokenFee = tokens.getFee(tid);
         var value : Nat = if(Nat.greater(balance,tokenFee)){
@@ -1098,7 +1108,8 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         if (tokens.hasToken(tid) == false)
             return #err("token not exist");
 
-        let tokenCanister = _getTokenActor(tid);
+        var tokenActor : ICRC2TokenActor = actor(tid);                          
+        var tokenCanister : TokenActorVariable = #ICRC2TokenActor(tokenActor);
         let txid = switch(await _transferFrom(tokenCanister, to, value, tokens.getFee(tid))) {
             case(#Ok(id)) { id };
             case(#Err(e)) { return #err("token transfer failed:" # tid); };
@@ -2934,6 +2945,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             #exportFaileWithdraws : () ->();
             #failedWithdrawRefund : () -> Text;
             #getLastTransactionOutAmount : () -> ();
+            #updateTokenType : () -> (Principal, Text);
         }}) : Bool 
         {
             if(_checkBlocklist(caller)){
@@ -3157,6 +3169,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                         true
                     };                 
                 };
+                case (#updateTokenType _) { true };
 
                 //query
                 case (#getAuthList  _) { true };
