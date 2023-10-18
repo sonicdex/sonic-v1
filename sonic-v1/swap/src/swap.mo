@@ -727,6 +727,13 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         return true;
     };
 
+    public shared(msg) func setMaxTokenValidate(newValue: Nat): async ValidateFunction {
+        if(newValue <= 1000){
+            return #Ok("MaxToken updated to :"#Nat.toText(newValue));
+        };
+        return #Err("invaild maxtoken range");        
+    };
+
     public shared(msg) func setMaxTokens(newValue: Nat): async Bool {
         assert(msg.caller == owner);
         maxTokens := newValue;
@@ -2878,6 +2885,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             #addLiquidity : () -> (Principal, Principal, Nat, Nat, Nat, Nat, Int);
             #addLiquidityForUser : () -> (Principal, Principal, Principal, Nat, Nat);
             #addLiquidityForUserTest : () -> (Principal, Principal, Principal, Nat, Nat);
+            #addTokenValidate : () -> (Principal, Text);
             #addToken : () -> (Principal, Text);
             #allowance : () -> (Text, Principal, Principal);
             #approve : () -> (Text, Principal, Nat);
@@ -2930,6 +2938,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             #setFeeOn : () -> Bool;
             #setFeeTo : () -> Principal;
             #setGlobalTokenFee : () -> Nat;
+            #setMaxTokenValidate : () -> Nat;
             #setMaxTokens : () -> Nat;
             #setOwner : () -> Principal;
             #swapExactTokensForTokens : () -> (Nat, Nat, [Text], Principal, Int);
@@ -2952,7 +2961,6 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             #exportFaileWithdraws : () ->();
             #failedWithdrawRefund : () -> Text;
             #getLastTransactionOutAmount : () -> ();
-            #addTokenValidate : () -> (Principal, Text);
         }}) : Bool 
         {
             if(_checkBlocklist(caller)){
@@ -2967,6 +2975,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 case (#setCapV2CanisterId _) { (caller == owner) };
                 case (#setCapV1EnableStatus _) { (caller == owner) };
                 case (#setCapV2EnableStatus _) { (caller == owner) };
+                case (#setMaxTokenValidate _) { (caller == owner) };
                 case (#setMaxTokens _) { (caller == owner) };
                 case (#setFeeOn _) { (caller == owner) };
                 case (#setFeeTo _) { (caller == owner) };
@@ -2974,7 +2983,8 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 case (#setFeeForToken _) { (caller == owner) };
                 case (#updateTokenMetadata _) { (caller == owner) };
                 case (#updateAllTokenMetadata _) { (caller == owner) };
-                case (#updateTokenFees _) { (caller == owner) };                
+                case (#updateTokenFees _) { (caller == owner) };   
+                case (#addTokenValidate _) { (caller == owner) };
                 case (#addToken _) { (caller == owner) };
 
                 //admin with _checkAuth(msg.caller)
@@ -3218,7 +3228,6 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 case (#historySize _) { true };
                 case (#exportFaileWithdraws _) { true };
                 case (#getLastTransactionOutAmount _) { true };
-                case (#addTokenValidate _) { true };
             }
         };
 
