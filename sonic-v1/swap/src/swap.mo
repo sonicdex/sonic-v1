@@ -270,6 +270,11 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         #NotFound:Bool;
     };
 
+    type ValidateFunction = { 
+        #Ok: Text; 
+        #Err: Text; 
+    };
+
     public type TokenInfo = Tokens.TokenInfo;
     public type TokenInfoExt = Tokens.TokenInfoExt;
     public type TokenInfoWithType = Tokens.TokenInfoWithType; 
@@ -874,6 +879,19 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 return #err("tid/tokenid passed is not a supported ICRC1 canister");
             };
         };
+    };
+
+    public shared(msg) func addTokenValidate(tokenId: Principal, tokenType: Text) : async ValidateFunction {        
+        switch(tokenType){
+            case("DIP20"){};
+            case("YC"){};
+            case("ICRC1"){};
+            case("ICRC2"){};
+            case(_){
+                return #Err("invaild token type");
+            };
+        };        
+        return #Ok("tokenId :"#Principal.toText(tokenId)#" \r\n tokenType:"#tokenType);
     };
 
     public shared(msg) func addToken(tokenId: Principal, tokenType: Text) : async TxReceipt {
@@ -2934,6 +2952,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             #exportFaileWithdraws : () ->();
             #failedWithdrawRefund : () -> Text;
             #getLastTransactionOutAmount : () -> ();
+            #addTokenValidate : () -> (Principal, Text);
         }}) : Bool 
         {
             if(_checkBlocklist(caller)){
@@ -3199,6 +3218,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 case (#historySize _) { true };
                 case (#exportFaileWithdraws _) { true };
                 case (#getLastTransactionOutAmount _) { true };
+                case (#addTokenValidate _) { true };
             }
         };
 
