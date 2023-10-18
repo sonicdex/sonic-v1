@@ -908,6 +908,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     };
 
     public func updateTokenType(tokenId: Principal, tokenType: Text) : async Bool{
+        assert(_checkAuth(msg.caller));
         let tid : Text = Principal.toText(tokenId);
         if (Option.isNull(tokenTypes.get(tid)) == false) {
             tokenTypes.put(tid, tokenType);
@@ -1050,8 +1051,8 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         if (tokens.hasToken(tid) == false)
             return #err("token not exist");
 
-        var tokenActor : ICRC2TokenActor = actor(tid);                          
-        var tokenCanister : TokenActorVariable = #ICRC2TokenActor(tokenActor);                         
+        var tokenActor : ICRC1TokenActor = actor(tid);                          
+        var tokenCanister : TokenActorVariable = #ICRC1TokenActor(tokenActor);                         
         var balance = await _balanceOf(tokenCanister, msg.caller);
         let tokenFee = tokens.getFee(tid);
         var value : Nat = if(Nat.greater(balance,tokenFee)){
