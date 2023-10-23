@@ -270,6 +270,11 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         #NotFound:Bool;
     };
 
+    type ValidateFunction = { 
+        #Ok: Text; 
+        #Err: Text; 
+    };
+
     public type TokenInfo = Tokens.TokenInfo;
     public type TokenInfoExt = Tokens.TokenInfoExt;
     public type TokenInfoWithType = Tokens.TokenInfoWithType; 
@@ -722,6 +727,13 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         return true;
     };
 
+    public shared(msg) func setMaxTokenValidate(newValue: Nat): async ValidateFunction {
+        if(newValue <= 1000){
+            return #Ok("MaxToken updated to :"#Nat.toText(newValue));
+        };
+        return #Err("invaild maxtoken range");        
+    };
+
     public shared(msg) func setMaxTokens(newValue: Nat): async Bool {
         assert(msg.caller == owner);
         maxTokens := newValue;
@@ -874,6 +886,19 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 return #err("tid/tokenid passed is not a supported ICRC1 canister");
             };
         };
+    };
+
+    public shared(msg) func addTokenValidate(tokenId: Principal, tokenType: Text) : async ValidateFunction {        
+        switch(tokenType){
+            case("DIP20"){};
+            case("YC"){};
+            case("ICRC1"){};
+            case("ICRC2"){};
+            case(_){
+                return #Err("invaild token type");
+            };
+        };        
+        return #Ok("tokenId :"#Principal.toText(tokenId)#" \r\n tokenType:"#tokenType);
     };
 
     public shared(msg) func addToken(tokenId: Principal, tokenType: Text) : async TxReceipt {
@@ -2860,6 +2885,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             #addLiquidity : () -> (Principal, Principal, Nat, Nat, Nat, Nat, Int);
             #addLiquidityForUser : () -> (Principal, Principal, Principal, Nat, Nat);
             #addLiquidityForUserTest : () -> (Principal, Principal, Principal, Nat, Nat);
+            #addTokenValidate : () -> (Principal, Text);
             #addToken : () -> (Principal, Text);
             #allowance : () -> (Text, Principal, Principal);
             #approve : () -> (Text, Principal, Nat);
@@ -2912,6 +2938,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             #setFeeOn : () -> Bool;
             #setFeeTo : () -> Principal;
             #setGlobalTokenFee : () -> Nat;
+            #setMaxTokenValidate : () -> Nat;
             #setMaxTokens : () -> Nat;
             #setOwner : () -> Principal;
             #swapExactTokensForTokens : () -> (Nat, Nat, [Text], Principal, Int);
@@ -2948,6 +2975,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 case (#setCapV2CanisterId _) { (caller == owner) };
                 case (#setCapV1EnableStatus _) { (caller == owner) };
                 case (#setCapV2EnableStatus _) { (caller == owner) };
+                case (#setMaxTokenValidate _) { (caller == owner) };
                 case (#setMaxTokens _) { (caller == owner) };
                 case (#setFeeOn _) { (caller == owner) };
                 case (#setFeeTo _) { (caller == owner) };
@@ -2955,7 +2983,8 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 case (#setFeeForToken _) { (caller == owner) };
                 case (#updateTokenMetadata _) { (caller == owner) };
                 case (#updateAllTokenMetadata _) { (caller == owner) };
-                case (#updateTokenFees _) { (caller == owner) };                
+                case (#updateTokenFees _) { (caller == owner) };   
+                case (#addTokenValidate _) { (caller == owner) };
                 case (#addToken _) { (caller == owner) };
 
                 //admin with _checkAuth(msg.caller)
