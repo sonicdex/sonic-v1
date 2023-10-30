@@ -275,7 +275,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         #NotFound:Bool;
     };
 
-    type ValidateFunction = { 
+    type ValidateFunctionReturnType = { 
         #Ok: Text; 
         #Err: Text; 
     };
@@ -734,7 +734,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         return true;
     };
 
-    public shared(msg) func setMaxTokenValidate(newValue: Nat): async ValidateFunction {
+    public shared(msg) func setMaxTokenValidate(newValue: Nat): async ValidateFunctionReturnType {
         if(newValue <= 1000){
             return #Ok("MaxToken updated to :"#Nat.toText(newValue));
         };
@@ -895,7 +895,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         };
     };
 
-    public shared(msg) func addTokenValidate(tokenId: Principal, tokenType: Text) : async ValidateFunction {        
+    public shared(msg) func addTokenValidate(tokenId: Principal, tokenType: Text) : async ValidateFunctionReturnType {        
         switch(tokenType){
             case("DIP20"){};
             case("YC"){};
@@ -1793,6 +1793,19 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         return #ok(txcounter - 1);
     };
 
+    public shared(msg) func validateRegisterFundRecoveryForUser(user : Principal, tokenId : Principal, amount : Nat) : async ValidateFunctionReturnType {
+        let tid : Text = Principal.toText(tokenId);
+        if (tokens.hasToken(tid) == false)
+            return #Err("token does not exists");
+        switch(userFundRecoveries.get(user)){
+            case(?r){
+                return #Err("pending funding recovery");
+            };
+            case(_){};
+        };
+        return #Ok("valid inputs");
+    };
+
     public shared(msg) func executeFundRecoveryForUser(user: Principal) : async TxReceipt{
         // TODO: this function can be moved in control of DAO
         assert(_checkAuth(msg.caller));
@@ -1805,6 +1818,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         let tid : Text = Principal.toText(recoveryDetails.tokenId);
         if (tokens.hasToken(tid) == false)
             return #err("token not exist");
+        userFundRecoveries.delete(user);
         ignore tokens.mint(tid, user, effectiveDepositAmount(tid, recoveryDetails.amount));
         ignore addRecord(
             msg.caller, "executeFundRecoveryForUser",
@@ -1816,6 +1830,19 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         );
         txcounter +=1;
         return #ok(txcounter - 1);
+    };
+
+    public shared(msg) func validateExecuteFundRecoveryForUser(user: Principal) : async ValidateFunctionReturnType{
+        let recoveryDetails : RecoveryDetails = switch(userFundRecoveries.get(user)){
+            case(?r){r};
+            case(_){
+                return #Err("no fund recovery registered for user");
+            };
+        };
+        let tid : Text = Principal.toText(recoveryDetails.tokenId);
+        if (tokens.hasToken(tid) == false)
+            return #Err("token does not exists");
+        return #Ok("valid inputs");
     };
 
     public shared(msg) func addLiquidityForUserTest(
@@ -2945,7 +2972,9 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             #addLiquidity : () -> (Principal, Principal, Nat, Nat, Nat, Nat, Int);
             #addLiquidityForUser : () -> (Principal, Principal, Principal, Nat, Nat);
             #registerFundRecoveryForUser : () -> (Principal, Principal, Nat);
+            #validateRegisterFundRecoveryForUser : () -> (Principal, Principal, Nat);
             #executeFundRecoveryForUser : () -> Principal;
+            #validateExecuteFundRecoveryForUser : () -> Principal;
             #addLiquidityForUserTest : () -> (Principal, Principal, Principal, Nat, Nat);
             #addTokenValidate : () -> (Principal, Text);
             #addToken : () -> (Principal, Text);
@@ -3048,7 +3077,9 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 case (#updateTokenFees _) { (caller == owner) };   
                 case (#addTokenValidate _) { (caller == owner) };
                 case (#addToken _) { (caller == owner) };
-
+                // TODO : should use sns governance canister check
+                case (#validateExecuteFundRecoveryForUser _) { true };
+                case (#validateRegisterFundRecoveryForUser _) { true };                
                 //admin with _checkAuth(msg.caller)
                 case (#getICRC1SubAccountBalance _) { _checkAuth(caller) };
                 case (#initiateICRC1TransferForUser _) { _checkAuth(caller) };
