@@ -240,6 +240,11 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         created_at:Time.Time;
     };
 
+    type RecoveryDetails = {
+        tokenId : Principal;
+        amount : Nat;
+    };
+
     type RewardInfo = {
         tokenId: Text;
         amount: Nat;
@@ -270,7 +275,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         #NotFound:Bool;
     };
 
-    type ValidateFunction = { 
+    type ValidateFunctionReturnType = { 
         #Ok: Text; 
         #Err: Text; 
     };
@@ -301,6 +306,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     let ic: IC.ICActor = actor("aaaaa-aa");
 
     private var depositTransactions= HashMap.HashMap<Principal, DepositSubAccounts>(1, Principal.equal, Principal.hash);
+    private var userFundRecoveries = HashMap.HashMap<Principal, RecoveryDetails>(1, Principal.equal, Principal.hash);
     private var tokenTypes = HashMap.HashMap<Text, Text>(1, Text.equal, Text.hash);
     private var pairs = HashMap.HashMap<Text, PairInfo>(1, Text.equal, Text.hash);
     private var lptokens: Tokens.Tokens = Tokens.Tokens(feeTo, []);
@@ -317,6 +323,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     auths.put(owner, true);
 
     private stable var depositTransactionsEntries : [(Principal,DepositSubAccounts)] = [];
+    private stable var userFundRecoveriesEntries : [(Principal,RecoveryDetails)] = [];
     private stable var tokenTypeEntries : [(Text,Text)] = [];
     private stable var pairsEntries: [(Text, PairInfo)] = [];
     private stable var lptokensEntries: [(Text, TokenInfoExt, [(Principal, Nat)], [(Principal, [(Principal, Nat)])])] = []; 
@@ -727,7 +734,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         return true;
     };
 
-    public shared(msg) func setMaxTokenValidate(newValue: Nat): async ValidateFunction {
+    public shared(msg) func setMaxTokenValidate(newValue: Nat): async ValidateFunctionReturnType {
         if(newValue <= 1000){
             return #Ok("MaxToken updated to :"#Nat.toText(newValue));
         };
@@ -888,7 +895,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         };
     };
 
-    public shared(msg) func addTokenValidate(tokenId: Principal, tokenType: Text) : async ValidateFunction {        
+    public shared(msg) func addTokenValidate(tokenId: Principal, tokenType: Text) : async ValidateFunctionReturnType {        
         switch(tokenType){
             case("DIP20"){};
             case("YC"){};
@@ -1756,6 +1763,86 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         );
         txcounter += 1;
         return #ok(txcounter - 1);
+    };
+
+    public shared(msg) func registerFundRecoveryForUser(user : Principal, tokenId : Principal, amount : Nat) : async TxReceipt {
+        // TODO: this function can be moved in control of the DAO
+        assert(_checkAuth(msg.caller));
+        let tid : Text = Principal.toText(tokenId);
+        if (tokens.hasToken(tid) == false)
+            return #err("token not exist");
+        switch(userFundRecoveries.get(user)){
+            case(?r){
+                return #err("pending funding recovery");
+            };
+            case(_){};
+        };
+        userFundRecoveries.put(user, {
+            tokenId = tokenId;
+            amount = amount;
+        });
+        ignore addRecord(
+            msg.caller, "registerFundRecoveryForUser",
+            [
+                ("user", #Principal(user)),
+                ("token", #Principal(tokenId)),
+                ("amount", #U64(u64(amount)))
+            ]
+        );
+        txcounter +=1;
+        return #ok(txcounter - 1);
+    };
+
+    public shared(msg) func validateRegisterFundRecoveryForUser(user : Principal, tokenId : Principal, amount : Nat) : async ValidateFunctionReturnType {
+        let tid : Text = Principal.toText(tokenId);
+        if (tokens.hasToken(tid) == false)
+            return #Err("token does not exists");
+        switch(userFundRecoveries.get(user)){
+            case(?r){
+                return #Err("pending funding recovery");
+            };
+            case(_){};
+        };
+        return #Ok("valid inputs");
+    };
+
+    public shared(msg) func executeFundRecoveryForUser(user: Principal) : async TxReceipt{
+        // TODO: this function can be moved in control of DAO
+        assert(_checkAuth(msg.caller));
+        let recoveryDetails : RecoveryDetails = switch(userFundRecoveries.get(user)){
+            case(?r){r};
+            case(_){
+                return #err("no fund recovery registered for user");
+            };
+        };
+        let tid : Text = Principal.toText(recoveryDetails.tokenId);
+        if (tokens.hasToken(tid) == false)
+            return #err("token not exist");
+        userFundRecoveries.delete(user);
+        ignore tokens.mint(tid, user, effectiveDepositAmount(tid, recoveryDetails.amount));
+        ignore addRecord(
+            msg.caller, "executeFundRecoveryForUser",
+            [
+                ("user", #Principal(user)),
+                ("token", #Principal(recoveryDetails.tokenId)),
+                ("amount", #U64(u64(recoveryDetails.amount)))
+            ]
+        );
+        txcounter +=1;
+        return #ok(txcounter - 1);
+    };
+
+    public shared(msg) func validateExecuteFundRecoveryForUser(user: Principal) : async ValidateFunctionReturnType{
+        let recoveryDetails : RecoveryDetails = switch(userFundRecoveries.get(user)){
+            case(?r){r};
+            case(_){
+                return #Err("no fund recovery registered for user");
+            };
+        };
+        let tid : Text = Principal.toText(recoveryDetails.tokenId);
+        if (tokens.hasToken(tid) == false)
+            return #Err("token does not exists");
+        return #Ok("valid inputs");
     };
 
     public shared(msg) func addLiquidityForUserTest(
@@ -2884,6 +2971,10 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             #getAuthList : () -> ();
             #addLiquidity : () -> (Principal, Principal, Nat, Nat, Nat, Nat, Int);
             #addLiquidityForUser : () -> (Principal, Principal, Principal, Nat, Nat);
+            #registerFundRecoveryForUser : () -> (Principal, Principal, Nat);
+            #validateRegisterFundRecoveryForUser : () -> (Principal, Principal, Nat);
+            #executeFundRecoveryForUser : () -> Principal;
+            #validateExecuteFundRecoveryForUser : () -> Principal;
             #addLiquidityForUserTest : () -> (Principal, Principal, Principal, Nat, Nat);
             #addTokenValidate : () -> (Principal, Text);
             #addToken : () -> (Principal, Text);
@@ -2986,12 +3077,16 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 case (#updateTokenFees _) { (caller == owner) };   
                 case (#addTokenValidate _) { (caller == owner) };
                 case (#addToken _) { (caller == owner) };
-
+                // TODO : should use sns governance canister check
+                case (#validateExecuteFundRecoveryForUser _) { true };
+                case (#validateRegisterFundRecoveryForUser _) { true };                
                 //admin with _checkAuth(msg.caller)
                 case (#getICRC1SubAccountBalance _) { _checkAuth(caller) };
                 case (#initiateICRC1TransferForUser _) { _checkAuth(caller) };
                 case (#retryDepositTo _) { _checkAuth(caller) };
                 case (#addLiquidityForUser _) { _checkAuth(caller) };
+                case (#registerFundRecoveryForUser _) { _checkAuth(caller) };
+                case (#executeFundRecoveryForUser _) { _checkAuth(caller) };
                 case (#addLiquidityForUserTest _) { _checkAuth(caller) };
                 case (#monitorMetrics _) { _checkAuth(caller) };  
                 case (#getBlocklistedUsers _) { _checkAuth(caller) };
@@ -3233,6 +3328,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
 
     system func preupgrade() {
         depositTransactionsEntries := Iter.toArray(depositTransactions.entries());
+        userFundRecoveriesEntries := Iter.toArray(userFundRecoveries.entries());
         tokenTypeEntries := Iter.toArray(tokenTypes.entries());
         pairsEntries := Iter.toArray(pairs.entries());
         lptokensEntries := mapToArray(lptokens.getTokenInfoList());
@@ -3247,6 +3343,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
 
     system func postupgrade() {
         depositTransactions:= HashMap.fromIter<Principal, DepositSubAccounts>(depositTransactionsEntries.vals(), 1, Principal.equal, Principal.hash);
+        userFundRecoveries := HashMap.fromIter<Principal, RecoveryDetails>(userFundRecoveriesEntries.vals(), 1, Principal.equal, Principal.hash);
         tokenTypes:= HashMap.fromIter<Text,Text>(tokenTypeEntries.vals(), 1, Text.equal, Text.hash);  
         pairs := HashMap.fromIter<Text, PairInfo>(pairsEntries.vals(), 1, Text.equal, Text.hash);
         lptokens := Tokens.Tokens(feeTo, arrayToMap(lptokensEntries));
