@@ -1018,6 +1018,13 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 ("totalSupply", #U64(u64(tokens.totalSupply(tid))))
             ]
         );
+        switch(getTokenBlockStatus(tokenId)){
+            case(#None(id)) { };
+            case(_){
+                return #err("token is blocked "#Principal.toText(tokenId));     
+            }
+        };
+
         let tokenCanister = _getTokenActor(tid);
         let result = await _transferFrom(tokenCanister, msg.caller, value, tokens.getFee(tid));
         let txid = switch (result) {
@@ -1062,6 +1069,13 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 ("totalSupply", #U64(u64(tokens.totalSupply(tid))))
             ]
         );
+        switch(getTokenBlockStatus(tokenId)){
+            case(#None(id)) { };
+            case(_){
+                return #err("token is blocked "#Principal.toText(tokenId));     
+            }
+        };
+
         let tokenCanister = _getTokenActor(tid);
         let txid = switch(await _transferFrom(tokenCanister, msg.caller, value, tokens.getFee(tid))) {
             case(#Ok(id)) { id };
@@ -1113,6 +1127,14 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 ("totalSupply", #U64(u64(tokens.totalSupply(tid))))
             ]
         );
+        switch(getTokenBlockStatus(tokenId)){            
+            case(#None(id)) { };
+            case(#Partial(id)) { };
+            case(_){
+                return #err("token is blocked "#Principal.toText(tokenId));     
+            }
+        };
+
         if(Nat.equal(value,0)){
             return #err("no pending deposit found");
         };
@@ -1149,6 +1171,14 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         let tid: Text = Principal.toText(tokenId);
         if (tokens.hasToken(tid) == false)
             return #err("token not exist");
+        
+        switch(getTokenBlockStatus(tokenId)){            
+            case(#None(id)) { };
+            case(#Partial(id)) { };
+            case(_){
+                return #err("token is blocked "#Principal.toText(tokenId));     
+            }
+        };
 
         let tokenCanister = _getTokenActor(tid);
         let txid = switch(await _transferFrom(tokenCanister, to, value, tokens.getFee(tid))) {
@@ -1192,6 +1222,13 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         let tid: Text = Principal.toText(tokenId);
         if (tokens.hasToken(tid) == false)
             return #err("token not exist");
+
+        switch(getTokenBlockStatus(tokenId)){            
+            case(#None(id)) { };
+            case(_){
+                return #err("token is blocked "#Principal.toText(tokenId));     
+            }
+        };
 
         let tokenCanister = _getTokenActor(tid);
         let balance = await _balanceOf(tokenCanister, userPId);
@@ -1238,6 +1275,14 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 ("totalSupply", #U64(u64(tokens.totalSupply(tid))))
             ]
         );
+        switch(getTokenBlockStatus(tokenId)){            
+            case(#None(id)) { };
+            case(#Partial(id)) { };
+            case(_){
+                return #err("token is blocked "#Principal.toText(tokenId));     
+            }
+        };
+        
         if (tokens.burn(tid, msg.caller, value)) {
             let tokenCanister = _getTokenActor(tid);
             let fee = tokens.getFee(tid);
