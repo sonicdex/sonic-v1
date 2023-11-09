@@ -283,6 +283,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     type TokenBlockType = {
         #Partial: Bool;
         #Full: Bool;
+        #None:Bool
     };
 
     public type TokenInfo = Tokens.TokenInfo;
@@ -679,7 +680,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         return Iter.toArray(tokenBlocklist.entries());
     };
     
-    public shared(msg) func addTokenToBlocklist(tokenId: Principal): async Bool {
+    public shared(msg) func addTokenToBlocklist(tokenId: Principal, blockType:TokenBlockType): async Bool {
         // assert(_checkAuth(msg.caller));
         tokenBlocklist.put(tokenId, #Partial(true));
         return true;
@@ -1523,6 +1524,17 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         return liquidity;
     };
 
+    private func getTokenBlockStatus(tokenId: Principal): TokenBlockType{
+        switch(tokenBlocklist.get(tokenId)){
+            case(?d){
+                d;
+            };
+            case(_){
+                #None(true);
+            }
+        }
+    };
+
     /**
     *   1. calculate amount0/amount1
     *   2. transfer token0/token1 from user to this canister (user has to approve first)
@@ -1543,12 +1555,17 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         if (amount0Desired == 0 or amount1Desired == 0)
             return #err("desired amount should not be zero");
         
-        if(Option.isNull(tokenBlocklist.get(token0))==false){
-            return #err("token is blocked "#Principal.toText(token0));    
+        switch(getTokenBlockStatus(token0)){
+            case(#None(id)) { };
+            case(_){
+                return #err("token is blocked "#Principal.toText(token0));     
+            }
         };
-
-        if(Option.isNull(tokenBlocklist.get(token1))==false){
-            return #err("token is blocked "#Principal.toText(token0));    
+        switch(getTokenBlockStatus(token1)){
+            case(#None(id)) { };
+            case(_){
+                return #err("token is blocked "#Principal.toText(token1));     
+            }
         };
 
         let tid0: Text = Principal.toText(token0);
@@ -1673,6 +1690,18 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             return #err("unauthorized");
         };
 
+        switch(getTokenBlockStatus(token0)){
+            case(#None(id)) { };
+            case(_){
+                return #err("token is blocked "#Principal.toText(token0));     
+            }
+        };
+        switch(getTokenBlockStatus(token1)){
+            case(#None(id)) { };
+            case(_){
+                return #err("token is blocked "#Principal.toText(token1));     
+            }
+        };
 
         var depositToken1Result=await depositForUser(userPId, token0);
         var depositToken2Result=await depositForUser(userPId, token1);
@@ -1958,12 +1987,19 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         if (Time.now() > deadline)
             return #err("tx expired");
 
-        if(Option.isNull(tokenBlocklist.get(token0))==false){
-            return #err("token is blocked "#Principal.toText(token0));    
+        switch(getTokenBlockStatus(token0)){
+            case(#Partial(id)) { };
+            case(#None(id)) { };
+            case(_){
+                return #err("token is blocked "#Principal.toText(token0));     
+            }
         };
-
-        if(Option.isNull(tokenBlocklist.get(token1))==false){
-            return #err("token is blocked "#Principal.toText(token0));    
+        switch(getTokenBlockStatus(token1)){
+            case(#Partial(id)) { };
+            case(#None(id)) { };
+            case(_){
+                return #err("token is blocked "#Principal.toText(token1));     
+            }
         };
 
         let tid0: Text = Principal.toText(token0);
@@ -2169,12 +2205,17 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         if (Time.now() > deadline)
             return #err("tx expired");
         
-        if(Option.isNull(tokenBlocklist.get(Principal.fromText(path[0])))==false){
-            return #err("token is blocked "#path[0]);    
+        switch(getTokenBlockStatus(Principal.fromText(path[0]))){
+            case(#None(id)) { };
+            case(_){
+                return #err("token is blocked "#path[0]);     
+            }
         };
-
-        if(Option.isNull(tokenBlocklist.get(Principal.fromText(path[1])))==false){
-            return #err("token is blocked "#path[1]);    
+        switch(getTokenBlockStatus(Principal.fromText(path[1]))){
+            case(#None(id)) { };
+            case(_){
+                return #err("token is blocked "#path[1]);     
+            }
         };
 
         var amountdatas = _getAmountsOut(amountIn, path);
@@ -3094,7 +3135,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             #addUserToBlocklist : () -> Principal;
             #removeUserFromBlocklist : () -> Principal;
             #getBlockedTokens : () -> ();
-            #addTokenToBlocklist : () -> Principal;
+            #addTokenToBlocklist : () -> (Principal, TokenBlockType);
             #removeTokenFromBlocklist : () -> Principal;
             #setCapV2CanisterId : () -> Text;
             #getCapDetails : () -> ();
