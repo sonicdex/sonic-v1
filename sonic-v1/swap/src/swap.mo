@@ -671,14 +671,34 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     //-------------------------------
 
     public shared(msg) func getBlockedTokens(): async [(Principal,TokenBlockType)] {
-        // assert(_checkAuth(msg.caller));
         return Iter.toArray(tokenBlocklist.entries());
+    };
+
+    public shared(msg) func addTokenToBlocklistValidate(tokenId: Principal, blockType:TokenBlockType) : async ValidateFunctionReturnType {        
+        let tid: Text = Principal.toText(tokenId);
+        if (tokens.hasToken(tid) == false)
+            return #Ok("token not exist");
+        switch(blockType){
+            case(#Full(d)){};
+            case(#Partial(d)){};
+            case(_){
+                return #Err("invaild block type");
+            };
+        };        
+        return #Ok("addTokenToBlocklist Validated");
     };
     
     public shared(msg) func addTokenToBlocklist(tokenId: Principal, blockType:TokenBlockType): async Bool {
         // assert(_checkAuth(msg.caller));
         tokenBlocklist.put(tokenId, #Partial(true));
         return true;
+    };
+
+    public shared(msg) func removeTokenFromBlocklistValidate(tokenId: Principal) : async ValidateFunctionReturnType {        
+        let tid: Text = Principal.toText(tokenId);
+        if (tokens.hasToken(tid) == false)
+            return #Ok("token not exist");
+        return #Ok("removeTokenFromBlocklist Validated");
     };
 
     public shared(msg) func removeTokenFromBlocklist(tokenId: Principal): async Bool {
