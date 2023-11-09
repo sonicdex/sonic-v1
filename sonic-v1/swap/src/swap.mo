@@ -280,12 +280,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         #Err: Text; 
     };
     
-    type TokenBlockType = {
-        #Partial: Bool;
-        #Full: Bool;
-        #None:Bool
-    };
-
+    public type TokenBlockType = Tokens.TokenBlockType;
     public type TokenInfo = Tokens.TokenInfo;
     public type TokenInfoExt = Tokens.TokenInfoExt;
     public type TokenInfoWithType = Tokens.TokenInfoWithType; 
@@ -2456,7 +2451,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     };
 
     public query func getSupportedTokenList(): async [TokenInfoWithType] {
-        return tokens.tokenListWithType(tokenTypes);
+        return tokens.tokenListWithType(tokenTypes, tokenBlocklist);
     };
 
     public query func getSupportedTokenListSome(start: Nat, num: Nat) : async ([TokenInfoExt], Nat) {
