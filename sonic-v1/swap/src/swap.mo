@@ -689,8 +689,8 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     };
     
     public shared(msg) func addTokenToBlocklist(tokenId: Principal, blockType:TokenBlockType): async Bool {
-        // assert(_checkAuth(msg.caller));
-        tokenBlocklist.put(tokenId, #Partial(true));
+        assert(_checkAuth(msg.caller));
+        tokenBlocklist.put(tokenId, blockType);
         return true;
     };
 
@@ -702,7 +702,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     };
 
     public shared(msg) func removeTokenFromBlocklist(tokenId: Principal): async Bool {
-        // assert(_checkAuth(msg.caller));
+        assert(_checkAuth(msg.caller));
         tokenBlocklist.delete(tokenId);
         return true;
     };
@@ -3196,7 +3196,9 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             #removeUserFromBlocklist : () -> Principal;
             #getBlockedTokens : () -> ();
             #addTokenToBlocklist : () -> (Principal, TokenBlockType);
+            #addTokenToBlocklistValidate : () -> (Principal, TokenBlockType);
             #removeTokenFromBlocklist : () -> Principal;
+            #removeTokenFromBlocklistValidate : () -> Principal;
             #setCapV2CanisterId : () -> Text;
             #getCapDetails : () -> ();
             #setCapV1EnableStatus : () -> Bool;
@@ -3246,7 +3248,9 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 case (#removeUserFromBlocklist _) { _checkAuth(caller) };
                 case (#getBlockedTokens _) { _checkAuth(caller) };
                 case (#addTokenToBlocklist _) { _checkAuth(caller) };
+                case (#addTokenToBlocklistValidate _) { _checkAuth(caller) };
                 case (#removeTokenFromBlocklist _) { _checkAuth(caller) };
+                case (#removeTokenFromBlocklistValidate _) { _checkAuth(caller) };
                 case (#failedWithdrawRefund _) { _checkAuth(caller) };           
 
                 //non-admin functions                
