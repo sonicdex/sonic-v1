@@ -115,6 +115,11 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         to : ICRCAccount;
         amount : Nat;
     };     
+    type ICRC2TransferArg = {
+        from :ICRCAccount;
+        to : ICRCAccount;
+        amount : Nat;
+    };    
     public type ICRC1TokenActor = actor {       
         icrc1_balance_of: (account: ICRCAccount) -> async Nat;
         icrc1_decimals: () -> async Nat8;
@@ -133,7 +138,8 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         icrc1_symbol: () -> async Text;
         icrc1_metadata: () -> async [(Text, ICRCMetaDataValue)];
         icrc1_total_supply: () -> async Nat;
-        icrc2_transfer_from : shared (ICRCTransferArg) -> async ICRCTokenTxReceipt;
+        icrc2_transfer_from : shared (ICRC2TransferArg) -> async ICRCTokenTxReceipt;
+        icrc1_transfer: shared (ICRCTransferArg) -> async ICRCTokenTxReceipt;
     };
     type TokenActorVariable = {      
         #DIPtokenActor:TokenActor;
@@ -397,8 +403,8 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 return #ICRC1TokenActor(tokenCanister);
             };
             case("ICRC2"){
-                //ICRC2 not implemented.
-                Prelude.unreachable();
+                var tokenCanister : ICRC2TokenActor = actor(tokenId);                          
+                return #ICRC2TokenActor(tokenCanister);
             };
             case(_){
                 Prelude.unreachable();
@@ -480,7 +486,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                var defaultSubaccount:Blob=Utils.defaultSubAccount();
                var transferArg=
                 {
-                    from_subaccount=?defaultSubaccount; 
+                    from={ owner=caller; subaccount=?defaultSubaccount}; 
                     to={ owner=Principal.fromActor(this); subaccount=?defaultSubaccount};
                     amount=value;
                 };
@@ -533,7 +539,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                     to={ owner=caller; subaccount=?defaultSubaccount};
                     amount=value;
                 };
-                var txid = await icrc2TokenActor.icrc2_transfer_from(transferArg); 
+                var txid = await icrc2TokenActor.icrc1_transfer(transferArg); 
                 switch (txid){
                     case(#Ok(id)) { return #Ok(id); };
                     case(#Err(e)) { return #ICRCTransferError(e); };
@@ -936,6 +942,9 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     };
 
     public shared(msg) func addTokenValidate(tokenId: Principal, tokenType: Text) : async ValidateFunctionReturnType {        
+        if ((msg.caller == owner) == false) {
+            return #Err("unauthorized");
+        };
         switch(tokenType){
             case("DIP20"){};
             case("YC"){};
@@ -977,6 +986,34 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         );
         txcounter += 1;
         return #ok(txcounter - 1);
+    };
+
+    public shared(msg) func updateTokenTypeValidate(tokenId: Principal, tokenType: Text) : async ValidateFunctionReturnType {        
+        if ((msg.caller == owner) == false) {
+            return #Err("unauthorized");
+        };
+        switch(tokenType){
+            case("DIP20"){};
+            case("YC"){};
+            case("ICRC1"){};
+            case("ICRC2"){};
+            case(_){
+                return #Err("invaild token type");
+            };
+        };        
+        return #Ok("tokenId :"#Principal.toText(tokenId)#" \r\n tokenType:"#tokenType);
+    };
+
+    public shared(msg) func updateTokenType(tokenId: Principal, tokenType: Text) : async Bool{
+        if ((msg.caller == owner) == false) {
+            return false;
+        };
+        let tid : Text = Principal.toText(tokenId);
+        if (Option.isNull(tokenTypes.get(tid)) == false) {
+            tokenTypes.put(tid, tokenType);
+            return true;
+        };
+        return false;
     };
 
     private func effectiveDepositAmount(tokenId : Text, value : Nat) : Nat {
@@ -1127,7 +1164,8 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         if (tokens.hasToken(tid) == false)
             return #err("token not exist");
 
-        let tokenCanister = _getTokenActor(tid);
+        var tokenActor : ICRC1TokenActor = actor(tid);                          
+        var tokenCanister : TokenActorVariable = #ICRC1TokenActor(tokenActor);  
         var balance = await _balanceOf(tokenCanister, msg.caller);
         let tokenFee = tokens.getFee(tid);
         var value : Nat = if(Nat.greater(balance,tokenFee)){
@@ -1200,7 +1238,8 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             }
         };
 
-        let tokenCanister = _getTokenActor(tid);
+        var tokenActor : ICRC2TokenActor = actor(tid);                          
+        var tokenCanister : TokenActorVariable = #ICRC2TokenActor(tokenActor);
         let txid = switch(await _transferFrom(tokenCanister, to, value, tokens.getFee(tid))) {
             case(#Ok(id)) { id };
             case(#Err(e)) { return #err("token transfer failed:" # tid); };
@@ -3127,6 +3166,8 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             #addLiquidityForUserTest : () -> (Principal, Principal, Principal, Nat, Nat);
             #addTokenValidate : () -> (Principal, Text);
             #addToken : () -> (Principal, Text);
+            #updateTokenTypeValidate : () -> (Principal, Text);
+            #updateTokenType : () -> (Principal, Text);
             #allowance : () -> (Text, Principal, Principal);
             #approve : () -> (Text, Principal, Nat);
             #balanceOf : () -> (Text, Principal);
@@ -3231,6 +3272,8 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 case (#updateTokenFees _) { (caller == owner) };   
                 case (#addTokenValidate _) { (caller == owner) };
                 case (#addToken _) { (caller == owner) };
+                case (#updateTokenTypeValidate _) { (caller == owner) };
+                case (#updateTokenType _) { (caller == owner) };
                 // TODO : should use sns governance canister check
                 case (#validateExecuteFundRecoveryForUser _) { true };
                 case (#validateRegisterFundRecoveryForUser _) { true };                
