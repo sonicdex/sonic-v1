@@ -279,7 +279,8 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         #Ok: Text; 
         #Err: Text; 
     };
-
+    
+    public type TokenBlockType = Tokens.TokenBlockType;
     public type TokenInfo = Tokens.TokenInfo;
     public type TokenInfoExt = Tokens.TokenInfoExt;
     public type TokenInfoWithType = Tokens.TokenInfoWithType; 
@@ -317,6 +318,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     private var blocklistedUsers = HashMap.HashMap<Principal, Bool>(1, Principal.equal, Principal.hash);   
     private var faileWithdraws = HashMap.HashMap<Text, WithdrawState>(1, Text.equal, Text.hash);   
     private var swapLastTransaction = HashMap.HashMap<Principal, SwapLastTransaction>(1, Principal.equal, Principal.hash);    
+    private var tokenBlocklist = HashMap.HashMap<Principal, TokenBlockType>(1, Principal.equal, Principal.hash);
 
     // admins
     private var auths = HashMap.HashMap<Principal, Bool>(1, Principal.equal, Principal.hash);
@@ -334,6 +336,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     private stable var rewardInfoEntries : [(Principal,[RewardInfo])] = [];
     private stable var blocklistedUserEntries: [(Principal, Bool)] = [];
     private stable var faileWithdrawEntries: [(Text, WithdrawState)] = [];
+    private stable var tokenBlocklistEntries: [(Principal, TokenBlockType)] = [];
 
     // variables not used : added for future use
     private stable var daoCanisterIdForLiquidity : Text = "";
@@ -667,6 +670,43 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     };
     //-------------------------------
 
+    public shared(msg) func getBlockedTokens(): async [(Principal,TokenBlockType)] {
+        return Iter.toArray(tokenBlocklist.entries());
+    };
+
+    public shared(msg) func addTokenToBlocklistValidate(tokenId: Principal, blockType:TokenBlockType) : async ValidateFunctionReturnType {        
+        let tid: Text = Principal.toText(tokenId);
+        if (tokens.hasToken(tid) == false)
+            return #Ok("token not exist");
+        switch(blockType){
+            case(#Full(d)){};
+            case(#Partial(d)){};
+            case(_){
+                return #Err("invaild block type");
+            };
+        };        
+        return #Ok("addTokenToBlocklist Validated");
+    };
+    
+    public shared(msg) func addTokenToBlocklist(tokenId: Principal, blockType:TokenBlockType): async Bool {
+        assert(_checkAuth(msg.caller));
+        tokenBlocklist.put(tokenId, blockType);
+        return true;
+    };
+
+    public shared(msg) func removeTokenFromBlocklistValidate(tokenId: Principal) : async ValidateFunctionReturnType {        
+        let tid: Text = Principal.toText(tokenId);
+        if (tokens.hasToken(tid) == false)
+            return #Ok("token not exist");
+        return #Ok("removeTokenFromBlocklist Validated");
+    };
+
+    public shared(msg) func removeTokenFromBlocklist(tokenId: Principal): async Bool {
+        assert(_checkAuth(msg.caller));
+        tokenBlocklist.delete(tokenId);
+        return true;
+    };
+
     public shared(msg) func getBlocklistedUsers(): async [(Principal,Bool)] {
         assert(_checkAuth(msg.caller));
         return Iter.toArray(blocklistedUsers.entries());
@@ -998,6 +1038,13 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 ("totalSupply", #U64(u64(tokens.totalSupply(tid))))
             ]
         );
+        switch(getTokenBlockStatus(tokenId)){
+            case(#None(id)) { };
+            case(_){
+                return #err("token is blocked "#Principal.toText(tokenId));     
+            }
+        };
+
         let tokenCanister = _getTokenActor(tid);
         let result = await _transferFrom(tokenCanister, msg.caller, value, tokens.getFee(tid));
         let txid = switch (result) {
@@ -1042,6 +1089,13 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 ("totalSupply", #U64(u64(tokens.totalSupply(tid))))
             ]
         );
+        switch(getTokenBlockStatus(tokenId)){
+            case(#None(id)) { };
+            case(_){
+                return #err("token is blocked "#Principal.toText(tokenId));     
+            }
+        };
+
         let tokenCanister = _getTokenActor(tid);
         let txid = switch(await _transferFrom(tokenCanister, msg.caller, value, tokens.getFee(tid))) {
             case(#Ok(id)) { id };
@@ -1093,6 +1147,14 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 ("totalSupply", #U64(u64(tokens.totalSupply(tid))))
             ]
         );
+        switch(getTokenBlockStatus(tokenId)){            
+            case(#None(id)) { };
+            case(#Partial(id)) { };
+            case(_){
+                return #err("token is blocked "#Principal.toText(tokenId));     
+            }
+        };
+
         if(Nat.equal(value,0)){
             return #err("no pending deposit found");
         };
@@ -1129,6 +1191,14 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         let tid: Text = Principal.toText(tokenId);
         if (tokens.hasToken(tid) == false)
             return #err("token not exist");
+        
+        switch(getTokenBlockStatus(tokenId)){            
+            case(#None(id)) { };
+            case(#Partial(id)) { };
+            case(_){
+                return #err("token is blocked "#Principal.toText(tokenId));     
+            }
+        };
 
         let tokenCanister = _getTokenActor(tid);
         let txid = switch(await _transferFrom(tokenCanister, to, value, tokens.getFee(tid))) {
@@ -1172,6 +1242,13 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         let tid: Text = Principal.toText(tokenId);
         if (tokens.hasToken(tid) == false)
             return #err("token not exist");
+
+        switch(getTokenBlockStatus(tokenId)){            
+            case(#None(id)) { };
+            case(_){
+                return #err("token is blocked "#Principal.toText(tokenId));     
+            }
+        };
 
         let tokenCanister = _getTokenActor(tid);
         let balance = await _balanceOf(tokenCanister, userPId);
@@ -1218,6 +1295,14 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 ("totalSupply", #U64(u64(tokens.totalSupply(tid))))
             ]
         );
+        switch(getTokenBlockStatus(tokenId)){            
+            case(#None(id)) { };
+            case(#Partial(id)) { };
+            case(_){
+                return #err("token is blocked "#Principal.toText(tokenId));     
+            }
+        };
+        
         if (tokens.burn(tid, msg.caller, value)) {
             let tokenCanister = _getTokenActor(tid);
             let fee = tokens.getFee(tid);
@@ -1499,6 +1584,17 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         return liquidity;
     };
 
+    private func getTokenBlockStatus(tokenId: Principal): TokenBlockType{
+        switch(tokenBlocklist.get(tokenId)){
+            case(?d){
+                d;
+            };
+            case(_){
+                #None(true);
+            }
+        }
+    };
+
     /**
     *   1. calculate amount0/amount1
     *   2. transfer token0/token1 from user to this canister (user has to approve first)
@@ -1518,6 +1614,19 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             return #err("tx expired");
         if (amount0Desired == 0 or amount1Desired == 0)
             return #err("desired amount should not be zero");
+        
+        switch(getTokenBlockStatus(token0)){
+            case(#None(id)) { };
+            case(_){
+                return #err("token is blocked "#Principal.toText(token0));     
+            }
+        };
+        switch(getTokenBlockStatus(token1)){
+            case(#None(id)) { };
+            case(_){
+                return #err("token is blocked "#Principal.toText(token1));     
+            }
+        };
 
         let tid0: Text = Principal.toText(token0);
         let tid1: Text = Principal.toText(token1);
@@ -1641,6 +1750,18 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             return #err("unauthorized");
         };
 
+        switch(getTokenBlockStatus(token0)){
+            case(#None(id)) { };
+            case(_){
+                return #err("token is blocked "#Principal.toText(token0));     
+            }
+        };
+        switch(getTokenBlockStatus(token1)){
+            case(#None(id)) { };
+            case(_){
+                return #err("token is blocked "#Principal.toText(token1));     
+            }
+        };
 
         var depositToken1Result=await depositForUser(userPId, token0);
         var depositToken2Result=await depositForUser(userPId, token1);
@@ -1926,6 +2047,21 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         if (Time.now() > deadline)
             return #err("tx expired");
 
+        switch(getTokenBlockStatus(token0)){
+            case(#Partial(id)) { };
+            case(#None(id)) { };
+            case(_){
+                return #err("token is blocked "#Principal.toText(token0));     
+            }
+        };
+        switch(getTokenBlockStatus(token1)){
+            case(#Partial(id)) { };
+            case(#None(id)) { };
+            case(_){
+                return #err("token is blocked "#Principal.toText(token1));     
+            }
+        };
+
         let tid0: Text = Principal.toText(token0);
         let tid1: Text = Principal.toText(token1);
         var pair = switch(_getPair(tid0, tid1)) {
@@ -2128,6 +2264,19 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         ): async TxReceipt {
         if (Time.now() > deadline)
             return #err("tx expired");
+        
+        switch(getTokenBlockStatus(Principal.fromText(path[0]))){
+            case(#None(id)) { };
+            case(_){
+                return #err("token is blocked "#path[0]);     
+            }
+        };
+        switch(getTokenBlockStatus(Principal.fromText(path[1]))){
+            case(#None(id)) { };
+            case(_){
+                return #err("token is blocked "#path[1]);     
+            }
+        };
 
         var amountdatas = _getAmountsOut(amountIn, path);
         var amounts = amountdatas.0;
@@ -2367,7 +2516,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     };
 
     public query func getSupportedTokenList(): async [TokenInfoWithType] {
-        return tokens.tokenListWithType(tokenTypes);
+        return tokens.tokenListWithType(tokenTypes, tokenBlocklist);
     };
 
     public query func getSupportedTokenListSome(start: Nat, num: Nat) : async ([TokenInfoExt], Nat) {
@@ -3045,6 +3194,11 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             #getBlocklistedUsers : () -> ();
             #addUserToBlocklist : () -> Principal;
             #removeUserFromBlocklist : () -> Principal;
+            #getBlockedTokens : () -> ();
+            #addTokenToBlocklist : () -> (Principal, TokenBlockType);
+            #addTokenToBlocklistValidate : () -> (Principal, TokenBlockType);
+            #removeTokenFromBlocklist : () -> Principal;
+            #removeTokenFromBlocklistValidate : () -> Principal;
             #setCapV2CanisterId : () -> Text;
             #getCapDetails : () -> ();
             #setCapV1EnableStatus : () -> Bool;
@@ -3092,6 +3246,11 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 case (#getBlocklistedUsers _) { _checkAuth(caller) };
                 case (#addUserToBlocklist _) { _checkAuth(caller) };
                 case (#removeUserFromBlocklist _) { _checkAuth(caller) };
+                case (#getBlockedTokens _) { _checkAuth(caller) };
+                case (#addTokenToBlocklist _) { _checkAuth(caller) };
+                case (#addTokenToBlocklistValidate _) { _checkAuth(caller) };
+                case (#removeTokenFromBlocklist _) { _checkAuth(caller) };
+                case (#removeTokenFromBlocklistValidate _) { _checkAuth(caller) };
                 case (#failedWithdrawRefund _) { _checkAuth(caller) };           
 
                 //non-admin functions                
@@ -3339,6 +3498,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         rewardInfoEntries := Iter.toArray(rewardInfo.entries());
         blocklistedUserEntries := Iter.toArray(blocklistedUsers.entries());
         faileWithdrawEntries := Iter.toArray(faileWithdraws.entries());
+        tokenBlocklistEntries := Iter.toArray(tokenBlocklist.entries());
     };
 
     system func postupgrade() {
@@ -3354,6 +3514,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         rewardInfo := HashMap.fromIter<Principal, [RewardInfo]>(rewardInfoEntries.vals(), 1, Principal.equal, Principal.hash);
         blocklistedUsers := HashMap.fromIter<Principal, Bool>(blocklistedUserEntries.vals(), 1, Principal.equal, Principal.hash);
         faileWithdraws := HashMap.fromIter<Text, WithdrawState>(faileWithdrawEntries.vals(), 1, Text.equal, Text.hash);
+        tokenBlocklist := HashMap.fromIter<Principal, TokenBlockType>(tokenBlocklistEntries.vals(), 1, Principal.equal, Principal.hash);
         lppattern := #text ":";
         depositTransactionsEntries := [];
         rewardPairsEntries := [];
@@ -3365,5 +3526,6 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         authsEntries := [];
         blocklistedUserEntries := [];
         faileWithdrawEntries := [];
+        tokenBlocklistEntries := [];
     };
 };

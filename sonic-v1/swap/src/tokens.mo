@@ -5,6 +5,7 @@ import Array "mo:base/Array";
 import Iter "mo:base/Iter";
 import Text "mo:base/Text";
 import Int "mo:base/Int";
+import Bool "mo:base/Bool";
 
 module {
     public type TokenInfo = {
@@ -35,6 +36,7 @@ module {
         fee: Nat;
         totalSupply: Nat;
         tokenType:Text;
+        isBlocked:Bool
     };
 
     public type TokenAnalyticsInfo = {
@@ -43,6 +45,12 @@ module {
         decimals: Nat8;
         fee: Nat;
         totalSupply: Nat;
+    };
+
+    public type TokenBlockType = {
+        #Partial: Bool;
+        #Full: Bool;
+        #None:Bool
     };
 
     // type TxReceipt = Result.Result<Nat, {
@@ -164,7 +172,7 @@ module {
             }
         };
 
-        private func _toTokenInfoWithType(info: TokenInfo, tokenType:?Text): TokenInfoWithType {
+        private func _toTokenInfoWithType(info: TokenInfo, tokenType:?Text, tokenBlocklist:HashMap.HashMap<Principal, TokenBlockType>): TokenInfoWithType {
             {
                 id = info.id;
                 name = info.name;
@@ -173,15 +181,27 @@ module {
                 fee = info.fee;
                 totalSupply = info.totalSupply;
                 tokenType=if(Option.isNull(tokenType)==true){"DIP20"}else{Option.unwrap(tokenType)};
+                isBlocked=isTokenBlocked(Principal.fromText(info.id), tokenBlocklist);
             }
         };
 
-        public func tokenListWithType(tokenTypes: HashMap.HashMap<Text, Text>) : [TokenInfoWithType] {
+        public func tokenListWithType(tokenTypes: HashMap.HashMap<Text, Text>, tokenBlocklist :HashMap.HashMap<Principal, TokenBlockType>) : [TokenInfoWithType] {
             var ret: [TokenInfoWithType] = [];
             for((k, v) in tokens.entries()) {               
-                ret := Array.append(ret, [_toTokenInfoWithType(v,tokenTypes.get(k))]);
+                ret := Array.append(ret, [_toTokenInfoWithType(v,tokenTypes.get(k), tokenBlocklist)]);
             };
             return ret;
+        };
+
+        private func isTokenBlocked(tokenId: Principal, tokenBlocklist:HashMap.HashMap<Principal, TokenBlockType>): Bool{
+            switch(tokenBlocklist.get(tokenId)){
+                case(?d){
+                    true
+                };
+                case(_){
+                    false
+                }
+            }
         };
 
         public func tokenList() : [TokenInfoExt] {
