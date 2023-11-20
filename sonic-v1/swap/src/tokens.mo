@@ -36,7 +36,7 @@ module {
         fee: Nat;
         totalSupply: Nat;
         tokenType:Text;
-        isBlocked:Bool
+        blockStatus:Text
     };
 
     public type TokenAnalyticsInfo = {
@@ -181,7 +181,7 @@ module {
                 fee = info.fee;
                 totalSupply = info.totalSupply;
                 tokenType=if(Option.isNull(tokenType)==true){"DIP20"}else{Option.unwrap(tokenType)};
-                isBlocked=isTokenBlocked(Principal.fromText(info.id), tokenBlocklist);
+                blockStatus=isTokenBlocked(Principal.fromText(info.id), tokenBlocklist);
             }
         };
 
@@ -193,13 +193,24 @@ module {
             return ret;
         };
 
-        private func isTokenBlocked(tokenId: Principal, tokenBlocklist:HashMap.HashMap<Principal, TokenBlockType>): Bool{
+        private func isTokenBlocked(tokenId: Principal, tokenBlocklist:HashMap.HashMap<Principal, TokenBlockType>): Text{
             switch(tokenBlocklist.get(tokenId)){
-                case(?d){
-                    true
+                case(?blockType){
+                    switch(blockType)
+                    {
+                        case(#Full(d)){
+                            return "Full";
+                        };
+                        case(#Partial(d)){
+                            return "Partial";
+                        };
+                        case(_){
+                            return "None";
+                        };
+                    };   
                 };
                 case(_){
-                    false
+                    return "None";
                 }
             }
         };
