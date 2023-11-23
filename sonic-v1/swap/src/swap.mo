@@ -41,15 +41,15 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         #Other:Text;
     };
     type ICRCTransferError = {
-        #BadFee;
-        #BadBurn;
-        #InsufficientFunds;
-        #InsufficientAllowance; //only for icrc2
+        #BadFee : { expected_fee : Nat };
+        #BadBurn : { min_burn_amount : Nat };
+        #InsufficientFunds : { balance : Nat };
+        #InsufficientAllowance : { allowance : Nat };
         #TooOld;
-        #CreatedInFuture;
-        #Duplicate;
+        #CreatedInFuture : { ledger_time : Nat64 };
+        #Duplicate : { duplicate_of : Nat };
         #TemporarilyUnavailable;
-        #GenericError;
+        #GenericError : { message : Text; error_code : Nat };
         #Expired; //only for approve
         #CustomError:Text; // custom error for sonic logic
     };
@@ -483,11 +483,10 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 };
             };
             case(#ICRC2TokenActor(icrc2TokenActor)){
-               var defaultSubaccount:Blob=Utils.defaultSubAccount();
                var transferArg=
                 {
-                    from={ owner=caller; subaccount=?defaultSubaccount}; 
-                    to={ owner=Principal.fromActor(this); subaccount=?defaultSubaccount};
+                    from={ owner=caller; subaccount=null}; 
+                    to={ owner=Principal.fromActor(this); subaccount=null};
                     amount=value;
                 };
                 var txid = await icrc2TokenActor.icrc2_transfer_from(transferArg); 
