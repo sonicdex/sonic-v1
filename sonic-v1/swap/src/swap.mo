@@ -1050,7 +1050,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         return Blob.toArray(getICRC1SubAccount(msg.caller));
     };
 
-    public shared func initiateICRC1TransferForUser(userPId: Principal) : async ICRCTxReceipt{
+    public shared(msg) func initiateICRC1TransferForUser(userPId: Principal) : async ICRCTxReceipt{
         if (_checkAuth(msg.caller) == false) {
                 return #Err("unauthorized");
         };
