@@ -1237,8 +1237,8 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             }
         };
 
-        var tokenActor : ICRC2TokenActor = actor(tid);                          
-        var tokenCanister : TokenActorVariable = #ICRC2TokenActor(tokenActor);
+        var tokenActor : ICRC1TokenActor = actor(tid);                          
+        var tokenCanister : TokenActorVariable = #ICRC1TokenActor(tokenActor);
         let txid = switch(await _transferFrom(tokenCanister, to, value, tokens.getFee(tid))) {
             case(#Ok(id)) { id };
             case(#Err(e)) { return #err("token transfer failed:" # tid); };
