@@ -646,7 +646,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             name=name;
             symbol=symbol;
             decimals=Nat8.fromNat(decimals);
-            totalSupply=0;
+            totalSupply=totalSupply;
             owner=tokenId;
             fee=fee;
         };
