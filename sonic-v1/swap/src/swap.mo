@@ -582,13 +582,15 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 return metadata;
             };
             case(#ICRC1TokenActor(icrc1TokenActor)){
-                var icrc1_metadata = await icrc1TokenActor.icrc1_metadata();                             
-                var metadata=_extractICRCMetadata(tokenId, icrc1_metadata);
+                var icrc1_metadata = await icrc1TokenActor.icrc1_metadata(); 
+                var totalSupply = await icrc1TokenActor.icrc1_total_supply();                            
+                var metadata=_extractICRCMetadata(tokenId, icrc1_metadata, totalSupply);
                 return metadata;
             };
             case(#ICRC2TokenActor(icrc2TokenActor)){
-                var icrc2_metadata = await icrc2TokenActor.icrc1_metadata();                             
-                var metadata=_extractICRCMetadata(tokenId, icrc2_metadata);
+                var icrc2_metadata = await icrc2TokenActor.icrc1_metadata();
+                var totalSupply = await icrc2TokenActor.icrc1_total_supply();                             
+                var metadata=_extractICRCMetadata(tokenId, icrc2_metadata, totalSupply);
                 return metadata;
             };
             case(_){
@@ -596,7 +598,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             };
         }
     };
-    private func _extractICRCMetadata(tokenId: Principal, metadatas :[(Text, ICRCMetaDataValue)] ): Metadata{
+    private func _extractICRCMetadata(tokenId: Principal, metadatas :[(Text, ICRCMetaDataValue)], totalSupply:Nat ): Metadata{
         var name:Text="";
         var symbol:Text="";
         var fee:Nat=0;
