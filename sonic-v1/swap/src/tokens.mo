@@ -93,13 +93,14 @@ module {
             };
         };
 
-        public func setMetadata(tokenId: Text, name: Text, symbol: Text, decimals: Nat8, fee: Nat): Bool {
+        public func setMetadata(tokenId: Text, name: Text, symbol: Text, decimals: Nat8, fee: Nat, totalSupply:Nat): Bool {
             switch(tokens.get(tokenId)) {
                 case(?token) {
                     token.name := name;
                     token.symbol := symbol;
                     token.decimals := decimals;
                     token.fee := fee;
+                    token.totalSupply :=totalSupply;
                     tokens.put(tokenId, token);
                     return true;
                 };
