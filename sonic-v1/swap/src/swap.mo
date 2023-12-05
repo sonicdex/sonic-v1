@@ -1010,6 +1010,14 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             return false;
         };
         let tid : Text = Principal.toText(tokenId);
+        switch(tokenType){
+            case("DIP20"){};
+            case("ICRC1"){};
+            case("ICRC2"){};
+            case(_){
+                return false;
+            };
+        };
         if (Option.isNull(tokenTypes.get(tid)) == false) {
             tokenTypes.put(tid, tokenType);
             return true;
