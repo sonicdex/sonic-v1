@@ -5,6 +5,7 @@ import Array "mo:base/Array";
 import Iter "mo:base/Iter";
 import Text "mo:base/Text";
 import Int "mo:base/Int";
+import Bool "mo:base/Bool";
 
 module {
     public type TokenInfo = {
@@ -35,6 +36,7 @@ module {
         fee: Nat;
         totalSupply: Nat;
         tokenType:Text;
+        blockStatus:Text
     };
 
     public type TokenAnalyticsInfo = {
@@ -43,6 +45,12 @@ module {
         decimals: Nat8;
         fee: Nat;
         totalSupply: Nat;
+    };
+
+    public type TokenBlockType = {
+        #Partial: Bool;
+        #Full: Bool;
+        #None:Bool
     };
 
     // type TxReceipt = Result.Result<Nat, {
@@ -85,13 +93,14 @@ module {
             };
         };
 
-        public func setMetadata(tokenId: Text, name: Text, symbol: Text, decimals: Nat8, fee: Nat): Bool {
+        public func setMetadata(tokenId: Text, name: Text, symbol: Text, decimals: Nat8, fee: Nat, totalSupply:Nat): Bool {
             switch(tokens.get(tokenId)) {
                 case(?token) {
                     token.name := name;
                     token.symbol := symbol;
                     token.decimals := decimals;
                     token.fee := fee;
+                    token.totalSupply :=totalSupply;
                     tokens.put(tokenId, token);
                     return true;
                 };
@@ -164,7 +173,7 @@ module {
             }
         };
 
-        private func _toTokenInfoWithType(info: TokenInfo, tokenType:?Text): TokenInfoWithType {
+        private func _toTokenInfoWithType(info: TokenInfo, tokenType:?Text, tokenBlocklist:HashMap.HashMap<Principal, TokenBlockType>): TokenInfoWithType {
             {
                 id = info.id;
                 name = info.name;
@@ -173,15 +182,38 @@ module {
                 fee = info.fee;
                 totalSupply = info.totalSupply;
                 tokenType=if(Option.isNull(tokenType)==true){"DIP20"}else{Option.unwrap(tokenType)};
+                blockStatus=isTokenBlocked(Principal.fromText(info.id), tokenBlocklist);
             }
         };
 
-        public func tokenListWithType(tokenTypes: HashMap.HashMap<Text, Text>) : [TokenInfoWithType] {
+        public func tokenListWithType(tokenTypes: HashMap.HashMap<Text, Text>, tokenBlocklist :HashMap.HashMap<Principal, TokenBlockType>) : [TokenInfoWithType] {
             var ret: [TokenInfoWithType] = [];
             for((k, v) in tokens.entries()) {               
-                ret := Array.append(ret, [_toTokenInfoWithType(v,tokenTypes.get(k))]);
+                ret := Array.append(ret, [_toTokenInfoWithType(v,tokenTypes.get(k), tokenBlocklist)]);
             };
             return ret;
+        };
+
+        private func isTokenBlocked(tokenId: Principal, tokenBlocklist:HashMap.HashMap<Principal, TokenBlockType>): Text{
+            switch(tokenBlocklist.get(tokenId)){
+                case(?blockType){
+                    switch(blockType)
+                    {
+                        case(#Full(d)){
+                            return "Full";
+                        };
+                        case(#Partial(d)){
+                            return "Partial";
+                        };
+                        case(_){
+                            return "None";
+                        };
+                    };   
+                };
+                case(_){
+                    return "None";
+                }
+            }
         };
 
         public func tokenList() : [TokenInfoExt] {
