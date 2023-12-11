@@ -1794,7 +1794,8 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         token0: Principal, 
         token1: Principal, 
         amount0Desired: Nat, 
-        amount1Desired: Nat
+        amount1Desired: Nat,
+        useSubAcount : Bool
         ): async TxReceipt {
 
         if (_checkAuth(msg.caller) == false) {
@@ -1814,22 +1815,23 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             }
         };
 
-        var depositToken1Result=await depositForUser(userPId, token0);
-        var depositToken2Result=await depositForUser(userPId, token1);
-        switch(depositToken1Result){
-            case(#ok(id)) { };
-            case(_) {
-                return #err("token1 deposit error");
+        if(useSubAcount) {
+            var depositToken1Result=await depositForUser(userPId, token0);
+            var depositToken2Result=await depositForUser(userPId, token1);
+            switch(depositToken1Result){
+                case(#ok(id)) { };
+                case(_) {
+                    return #err("token1 deposit error");
+                };
+            };
+
+            switch(depositToken2Result){
+                case(#ok(id)) { };
+                case(_) {
+                    return #err("token2 deposit error");
+                };
             };
         };
-
-        switch(depositToken2Result){
-            case(#ok(id)) { };
-            case(_) {
-                return #err("token2 deposit error");
-            };
-        };
-
         if (amount0Desired == 0 or amount1Desired == 0)
             return #err("desired amount should not be zero");
 
