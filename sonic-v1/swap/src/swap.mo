@@ -3062,27 +3062,27 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         };
     };
 
-    public query func exportTokenTypes(): async [(Text, Text)] {
+    public query(msg) func exportTokenTypes(): async [(Text, Text)] {
         assert(_checkAuth(msg.caller));
         return Iter.toArray(tokenTypes.entries());
     };
 
-    public query func exportTokens(): async [TokenInfoExt] {
+    public query(msg) func exportTokens(): async [TokenInfoExt] {
         assert(_checkAuth(msg.caller));
         tokens.tokenList()
     };
 
-    public query func exportLPTokens(): async [TokenInfoExt] {
+    public query(msg) func exportLPTokens(): async [TokenInfoExt] {
         assert(_checkAuth(msg.caller));
         lptokens.tokenList()
     };
 
-    public query func exportPairs(): async [PairInfoExt] {
+    public query(msg) func exportPairs(): async [PairInfoExt] {
         assert(_checkAuth(msg.caller));
         Array.map(Iter.toArray(pairs.vals()), _pairToExternal)
     };
 
-    public query func exportRewardPairs(): async [PairInfoExt]{
+    public query(msg) func exportRewardPairs(): async [PairInfoExt]{
         assert(_checkAuth(msg.caller));
         Array.map(Iter.toArray(rewardPairs.vals()), _pairToExternal)
     };
@@ -3172,7 +3172,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             #addAuth : () -> Principal;
             #getAuthList : () -> ();
             #addLiquidity : () -> (Principal, Principal, Nat, Nat, Nat, Nat, Int);
-            #addLiquidityForUser : () -> (Principal, Principal, Principal, Nat, Nat);
+            #addLiquidityForUser : () -> (Principal, Principal, Principal, Nat, Nat, Bool);
             #registerFundRecoveryForUser : () -> (Principal, Principal, Nat);
             #validateRegisterFundRecoveryForUser : () -> (Principal, Principal, Nat);
             #executeFundRecoveryForUser : () -> Principal;
