@@ -1794,7 +1794,8 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         token0: Principal, 
         token1: Principal, 
         amount0Desired: Nat, 
-        amount1Desired: Nat
+        amount1Desired: Nat,
+        useSubAcount : Bool
         ): async TxReceipt {
 
         if (_checkAuth(msg.caller) == false) {
@@ -1814,22 +1815,23 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             }
         };
 
-        var depositToken1Result=await depositForUser(userPId, token0);
-        var depositToken2Result=await depositForUser(userPId, token1);
-        switch(depositToken1Result){
-            case(#ok(id)) { };
-            case(_) {
-                return #err("token1 deposit error");
+        if(useSubAcount) {
+            var depositToken1Result=await depositForUser(userPId, token0);
+            var depositToken2Result=await depositForUser(userPId, token1);
+            switch(depositToken1Result){
+                case(#ok(id)) { };
+                case(_) {
+                    return #err("token1 deposit error");
+                };
+            };
+
+            switch(depositToken2Result){
+                case(#ok(id)) { };
+                case(_) {
+                    return #err("token2 deposit error");
+                };
             };
         };
-
-        switch(depositToken2Result){
-            case(#ok(id)) { };
-            case(_) {
-                return #err("token2 deposit error");
-            };
-        };
-
         if (amount0Desired == 0 or amount1Desired == 0)
             return #err("desired amount should not be zero");
 
@@ -3060,27 +3062,27 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         };
     };
 
-    public query func exportTokenTypes(): async [(Text, Text)] {
+    public query(msg) func exportTokenTypes(): async [(Text, Text)] {
         assert(_checkAuth(msg.caller));
         return Iter.toArray(tokenTypes.entries());
     };
 
-    public query func exportTokens(): async [TokenInfoExt] {
+    public query(msg) func exportTokens(): async [TokenInfoExt] {
         assert(_checkAuth(msg.caller));
         tokens.tokenList()
     };
 
-    public query func exportLPTokens(): async [TokenInfoExt] {
+    public query(msg) func exportLPTokens(): async [TokenInfoExt] {
         assert(_checkAuth(msg.caller));
         lptokens.tokenList()
     };
 
-    public query func exportPairs(): async [PairInfoExt] {
+    public query(msg) func exportPairs(): async [PairInfoExt] {
         assert(_checkAuth(msg.caller));
         Array.map(Iter.toArray(pairs.vals()), _pairToExternal)
     };
 
-    public query func exportRewardPairs(): async [PairInfoExt]{
+    public query(msg) func exportRewardPairs(): async [PairInfoExt]{
         assert(_checkAuth(msg.caller));
         Array.map(Iter.toArray(rewardPairs.vals()), _pairToExternal)
     };
@@ -3170,7 +3172,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             #addAuth : () -> Principal;
             #getAuthList : () -> ();
             #addLiquidity : () -> (Principal, Principal, Nat, Nat, Nat, Nat, Int);
-            #addLiquidityForUser : () -> (Principal, Principal, Principal, Nat, Nat);
+            #addLiquidityForUser : () -> (Principal, Principal, Principal, Nat, Nat, Bool);
             #registerFundRecoveryForUser : () -> (Principal, Principal, Nat);
             #validateRegisterFundRecoveryForUser : () -> (Principal, Principal, Nat);
             #executeFundRecoveryForUser : () -> Principal;
