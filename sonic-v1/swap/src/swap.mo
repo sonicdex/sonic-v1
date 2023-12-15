@@ -1395,7 +1395,11 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             let fee = tokens.getFee(tid);
             var txid: Nat = 0;
             try {
-                switch(await _transfer(tokenCanister, msg.caller, value - fee)) {
+                var withdrawBalance: Nat=switch(Array.find<Text>(tokenWithFeeChange, func x = x == tid)) {
+                    case(?data){ value };
+                    case(_){ value - fee }
+                };
+                switch(await _transfer(tokenCanister, msg.caller, withdrawBalance)) {
                     case(#Ok(id)) { txid := id; };
                     case(#Err(e)) {
                         // ignore tokens.mint(tid, msg.caller, value);
