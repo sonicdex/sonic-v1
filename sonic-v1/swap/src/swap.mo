@@ -343,6 +343,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     private stable var blocklistedUserEntries: [(Principal, Bool)] = [];
     private stable var faileWithdrawEntries: [(Text, WithdrawState)] = [];
     private stable var tokenBlocklistEntries: [(Principal, TokenBlockType)] = [];
+    private stable var tokenWithFeeChange:[Text] = [];
 
     // variables not used : added for future use
     private stable var daoCanisterIdForLiquidity : Text = "";
@@ -445,7 +446,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             };
         };
     };
-    private func _transferFrom(tokenCanister: TokenActorVariable, caller:Principal, value: Nat, fee: Nat) :async TransferReceipt{               
+    private func _transferFrom(tid: Text, tokenCanister: TokenActorVariable, caller:Principal, value: Nat, fee: Nat) :async TransferReceipt{               
         switch(tokenCanister){
             case(#DIPtokenActor(dipTokenActor)){                
                 var txid = await dipTokenActor.transferFrom(caller, Principal.fromActor(this), value);
@@ -466,23 +467,48 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 let subaccount = getICRC1SubAccount(caller);
                 var depositSubAccount:ICRCAccount={owner=Principal.fromActor(this); subaccount=?subaccount};
                 var balance=await icrc1TokenActor.icrc1_balance_of(depositSubAccount);
-                if(balance>=value+fee)
+                switch(Array.find<Text>(tokenWithFeeChange, func x = x == tid))
                 {
-                    var defaultSubaccount:Blob=Utils.defaultSubAccount();
-                    var transferArg:ICRCTransferArg=
-                    {
-                        from_subaccount=?subaccount;
-                        to={ owner=Principal.fromActor(this); subaccount=?defaultSubaccount };
-                        amount=value;
+                    case(?data){
+                        if(balance>=value+fee)
+                        {
+                            var defaultSubaccount:Blob=Utils.defaultSubAccount();
+                            var transferArg:ICRCTransferArg=
+                            {
+                                from_subaccount=?subaccount;
+                                to={ owner=Principal.fromActor(this); subaccount=?defaultSubaccount };
+                                amount=value+fee;
+                            };
+                            var txid = await icrc1TokenActor.icrc1_transfer(transferArg);
+                            switch (txid){
+                                case(#Ok(id)){ return #Ok(id); };                 
+                                case(#Err(e)){ return #ICRCTransferError(e); };
+                            }
+                        }
+                        else{
+                            return #ICRCTransferError(#CustomError("transaction amount not matched"));
+                        };
                     };
-                    var txid = await icrc1TokenActor.icrc1_transfer(transferArg);
-                    switch (txid){
-                        case(#Ok(id)){ return #Ok(id); };                 
-                        case(#Err(e)){ return #ICRCTransferError(e); };
+                    case(_){
+                        if(balance>=value+fee)
+                        {
+                            var defaultSubaccount:Blob=Utils.defaultSubAccount();
+                            var transferArg:ICRCTransferArg=
+                            {
+                                from_subaccount=?subaccount;
+                                to={ owner=Principal.fromActor(this); subaccount=?defaultSubaccount };
+                                amount=value;
+                            };
+                            var txid = await icrc1TokenActor.icrc1_transfer(transferArg);
+                            switch (txid){
+                                case(#Ok(id)){ return #Ok(id); };                 
+                                case(#Err(e)){ return #ICRCTransferError(e); };
+                            };                            
+                        }
+                        else{
+                            return #ICRCTransferError(#CustomError("transaction amount not matched"));
+                        };
                     }
-                }
-                else{
-                    return #ICRCTransferError(#CustomError("transaction amount not matched"));
                 };
             };
             case(#ICRC2TokenActor(icrc2TokenActor)){
@@ -679,6 +705,16 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         }
     };
     //-------------------------------
+
+    public shared(msg) func addTokenWithFeeChange(tokenId : Text) : async Bool{
+        assert(_checkAuth(msg.caller));
+        tokenWithFeeChange:=Array.append(tokenWithFeeChange,[tokenId]);
+        return true;
+    };
+
+    public shared(msg) func getTokenWithFeeChange():async [Text]{
+        return tokenWithFeeChange;
+    };
 
     public shared(msg) func getBlockedTokens(): async [(Principal,TokenBlockType)] {
         return Iter.toArray(tokenBlocklist.entries());
@@ -1095,7 +1131,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         };
 
         let tokenCanister = _getTokenActor(tid);
-        let result = await _transferFrom(tokenCanister, msg.caller, value, tokens.getFee(tid));
+        let result = await _transferFrom(tid, tokenCanister, msg.caller, value, tokens.getFee(tid));
         let txid = switch (result) {
             case(#Ok(id)) { id; };
             case(#Err(e)) { return #err("token transfer failed:" # tid); };
@@ -1146,7 +1182,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         };
 
         let tokenCanister = _getTokenActor(tid);
-        let txid = switch(await _transferFrom(tokenCanister, msg.caller, value, tokens.getFee(tid))) {
+        let txid = switch(await _transferFrom(tid, tokenCanister, msg.caller, value, tokens.getFee(tid))) {
             case(#Ok(id)) { id };
             case(#Err(e)) { return #err("token transfer failed:" # tid); };
             case(#ICRCTransferError(e)) { return #err("token transfer failed:" # tid); };
@@ -1211,7 +1247,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         if (value < tokens.getFee(tid)) {
             return #err("value less than token transfer fee");
         };
-        let txid = switch(await _transferFrom(tokenCanister, msg.caller, value, tokens.getFee(tid))) {
+        let txid = switch(await _transferFrom(tid, tokenCanister, msg.caller, value, tokens.getFee(tid))) {
             case(#Ok(id)) { id };
             case(#Err(e)) { return #err("token transfer failed:" # tid); };
             case(#ICRCTransferError(e)) { return #err("token transfer failed:" # tid); };
@@ -1252,7 +1288,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
 
         var tokenActor : ICRC1TokenActor = actor(tid);                          
         var tokenCanister : TokenActorVariable = #ICRC1TokenActor(tokenActor);
-        let txid = switch(await _transferFrom(tokenCanister, to, value, tokens.getFee(tid))) {
+        let txid = switch(await _transferFrom(tid, tokenCanister, to, value, tokens.getFee(tid))) {
             case(#Ok(id)) { id };
             case(#Err(e)) { return #err("token transfer failed:" # tid); };
             case(#ICRCTransferError(e)) { return #err("token transfer failed:" # tid); };
@@ -1304,7 +1340,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         let tokenCanister = _getTokenActor(tid);
         let balance = await _balanceOf(tokenCanister, userPId);
         let tokenFee = tokens.getFee(tid);
-        let result = await _transferFrom(tokenCanister, userPId, (balance - tokenFee), tokenFee);
+        let result = await _transferFrom(tid, tokenCanister, userPId, (balance - tokenFee), tokenFee);
         let txid = switch (result) {
             case(#Ok(id)) { id; };
             case(#Err(e)) { return #err("token transfer failed:" # tid); };
@@ -3261,6 +3297,8 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             #exportFaileWithdraws : () ->();
             #failedWithdrawRefund : () -> Text;
             #getLastTransactionOutAmount : () -> ();
+            #addTokenWithFeeChange:()->Text;
+            #getTokenWithFeeChange:()->();
         }}) : Bool 
         {
             if(_checkBlocklist(caller)){
@@ -3309,6 +3347,8 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 case (#removeTokenFromBlocklist _) { _checkAuth(caller) };
                 case (#removeTokenFromBlocklistValidate _) { _checkAuth(caller) };
                 case (#failedWithdrawRefund _) { _checkAuth(caller) };           
+                case (#addTokenWithFeeChange _) { _checkAuth(caller) }; 
+                case (#getTokenWithFeeChange _){true;};        
 
                 //non-admin functions                
                 case (#initiateICRC1Transfer _) { 
