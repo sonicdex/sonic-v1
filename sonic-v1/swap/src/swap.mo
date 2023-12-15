@@ -467,48 +467,27 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 let subaccount = getICRC1SubAccount(caller);
                 var depositSubAccount:ICRCAccount={owner=Principal.fromActor(this); subaccount=?subaccount};
                 var balance=await icrc1TokenActor.icrc1_balance_of(depositSubAccount);
-                switch(Array.find<Text>(tokenWithFeeChange, func x = x == tid))
+                var depositBalance: Nat=switch(Array.find<Text>(tokenWithFeeChange, func x = x == tid)) {
+                    case(?data){ value + fee };
+                    case(_){ value }
+                };
+                if(balance>=value+fee)
                 {
-                    case(?data){
-                        if(balance>=value+fee)
-                        {
-                            var defaultSubaccount:Blob=Utils.defaultSubAccount();
-                            var transferArg:ICRCTransferArg=
-                            {
-                                from_subaccount=?subaccount;
-                                to={ owner=Principal.fromActor(this); subaccount=?defaultSubaccount };
-                                amount=value+fee;
-                            };
-                            var txid = await icrc1TokenActor.icrc1_transfer(transferArg);
-                            switch (txid){
-                                case(#Ok(id)){ return #Ok(id); };                 
-                                case(#Err(e)){ return #ICRCTransferError(e); };
-                            }
-                        }
-                        else{
-                            return #ICRCTransferError(#CustomError("transaction amount not matched"));
-                        };
+                    var defaultSubaccount:Blob=Utils.defaultSubAccount();
+                    var transferArg:ICRCTransferArg=
+                    {
+                        from_subaccount=?subaccount;
+                        to={ owner=Principal.fromActor(this); subaccount=?defaultSubaccount };
+                        amount=depositBalance;
                     };
-                    case(_){
-                        if(balance>=value+fee)
-                        {
-                            var defaultSubaccount:Blob=Utils.defaultSubAccount();
-                            var transferArg:ICRCTransferArg=
-                            {
-                                from_subaccount=?subaccount;
-                                to={ owner=Principal.fromActor(this); subaccount=?defaultSubaccount };
-                                amount=value;
-                            };
-                            var txid = await icrc1TokenActor.icrc1_transfer(transferArg);
-                            switch (txid){
-                                case(#Ok(id)){ return #Ok(id); };                 
-                                case(#Err(e)){ return #ICRCTransferError(e); };
-                            };                            
-                        }
-                        else{
-                            return #ICRCTransferError(#CustomError("transaction amount not matched"));
-                        };
+                    var txid = await icrc1TokenActor.icrc1_transfer(transferArg);
+                    switch (txid){
+                        case(#Ok(id)){ return #Ok(id); };                 
+                        case(#Err(e)){ return #ICRCTransferError(e); };
                     }
+                }
+                else{
+                    return #ICRCTransferError(#CustomError("transaction amount not matched"));
                 };
             };
             case(#ICRC2TokenActor(icrc2TokenActor)){
