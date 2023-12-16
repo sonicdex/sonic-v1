@@ -325,6 +325,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     private var faileWithdraws = HashMap.HashMap<Text, WithdrawState>(1, Text.equal, Text.hash);   
     private var swapLastTransaction = HashMap.HashMap<Principal, SwapLastTransaction>(1, Principal.equal, Principal.hash);    
     private var tokenBlocklist = HashMap.HashMap<Principal, TokenBlockType>(1, Principal.equal, Principal.hash);
+    private var natLabsToken = HashMap.HashMap<Text, Bool>(1, Text.equal, Text.hash);//created this to handle the natlab issue
 
     // admins
     private var auths = HashMap.HashMap<Principal, Bool>(1, Principal.equal, Principal.hash);
@@ -343,7 +344,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     private stable var blocklistedUserEntries: [(Principal, Bool)] = [];
     private stable var faileWithdrawEntries: [(Text, WithdrawState)] = [];
     private stable var tokenBlocklistEntries: [(Principal, TokenBlockType)] = [];
-    private stable var tokenWithFeeChange:[Text] = [];
+    private stable var natLabsTokenEntries:[(Text,Bool)] = [];
 
     // variables not used : added for future use
     private stable var daoCanisterIdForLiquidity : Text = "";
@@ -467,7 +468,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 let subaccount = getICRC1SubAccount(caller);
                 var depositSubAccount:ICRCAccount={owner=Principal.fromActor(this); subaccount=?subaccount};
                 var balance=await icrc1TokenActor.icrc1_balance_of(depositSubAccount);
-                var depositBalance: Nat=switch(Array.find<Text>(tokenWithFeeChange, func x = x == tid)) {
+                var depositBalance: Nat=switch(natLabsToken.get(tid)){
                     case(?data){ value + fee };
                     case(_){ value }
                 };
@@ -685,14 +686,20 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     };
     //-------------------------------
 
-    public shared(msg) func addTokenWithFeeChange(tokenId : Text) : async Bool{
+    public shared(msg) func addNatLabsToken(tokenId : Text) : async Bool{
         assert(_checkAuth(msg.caller));
-        tokenWithFeeChange:=Array.append(tokenWithFeeChange,[tokenId]);
+        natLabsToken.put(tokenId,true);
         return true;
     };
 
-    public shared(msg) func getTokenWithFeeChange():async [Text]{
-        return tokenWithFeeChange;
+    public shared(msg) func removeNatLabsToken(tokenId : Text) : async Bool{
+        assert(_checkAuth(msg.caller));
+        natLabsToken.delete(tokenId);
+        return true;
+    };
+
+    public shared(msg) func getNatLabsToken():async [(Text,Bool)]{
+        return Iter.toArray(natLabsToken.entries());
     };
 
     public shared(msg) func getBlockedTokens(): async [(Principal,TokenBlockType)] {
@@ -1374,7 +1381,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             let fee = tokens.getFee(tid);
             var txid: Nat = 0;
             try {
-                var withdrawBalance: Nat=switch(Array.find<Text>(tokenWithFeeChange, func x = x == tid)) {
+                var withdrawBalance: Nat=switch(natLabsToken.get(tid)) {
                     case(?data){ value };
                     case(_){ value - fee }
                 };
@@ -3280,8 +3287,9 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             #exportFaileWithdraws : () ->();
             #failedWithdrawRefund : () -> Text;
             #getLastTransactionOutAmount : () -> ();
-            #addTokenWithFeeChange:()->Text;
-            #getTokenWithFeeChange:()->();
+            #addNatLabsToken:()->Text;
+            #removeNatLabsToken:()->Text;
+            #getNatLabsToken:()->();
         }}) : Bool 
         {
             if(_checkBlocklist(caller)){
@@ -3330,8 +3338,9 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 case (#removeTokenFromBlocklist _) { _checkAuth(caller) };
                 case (#removeTokenFromBlocklistValidate _) { _checkAuth(caller) };
                 case (#failedWithdrawRefund _) { _checkAuth(caller) };           
-                case (#addTokenWithFeeChange _) { _checkAuth(caller) }; 
-                case (#getTokenWithFeeChange _){true;};        
+                case (#addNatLabsToken _) { _checkAuth(caller) };
+                case (#removeNatLabsToken _) { _checkAuth(caller) };
+                case (#getNatLabsToken _){true;};        
 
                 //non-admin functions                
                 case (#initiateICRC1Transfer _) { 
@@ -3579,6 +3588,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         blocklistedUserEntries := Iter.toArray(blocklistedUsers.entries());
         faileWithdrawEntries := Iter.toArray(faileWithdraws.entries());
         tokenBlocklistEntries := Iter.toArray(tokenBlocklist.entries());
+        natLabsTokenEntries := Iter.toArray(natLabsToken.entries());
     };
 
     system func postupgrade() {
@@ -3595,6 +3605,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         blocklistedUsers := HashMap.fromIter<Principal, Bool>(blocklistedUserEntries.vals(), 1, Principal.equal, Principal.hash);
         faileWithdraws := HashMap.fromIter<Text, WithdrawState>(faileWithdrawEntries.vals(), 1, Text.equal, Text.hash);
         tokenBlocklist := HashMap.fromIter<Principal, TokenBlockType>(tokenBlocklistEntries.vals(), 1, Principal.equal, Principal.hash);
+        natLabsToken := HashMap.fromIter<Text, Bool>(natLabsTokenEntries.vals(), 1, Text.equal, Text.hash);
         lppattern := #text ":";
         depositTransactionsEntries := [];
         rewardPairsEntries := [];
@@ -3607,5 +3618,6 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         blocklistedUserEntries := [];
         faileWithdrawEntries := [];
         tokenBlocklistEntries := [];
+        natLabsTokenEntries := [];
     };
 };
