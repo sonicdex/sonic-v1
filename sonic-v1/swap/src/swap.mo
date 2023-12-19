@@ -325,6 +325,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     private var faileWithdraws = HashMap.HashMap<Text, WithdrawState>(1, Text.equal, Text.hash);   
     private var swapLastTransaction = HashMap.HashMap<Principal, SwapLastTransaction>(1, Principal.equal, Principal.hash);    
     private var tokenBlocklist = HashMap.HashMap<Principal, TokenBlockType>(1, Principal.equal, Principal.hash);
+    private var natLabsToken = HashMap.HashMap<Text, Bool>(1, Text.equal, Text.hash);//created this to handle the natlab issue
 
     // admins
     private var auths = HashMap.HashMap<Principal, Bool>(1, Principal.equal, Principal.hash);
@@ -343,6 +344,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     private stable var blocklistedUserEntries: [(Principal, Bool)] = [];
     private stable var faileWithdrawEntries: [(Text, WithdrawState)] = [];
     private stable var tokenBlocklistEntries: [(Principal, TokenBlockType)] = [];
+    private stable var natLabsTokenEntries:[(Text,Bool)] = [];
 
     // variables not used : added for future use
     private stable var daoCanisterIdForLiquidity : Text = "";
@@ -445,7 +447,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             };
         };
     };
-    private func _transferFrom(tokenCanister: TokenActorVariable, caller:Principal, value: Nat, fee: Nat) :async TransferReceipt{               
+    private func _transferFrom(tid: Text, tokenCanister: TokenActorVariable, caller:Principal, value: Nat, fee: Nat) :async TransferReceipt{               
         switch(tokenCanister){
             case(#DIPtokenActor(dipTokenActor)){                
                 var txid = await dipTokenActor.transferFrom(caller, Principal.fromActor(this), value);
@@ -466,6 +468,10 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 let subaccount = getICRC1SubAccount(caller);
                 var depositSubAccount:ICRCAccount={owner=Principal.fromActor(this); subaccount=?subaccount};
                 var balance=await icrc1TokenActor.icrc1_balance_of(depositSubAccount);
+                var depositBalance: Nat=switch(natLabsToken.get(tid)){
+                    case(?data){ value + fee };
+                    case(_){ value }
+                };
                 if(balance>=value+fee)
                 {
                     var defaultSubaccount:Blob=Utils.defaultSubAccount();
@@ -473,7 +479,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                     {
                         from_subaccount=?subaccount;
                         to={ owner=Principal.fromActor(this); subaccount=?defaultSubaccount };
-                        amount=value;
+                        amount=depositBalance;
                     };
                     var txid = await icrc1TokenActor.icrc1_transfer(transferArg);
                     switch (txid){
@@ -679,6 +685,22 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         }
     };
     //-------------------------------
+
+    public shared(msg) func addNatLabsToken(tokenId : Text) : async Bool{
+        assert(_checkAuth(msg.caller));
+        natLabsToken.put(tokenId,true);
+        return true;
+    };
+
+    public shared(msg) func removeNatLabsToken(tokenId : Text) : async Bool{
+        assert(_checkAuth(msg.caller));
+        natLabsToken.delete(tokenId);
+        return true;
+    };
+
+    public shared(msg) func getNatLabsToken():async [(Text,Bool)]{
+        return Iter.toArray(natLabsToken.entries());
+    };
 
     public shared(msg) func getBlockedTokens(): async [(Principal,TokenBlockType)] {
         return Iter.toArray(tokenBlocklist.entries());
@@ -1095,7 +1117,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         };
 
         let tokenCanister = _getTokenActor(tid);
-        let result = await _transferFrom(tokenCanister, msg.caller, value, tokens.getFee(tid));
+        let result = await _transferFrom(tid, tokenCanister, msg.caller, value, tokens.getFee(tid));
         let txid = switch (result) {
             case(#Ok(id)) { id; };
             case(#Err(e)) { return #err("token transfer failed:" # tid); };
@@ -1146,7 +1168,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         };
 
         let tokenCanister = _getTokenActor(tid);
-        let txid = switch(await _transferFrom(tokenCanister, msg.caller, value, tokens.getFee(tid))) {
+        let txid = switch(await _transferFrom(tid, tokenCanister, msg.caller, value, tokens.getFee(tid))) {
             case(#Ok(id)) { id };
             case(#Err(e)) { return #err("token transfer failed:" # tid); };
             case(#ICRCTransferError(e)) { return #err("token transfer failed:" # tid); };
@@ -1211,7 +1233,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         if (value < tokens.getFee(tid)) {
             return #err("value less than token transfer fee");
         };
-        let txid = switch(await _transferFrom(tokenCanister, msg.caller, value, tokens.getFee(tid))) {
+        let txid = switch(await _transferFrom(tid, tokenCanister, msg.caller, value, tokens.getFee(tid))) {
             case(#Ok(id)) { id };
             case(#Err(e)) { return #err("token transfer failed:" # tid); };
             case(#ICRCTransferError(e)) { return #err("token transfer failed:" # tid); };
@@ -1252,7 +1274,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
 
         var tokenActor : ICRC1TokenActor = actor(tid);                          
         var tokenCanister : TokenActorVariable = #ICRC1TokenActor(tokenActor);
-        let txid = switch(await _transferFrom(tokenCanister, to, value, tokens.getFee(tid))) {
+        let txid = switch(await _transferFrom(tid, tokenCanister, to, value, tokens.getFee(tid))) {
             case(#Ok(id)) { id };
             case(#Err(e)) { return #err("token transfer failed:" # tid); };
             case(#ICRCTransferError(e)) { return #err("token transfer failed:" # tid); };
@@ -1304,7 +1326,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         let tokenCanister = _getTokenActor(tid);
         let balance = await _balanceOf(tokenCanister, userPId);
         let tokenFee = tokens.getFee(tid);
-        let result = await _transferFrom(tokenCanister, userPId, (balance - tokenFee), tokenFee);
+        let result = await _transferFrom(tid, tokenCanister, userPId, (balance - tokenFee), tokenFee);
         let txid = switch (result) {
             case(#Ok(id)) { id; };
             case(#Err(e)) { return #err("token transfer failed:" # tid); };
@@ -1359,7 +1381,11 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             let fee = tokens.getFee(tid);
             var txid: Nat = 0;
             try {
-                switch(await _transfer(tokenCanister, msg.caller, value - fee)) {
+                var withdrawBalance: Nat=switch(natLabsToken.get(tid)) {
+                    case(?data){ value };
+                    case(_){ value - fee }
+                };
+                switch(await _transfer(tokenCanister, msg.caller, withdrawBalance)) {
                     case(#Ok(id)) { txid := id; };
                     case(#Err(e)) {
                         // ignore tokens.mint(tid, msg.caller, value);
@@ -2291,6 +2317,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             ops.add(
                 [
                     ("pairId", #Text(pair.id)),
+                    ("toAccount", #Principal(to)),
                     ("from", #Text(path[i])),
                     ("to", #Text(path[i+1])),
                     ("tokenTxid", #Text(u64ToText(txid))),
@@ -3261,6 +3288,9 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             #exportFaileWithdraws : () ->();
             #failedWithdrawRefund : () -> Text;
             #getLastTransactionOutAmount : () -> ();
+            #addNatLabsToken:()->Text;
+            #removeNatLabsToken:()->Text;
+            #getNatLabsToken:()->();
         }}) : Bool 
         {
             if(_checkBlocklist(caller)){
@@ -3309,6 +3339,9 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                 case (#removeTokenFromBlocklist _) { _checkAuth(caller) };
                 case (#removeTokenFromBlocklistValidate _) { _checkAuth(caller) };
                 case (#failedWithdrawRefund _) { _checkAuth(caller) };           
+                case (#addNatLabsToken _) { _checkAuth(caller) };
+                case (#removeNatLabsToken _) { _checkAuth(caller) };
+                case (#getNatLabsToken _){true;};        
 
                 //non-admin functions                
                 case (#initiateICRC1Transfer _) { 
@@ -3556,6 +3589,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         blocklistedUserEntries := Iter.toArray(blocklistedUsers.entries());
         faileWithdrawEntries := Iter.toArray(faileWithdraws.entries());
         tokenBlocklistEntries := Iter.toArray(tokenBlocklist.entries());
+        natLabsTokenEntries := Iter.toArray(natLabsToken.entries());
     };
 
     system func postupgrade() {
@@ -3572,6 +3606,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         blocklistedUsers := HashMap.fromIter<Principal, Bool>(blocklistedUserEntries.vals(), 1, Principal.equal, Principal.hash);
         faileWithdraws := HashMap.fromIter<Text, WithdrawState>(faileWithdrawEntries.vals(), 1, Text.equal, Text.hash);
         tokenBlocklist := HashMap.fromIter<Principal, TokenBlockType>(tokenBlocklistEntries.vals(), 1, Principal.equal, Principal.hash);
+        natLabsToken := HashMap.fromIter<Text, Bool>(natLabsTokenEntries.vals(), 1, Text.equal, Text.hash);
         lppattern := #text ":";
         depositTransactionsEntries := [];
         rewardPairsEntries := [];
@@ -3584,5 +3619,6 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         blocklistedUserEntries := [];
         faileWithdrawEntries := [];
         tokenBlocklistEntries := [];
+        natLabsTokenEntries := [];
     };
 };
