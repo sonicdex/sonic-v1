@@ -2317,6 +2317,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             ops.add(
                 [
                     ("pairId", #Text(pair.id)),
+                    ("toAccount", #Principal(to)),
                     ("from", #Text(path[i])),
                     ("to", #Text(path[i+1])),
                     ("tokenTxid", #Text(u64ToText(txid))),
