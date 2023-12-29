@@ -2310,8 +2310,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             pair := _update(pair);
             // update reserves
             ignore _putPair(path[i], path[i+1], pair);
-            ops.add(
-                [
+            var detailRecord=[
                     ("pairId", #Text(pair.id)),
                     ("toAccount", #Principal(to)),
                     ("from", #Text(path[i])),
@@ -2322,8 +2321,11 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                     ("reserve0", #Text(u64ToText(pair.reserve0))),
                     ("reserve1", #Text(u64ToText(pair.reserve1))),
                     ("fee", #Text(u64ToText(amounts[i] * 3 / 1000)))
-                ]
-            );
+            ];
+            if(feeOn){
+               detailRecord:=Array.append(detailRecord, [("LPfee", #Text(u64ToText(amounts[i] * 25 / 10000)))]); 
+            };
+            ops.add(detailRecord);
             if(i == Int.abs(path.size() - 2)) {
                 assert(tokens.zeroFeeTransfer(path[i+1], Principal.fromActor(this), to, amounts[i+1]));
             };
