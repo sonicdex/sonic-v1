@@ -29,7 +29,7 @@ import Bool "mo:base/Bool";
 import Error "mo:base/Error";
 import Account "./Account";
 
-shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
+shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : Text) = this {   
     type Errors = {
         #InsufficientBalance;
         #InsufficientAllowance;
@@ -212,6 +212,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         cycles : Nat;
         tokens: [TokenInfoExt];
         pairs: [PairInfoExt];
+        commitId:Text;
     };
 
     type SwapInfoExt = {
@@ -326,6 +327,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     private var swapLastTransaction = HashMap.HashMap<Principal, SwapLastTransaction>(1, Principal.equal, Principal.hash);    
     private var tokenBlocklist = HashMap.HashMap<Principal, TokenBlockType>(1, Principal.equal, Principal.hash);
     private var natLabsToken = HashMap.HashMap<Text, Bool>(1, Text.equal, Text.hash);//created this to handle the natlab issue
+    private var commitId:Text="";
 
     // admins
     private var auths = HashMap.HashMap<Principal, Bool>(1, Principal.equal, Principal.hash);
@@ -349,6 +351,11 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     // variables not used : added for future use
     private stable var daoCanisterIdForLiquidity : Text = "";
     private stable var permissionless: Bool = false;
+
+    private func updateCommitId(commit_Id:Text){
+        commitId:=commit_Id;
+    };
+    updateCommitId(commit_id);
 
     private func addRecord(
         caller: Principal, 
@@ -2524,6 +2531,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             cycles = Cycles.balance();
             tokens = tokens.tokenList();
             pairs = pairList.toArray();
+            commitId=commitId;
         };
     };
 
