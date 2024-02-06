@@ -212,6 +212,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         cycles : Nat;
         tokens: [TokenInfoExt];
         pairs: [PairInfoExt];
+        maxTokens: Nat;
     };
 
     type SwapInfoExt = {
@@ -2679,6 +2680,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             cycles = Cycles.balance();
             tokens = tokens.tokenList();
             pairs = pairList.toArray();
+            maxTokens=maxTokens;
         };
     };
 
