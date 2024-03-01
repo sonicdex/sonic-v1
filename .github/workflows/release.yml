@@ -28,7 +28,7 @@ jobs:
     # - name: Run tests
     #   run: python3 -m unittest tests/icrc1_tests.py
     - name: move wasm file
-      run: mv ./.dfx/ic/canisters/swap/swap.wasm > swap.wasm
+      run: mv sonic-v1/swap/.dfx/ic/canisters/swap/swap.wasm > swap.wasm
     - name: Compute Wasm Hash
       run: shasum -a 256 ./swap.wasm  | cut -d ' ' -f 1 > swap.wasm
     - name: Print Wasm Hash
