@@ -16,7 +16,7 @@ jobs:
       with:
           dfx-version: "0.15.1"
     - name: Prepare for sonic swap source
-      run: cd sonic-v1
+      run: cd sonic-v1/swap
     - name: Build target canister
       run: dfx build --network ic --check swap
     - name: Download PocketIC
