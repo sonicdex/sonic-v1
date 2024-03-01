@@ -1,0 +1,44 @@
+on:
+    push:
+        tags:
+            - '*'
+        branches:
+            - 'main'
+            - 'gh-workflow'
+jobs:
+  swap-build:
+    runs-on: ubuntu-latest 
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+    - name: Install dfx
+      uses: dfinity/setup-dfx@main
+      with:
+          dfx-version: "0.15.1"
+    - name: Prepare for sonic swap source
+      run: cd sonic-v1
+    - name: Build target canister
+      run: dfx build --network ic --check swap
+    - name: Download PocketIC
+      run: wget -c https://download.dfinity.systems/ic/69e1408347723dbaa7a6cd2faa9b65c42abbe861/openssl-static-binaries/x86_64-linux/pocket-ic.gz    
+    - name: Extract and chmod PocketIC
+      run: gunzip pocket-ic.gz && chmod +x pocket-ic
+    - name: Install PocketIC Python Library
+      run: pip3 install --user pocket-ic
+    - name: Install pytest
+      run: pip3 install --user pytest
+    # - name: Run tests
+    #   run: python3 -m unittest tests/icrc1_tests.py
+    - name: move wasm file
+      run: mv ./.dfx/ic/canisters/swap/swap.wasm > swap.wasm
+    - name: Compute Wasm Hash
+      run: shasum -a 256 ./swap.wasm  | cut -d ' ' -f 1 > swap.wasm
+    - name: Print Wasm Hash
+      run: cat ./swap.wasm.shasum
+    - name: Upload to release
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: ./swap.wasm*
+        overwrite: true
+        file_glob: true
