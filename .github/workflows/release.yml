@@ -15,10 +15,8 @@ jobs:
       uses: dfinity/setup-dfx@main
       with:
           dfx-version: "0.15.1"
-    - name: Prepare for sonic swap source
-      run: cd sonic-v1/swap
     - name: Build target canister
-      run: dfx build --network ic --check swap
+      run: cd sonic-v1/swap && dfx build --network ic --check swap
     - name: Download PocketIC
       run: wget -c https://download.dfinity.systems/ic/69e1408347723dbaa7a6cd2faa9b65c42abbe861/openssl-static-binaries/x86_64-linux/pocket-ic.gz    
     - name: Extract and chmod PocketIC
