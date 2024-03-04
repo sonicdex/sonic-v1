@@ -29,7 +29,7 @@ import Bool "mo:base/Bool";
 import Error "mo:base/Error";
 import Account "./Account";
 
-shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
+shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : Text) = this {   
     type Errors = {
         #InsufficientBalance;
         #InsufficientAllowance;
@@ -212,6 +212,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         cycles : Nat;
         tokens: [TokenInfoExt];
         pairs: [PairInfoExt];
+        commitId:Text;
     };
 
     type SwapInfoExt = {
@@ -326,6 +327,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     private var swapLastTransaction = HashMap.HashMap<Principal, SwapLastTransaction>(1, Principal.equal, Principal.hash);    
     private var tokenBlocklist = HashMap.HashMap<Principal, TokenBlockType>(1, Principal.equal, Principal.hash);
     private var natLabsToken = HashMap.HashMap<Text, Bool>(1, Text.equal, Text.hash);//created this to handle the natlab issue
+    private var commitId:Text="";
 
     // admins
     private var auths = HashMap.HashMap<Principal, Bool>(1, Principal.equal, Principal.hash);
@@ -349,6 +351,11 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
     // variables not used : added for future use
     private stable var daoCanisterIdForLiquidity : Text = "";
     private stable var permissionless: Bool = false;
+
+    private func updateCommitId(commit_Id:Text){
+        commitId:=commit_Id;
+    };
+    updateCommitId(commit_id);
 
     private func addRecord(
         caller: Principal, 
@@ -1780,7 +1787,6 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             lpAmount := Nat.min(amount0 * totalSupply_ / reserve0, amount1 * totalSupply_ / reserve1);
         };
         
-        processReward(tid0, tid1, totalSupply_);
         assert(lpAmount > 0);
         assert(lptokens.mint(pair.id, msg.caller, lpAmount));
         pair := _update(pair);
@@ -1936,7 +1942,6 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             lpAmount := Nat.min(amount0 * totalSupply_ / reserve0, amount1 * totalSupply_ / reserve1);
         };
 
-        processReward(tid0, tid1, totalSupply_);
         assert(lpAmount > 0);
         assert(lptokens.mint(pair.id, userPId, lpAmount));
         pair := _update(pair);
@@ -2219,7 +2224,6 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             pair.totalSupply += feeLP;
         };
 
-        processReward(tid0, tid1, pair.totalSupply);
         pair := _update(pair);
         // update reserves
         pair.reserve0 -= amount0;
@@ -2229,7 +2233,6 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         };
         pair.totalSupply -= lpAmount;
         pairs.put(pair.id, pair);
-        _resetRewardInfo(msg.caller, tid0, tid1);
         swapLastTransaction.put(msg.caller,#RemoveLiquidityOutAmount(amount0,amount1));
         ignore addRecord(
             msg.caller, "removeLiquidity", 
@@ -2314,8 +2317,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             pair := _update(pair);
             // update reserves
             ignore _putPair(path[i], path[i+1], pair);
-            ops.add(
-                [
+            var detailRecord=[
                     ("pairId", #Text(pair.id)),
                     ("toAccount", #Principal(to)),
                     ("from", #Text(path[i])),
@@ -2326,8 +2328,11 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
                     ("reserve0", #Text(u64ToText(pair.reserve0))),
                     ("reserve1", #Text(u64ToText(pair.reserve1))),
                     ("fee", #Text(u64ToText(amounts[i] * 3 / 1000)))
-                ]
-            );
+            ];
+            if(feeOn){
+               detailRecord:=Array.append(detailRecord, [("LPfee", #Text(u64ToText(amounts[i] * 25 / 10000)))]); 
+            };
+            ops.add(detailRecord);
             if(i == Int.abs(path.size() - 2)) {
                 assert(tokens.zeroFeeTransfer(path[i+1], Principal.fromActor(this), to, amounts[i+1]));
             };
@@ -2369,7 +2374,6 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         if (tokens.zeroFeeTransfer(path[0], msg.caller, Principal.fromActor(this), amounts[0]) == false)
             return #err("insufficient balance: " # path[0]);
         let ops = _swap(amounts, path, to,txcounter);
-        _updateRewardPoint(path, rewardAmount);
         for(o in Iter.fromArray(ops)) {
             ignore addRecord(msg.caller, "swap", o);
             txcounter += 1;
@@ -2378,158 +2382,6 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
         return #ok(txcounter - 1);
     };
 
-    private func _resetRewardInfo(userPId : Principal, tid0:Text, tid1:Text){   
-        if(feeOn==false){
-            return;
-        };
-        var rewards:[RewardInfo]=[];
-        switch(rewardInfo.get(userPId))
-        {
-            case(?r){
-                for(reward in r.vals()){
-                    if(reward.tokenId==tid0){
-                        rewards:=Array.append(rewards,[{tokenId=reward.tokenId; amount=0;}]);
-                    } else if(reward.tokenId==tid1){                                       
-                        rewards:=Array.append(rewards,[{tokenId=reward.tokenId; amount=0;}]);
-                    } else{
-                        rewards:=Array.append(rewards,[reward]);
-                    }
-                    
-                };
-            };
-            case(_){ };
-        };
-        rewardInfo.put(userPId,rewards); 
-    }; 
-
-    private func _resetRewardPair(tid0: Text, tid1: Text){
-        var rewardpair = switch(_getRewardPair(tid0, tid1)) {
-            case(?p) { p; };
-            case(_) {
-                let (t0, t1) = Utils.sortTokens(tid0, tid1);
-                let pair_str = t0 # ":" # t1;
-                let pairinfo: PairInfo = {
-                    id = pair_str;
-                    token0 = t0;
-                    token1 = t1;
-                    creator = owner;
-                    var reserve0 = 0;
-                    var reserve1 = 0;
-                    var price0CumulativeLast = 0;
-                    var price1CumulativeLast = 0;
-                    var kLast = 0;
-                    var blockTimestampLast = 0;
-                    var totalSupply = 0;
-                    lptoken = pair_str;
-                };
-                rewardPairs.put(pair_str, pairinfo);
-                pairinfo;
-            };
-        };
-        rewardpair.reserve0:= 0;
-        rewardpair.reserve1:= 0;         
-    };
-
-    private func _updateRewardPoint(path: [Text], amount: Nat){
-        if(feeOn==false){
-            return;
-        };
-        let tid0: Text = path[0];
-        let tid1: Text = path[1];
-
-        var rewardpair = switch(_getRewardPair(tid0, tid1)) {
-            case(?p) { p; };
-            case(_) {
-                let (t0, t1) = Utils.sortTokens(tid0, tid1);
-                let pair_str = t0 # ":" # t1;
-                let pairinfo: PairInfo = {
-                    id = pair_str;
-                    token0 = t0;
-                    token1 = t1;
-                    creator = owner;
-                    var reserve0 = 0;
-                    var reserve1 = 0;
-                    var price0CumulativeLast = 0;
-                    var price1CumulativeLast = 0;
-                    var kLast = 0;
-                    var blockTimestampLast = 0;
-                    var totalSupply = 0;
-                    lptoken = pair_str;
-                };        
-                rewardPairs.put(pair_str, pairinfo);
-                pairinfo;
-            };
-        };        
-
-        if(rewardpair.token0 == path[0]) {
-            rewardpair.reserve0 += amount;
-        } else {
-            rewardpair.reserve1 += amount;
-        };
-    };
-
-    private func processReward(tid0 :Text, tid1 :Text, totalSupply:Nat){
-        if(feeOn==false){
-            return;
-        };
-        let (t0, t1) = Utils.sortTokens(tid0, tid1);
-        let pair_str = t0 # ":" # t1;
-        var reserve0:Nat = 0;
-        var reserve1:Nat = 0;
-        switch(_getRewardPair(tid0, tid1)) {
-            case(?p) { 
-                reserve0:=p.reserve0;
-                reserve1:=p.reserve1;
-            };
-            case(_) { 
-            };
-        };
-        switch(lptokens.getTokenInfo(pair_str)) {
-            case(?t) { 
-                for (key in t.balances.keys()){
-                    var lpBalance = t.balances.get(key);
-                    var userLpBalance:Nat = switch lpBalance
-                    {
-                        case (?int) int;
-                        case null 0;                       
-                    };
-                    if(Nat.greater(userLpBalance,0) and (Nat.greater(reserve0,0) or Nat.greater(reserve1,0))){
-                        var amount0 : Nat = userLpBalance * reserve0 / totalSupply;
-                        var amount1 : Nat = userLpBalance * reserve1 / totalSupply; 
-                        var rewards:[RewardInfo]=[];
-                        switch(rewardInfo.get(key))
-                        {
-                            case(?r){
-                                for(reward in r.vals()){
-                                    if(reward.tokenId==tid0){
-                                        rewards:=Array.append(rewards,[{tokenId=reward.tokenId; amount=reward.amount+amount0;}]);
-                                    } else if(reward.tokenId==tid1){                                       
-                                        rewards:=Array.append(rewards,[{tokenId=reward.tokenId; amount=reward.amount+amount1;}]);
-                                    } else{
-                                        rewards:=Array.append(rewards,[reward]);
-                                    }
-                                    
-                                };
-                            };
-                            case(_){
-                                if(Nat.greater(amount0,0)){
-                                    rewards:=Array.append(rewards,[{ tokenId=tid0; amount=amount0; }]);
-                                };
-
-                                if(Nat.greater(amount1,0)){
-                                    rewards:=Array.append(rewards,[{ tokenId=tid1; amount=amount1; }]);
-                                };
-                            };
-                        };
-                        rewardInfo.put(key,rewards);                    
-                    };
-                };
-            };
-            case(_) { 
-            };
-        };
-        _resetRewardPair(tid0, tid1);
-    };    
 
     /*
     * public info query functions
@@ -2679,6 +2531,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal) = this {
             cycles = Cycles.balance();
             tokens = tokens.tokenList();
             pairs = pairList.toArray();
+            commitId=commitId;
         };
     };
 
