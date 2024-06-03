@@ -2347,6 +2347,30 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
         to: Principal,
         deadline: Int
         ): async TxReceipt {
+        return await swapToken(msg.caller, amountIn, amountOutMin, path, to, deadline,true);
+    };
+
+    public shared(msg) func swapExactTokensForTokensAmountOut(
+        amountIn: Nat,
+        amountOutMin: Nat,
+        path: [Text],
+        to: Principal,
+        deadline: Int
+        ): async TxReceipt {
+
+        return await swapToken(msg.caller, amountIn, amountOutMin, path, to, deadline,false);
+    };
+
+    private func swapToken(
+        caller : Principal,
+        amountIn: Nat,
+        amountOutMin: Nat,
+        path: [Text],
+        to: Principal,
+        deadline: Int,
+        returnTxCounter:Bool
+        ): async TxReceipt {
+        
         if (Time.now() > deadline)
             return #err("tx expired");
         
@@ -2368,18 +2392,23 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
         var rewardAmount = amountdatas.1;
         if (amounts[amounts.size() - 1] < amountOutMin) // slippage check
             return #err("slippage: insufficient output amount");
-        if(amounts[0] > tokens.balanceOf(path[0], msg.caller)) {
+        if(amounts[0] > tokens.balanceOf(path[0], caller)) {
             return #err("insufficient balance: " # path[0]);
         };
-        if (tokens.zeroFeeTransfer(path[0], msg.caller, Principal.fromActor(this), amounts[0]) == false)
+        if (tokens.zeroFeeTransfer(path[0], caller, Principal.fromActor(this), amounts[0]) == false)
             return #err("insufficient balance: " # path[0]);
         let ops = _swap(amounts, path, to,txcounter);
         for(o in Iter.fromArray(ops)) {
-            ignore addRecord(msg.caller, "swap", o);
+            ignore addRecord(caller, "swap", o);
             txcounter += 1;
         };
-        swapLastTransaction.put(msg.caller,#SwapOutAmount(amounts[1]));
-        return #ok(txcounter - 1);
+        swapLastTransaction.put(caller,#SwapOutAmount(amounts[1]));
+        if(returnTxCounter){
+            return #ok(txcounter - 1)
+        }
+        else{
+            return #ok(amounts[1])
+        }
     };
 
 
