@@ -3146,6 +3146,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
             #setMaxTokens : () -> Nat;
             #setOwner : () -> Principal;
             #swapExactTokensForTokens : () -> (Nat, Nat, [Text], Principal, Int);
+            #swapExactTokensForTokensAmountOut : () -> (Nat, Nat, [Text], Principal, Int);
             #symbol : () -> Text;
             #totalSupply : () -> Text;
             // #transfer : () -> (Text, Principal, Nat);
@@ -3366,6 +3367,19 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
                     return true;
                 };
                 case (#swapExactTokensForTokens d) {
+                    var amountIn: Nat=d().0;
+                    var amountOutMin: Nat=d().1;
+                    var path: [Text]=d().2;
+                    var to: Principal=d().3;
+                    var deadline: Int=d().4;
+
+                    if(Principal.isAnonymous(caller)){
+                        return false;
+                    };
+                    
+                    return true;
+                };
+                case (#swapExactTokensForTokensAmountOut d) {
                     var amountIn: Nat=d().0;
                     var amountOutMin: Nat=d().1;
                     var path: [Text]=d().2;
