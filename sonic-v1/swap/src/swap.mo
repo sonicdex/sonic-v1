@@ -2379,7 +2379,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
             txcounter += 1;
         };
         swapLastTransaction.put(msg.caller,#SwapOutAmount(amounts[1]));
-        return #ok(txcounter - 1);
+        return #ok(amounts[1]);
     };
 
 
