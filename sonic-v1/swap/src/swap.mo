@@ -860,7 +860,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
         };
         let tokenCanister = _getTokenActor(tokenId);
         let metadata = await _getMetadata(tokenCanister, Principal.fromText(tokenId));
-        tokens.setMetadata(tokenId, metadata.name, metadata.symbol, metadata.decimals, metadata.fee,metadata.totalSupply)
+        tokens.setMetadata(tokenId, metadata.name, metadata.symbol, metadata.decimals, metadata.fee)
     };
 
     public shared(msg) func updateAllTokenMetadata(): async Bool {
@@ -868,7 +868,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
         for((tokenId, info) in Iter.fromArray(tokens.getTokenInfoList())) {
             let tokenCanister = _getTokenActor(tokenId);
             let metadata = await _getMetadata(tokenCanister, Principal.fromText(tokenId));
-            ignore tokens.setMetadata(tokenId, metadata.name, metadata.symbol, metadata.decimals, metadata.fee, metadata.totalSupply);
+            ignore tokens.setMetadata(tokenId, metadata.name, metadata.symbol, metadata.decimals, metadata.fee);
         };
         return true;
     };
