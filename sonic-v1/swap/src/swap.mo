@@ -860,7 +860,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
         };
         let tokenCanister = _getTokenActor(tokenId);
         let metadata = await _getMetadata(tokenCanister, Principal.fromText(tokenId));
-        tokens.setMetadata(tokenId, metadata.name, metadata.symbol, metadata.decimals, metadata.fee,metadata.totalSupply)
+        tokens.setMetadata(tokenId, metadata.name, metadata.symbol, metadata.decimals, metadata.fee)
     };
 
     public shared(msg) func updateAllTokenMetadata(): async Bool {
@@ -868,7 +868,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
         for((tokenId, info) in Iter.fromArray(tokens.getTokenInfoList())) {
             let tokenCanister = _getTokenActor(tokenId);
             let metadata = await _getMetadata(tokenCanister, Principal.fromText(tokenId));
-            ignore tokens.setMetadata(tokenId, metadata.name, metadata.symbol, metadata.decimals, metadata.fee, metadata.totalSupply);
+            ignore tokens.setMetadata(tokenId, metadata.name, metadata.symbol, metadata.decimals, metadata.fee);
         };
         return true;
     };
@@ -3207,7 +3207,9 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
                 };
                 case (#deposit d) { 
                     var tid: Text=Principal.toText(d().0);      
-                    if (tokens.hasToken(tid) == false or Principal.isAnonymous(caller)){
+                    var value: Nat=d().1;
+                    var fee: Nat=tokens.getFee(tid);    
+                    if (tokens.hasToken(tid) == false or Principal.isAnonymous(caller) or Nat.less(value,fee)){
                         return false;
                     }   
                     else{
@@ -3237,7 +3239,9 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
                 };
                 case (#withdraw d) { 
                     var tid: Text=Principal.toText(d().0);
-                    if (tokens.hasToken(tid) == false or Principal.isAnonymous(caller)){
+                    var value: Nat=d().1;
+                    var fee: Nat=tokens.getFee(tid);
+                    if (tokens.hasToken(tid) == false or Principal.isAnonymous(caller) or Nat.less(value,fee)){
                         return false;
                     }   
                     else{
@@ -3320,7 +3324,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
                     var to: Principal=d().5;
                     var deadline: Int=d().6;
 
-                    if(Principal.isAnonymous(caller)){
+                    if(Principal.isAnonymous(caller) or lpAmount<=0){
                         return false;
                     };
 
@@ -3343,7 +3347,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
                     var to: Principal=d().3;
                     var deadline: Int=d().4;
 
-                    if(Principal.isAnonymous(caller)){
+                    if(Principal.isAnonymous(caller) or amountIn<=0){
                         return false;
                     };
                     
