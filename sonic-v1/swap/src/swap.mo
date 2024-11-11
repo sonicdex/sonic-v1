@@ -2416,7 +2416,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
                     ("totalSupply", #Text("totalSupply")),
                 ]);
             } catch (e) {
-                return #err("token transfer failed:" # Error.message(e));
+                return #err("logtest failed:" # Error.message(e));
             };
 
         return #ok(1);
@@ -2437,7 +2437,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
                     ("totalSupply", #Text("totalSupply")),
                 ]);
             } catch (e) {
-                return #err("token transfer failed:" # Error.message(e));
+                return #err("logtest failed:" # Error.message(e));
             };
 
         return #ok(1);
