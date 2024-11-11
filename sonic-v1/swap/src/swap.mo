@@ -376,6 +376,25 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
         }
     };
 
+    private func addRecord_without_ignore(
+        caller: Principal, 
+        op: Text, 
+        details: [(Text, Root.DetailValue)]
+        ): async ()  {
+        let record: Root.IndefiniteEvent = {
+            operation = op;
+            details = details;
+            caller = caller;
+        };
+        // don't wait for result, faster
+        if(capV1Enabled){ 
+            var data=await cap.insert(record);
+        };
+        if(capV2Enabled){ 
+            var data2=await capV2.insert(record);
+        }
+    };
+
     /*
     * constants management functions
     */
@@ -2382,6 +2401,47 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
         return #ok(amounts[1]);
     };
 
+    public shared(msg) func log_test_ignore() : async TxReceipt {
+        try {
+            assert(_checkAuth(msg.caller));
+            ignore addRecord(
+                msg.caller, "logtest_ignore", 
+                [
+                    ("tokenId", #Text("tokenId")),
+                    ("from", #Principal(msg.caller)),
+                    ("to", #Principal(msg.caller)),
+                    ("amount", #Text("amount")),
+                    ("fee", #Text("fee")),
+                    ("balance", #Text("balance")),
+                    ("totalSupply", #Text("totalSupply")),
+                ]);
+            } catch (e) {
+                return #err("logtest failed:" # Error.message(e));
+            };
+
+        return #ok(1);
+    };
+
+    public shared(msg) func log_test() : async TxReceipt {
+        try {
+            assert(_checkAuth(msg.caller));
+            await addRecord_without_ignore(
+                msg.caller, "logtest", 
+                [
+                    ("tokenId", #Text("tokenId")),
+                    ("from", #Principal(msg.caller)),
+                    ("to", #Principal(msg.caller)),
+                    ("amount", #Text("amount")),
+                    ("fee", #Text("fee")),
+                    ("balance", #Text("balance")),
+                    ("totalSupply", #Text("totalSupply")),
+                ]);
+            } catch (e) {
+                return #err("logtest failed:" # Error.message(e));
+            };
+
+        return #ok(1);
+    };
 
     /*
     * public info query functions
@@ -3144,6 +3204,8 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
             #addNatLabsToken:()->Text;
             #removeNatLabsToken:()->Text;
             #getNatLabsToken:()->();
+            #log_test : () -> ();
+            #log_test_ignore : () -> ();
         }}) : Bool 
         {
             if(_checkBlocklist(caller)){
@@ -3195,6 +3257,8 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
                 case (#addNatLabsToken _) { _checkAuth(caller) };
                 case (#removeNatLabsToken _) { _checkAuth(caller) };
                 case (#getNatLabsToken _){true;};        
+                case (#log_test _) { _checkAuth(caller) };
+                case (#log_test_ignore _) { _checkAuth(caller) };      
 
                 //non-admin functions                
                 case (#initiateICRC1Transfer _) { 
