@@ -11,7 +11,7 @@ import IC "IC";
 
 module {
     public class Cap(canister_id: Principal, creation_cycles: Nat) {
-        let router_id = "vrjv5-kiaaa-aaaak-ao5vq-cai"; //old router_id : lj532-6iaaa-aaaah-qcc7a-cai
+        let router_id = "y3kcs-yaaaa-aaaah-aq3rq-cai"; //old router_id : lj532-6iaaa-aaaah-qcc7a-cai
         var rootBucket: ?Text = null;
         let ic: IC.ICActor = actor("aaaaa-aa");
 
