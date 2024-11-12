@@ -371,9 +371,9 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
         if(capV1Enabled){ 
             ignore cap.insert(record);
         };
-        if(capV2Enabled){ 
-            ignore capV2.insert(record);
-        }
+        // if(capV2Enabled){ 
+        //     ignore capV2.insert(record);
+        // }
     };
 
     private func addRecord_without_ignore(
@@ -390,9 +390,9 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
         if(capV1Enabled){ 
             var data=await cap.insert(record);
         };
-        if(capV2Enabled){ 
-            var data2=await capV2.insert(record);
-        }
+        // if(capV2Enabled){ 
+        //     var data2=await capV2.insert(record);
+        // }
     };
 
     /*
