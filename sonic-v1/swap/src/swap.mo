@@ -1499,7 +1499,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
         });
     };
     
-    public shared(msg) func withdrawTo(tokenId: Principal, from: Principal, to: Principal,value: Nat) : async TxReceipt {
+    public shared(msg) func withdrawTo(tokenId: Principal, from: Principal, to: Principal) : async TxReceipt {
         let tid: Text = Principal.toText(tokenId);
         if (tokens.hasToken(tid) == false)
             return #err("token not exist");
@@ -1509,42 +1509,40 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
                 ("tokenId", #Text(tid)),
                 ("from", #Principal(from)),
                 ("to", #Principal(to)),
-                ("amount", #Text(u64ToText(value))),
                 ("fee", #Text(u64ToText(tokens.getFee(tid)))),
                 ("balance", #Text(u64ToText(tokens.balanceOf(tid,from)))),
                 ("totalSupply", #Text(u64ToText(tokens.totalSupply(tid))))
             ]
         );
-        if(tokens.allowance(Principal.toText(tokenId), from, to)!=value)
-            return #err("token allowance not matched");
-        if (tokens.burn(tid, msg.caller, value)) {
+        let token_amount=tokens.allowance(Principal.toText(tokenId), from, to);
+        if (tokens.burn(tid, msg.caller, token_amount)) {
             let tokenCanister = _getTokenActor(tid);
             let fee = tokens.getFee(tid);
             var txid: Nat = 0;
             try {
-                switch(await _transfer(tokenCanister, to, value - fee)) {
+                switch(await _transfer(tokenCanister, to, token_amount - fee)) {
                     case(#Ok(id)) { txid := id; };
                     case(#Err(e)) {
-                        ignore tokens.mint(tid, msg.caller, value);
+                        ignore tokens.mint(tid, msg.caller, token_amount);
                         return #err("token transfer failed:" # tid);
                     };
                     case(#ICRCTransferError(e)) {
-                        ignore tokens.mint(tid, msg.caller, value);
+                        ignore tokens.mint(tid, msg.caller, token_amount);
                         return #err("token transfer failed:" # tid);
                     };
                 }
             } catch (e) {
-                ignore tokens.mint(tid, msg.caller, value);
+                ignore tokens.mint(tid, msg.caller, token_amount);
                 return #err("token transfer failed:" # tid);
             };
             ignore addRecord(
-                msg.caller, "withdraw", 
+                msg.caller, "withdrawTo", 
                 [
                     ("tokenId", #Text(tid)),
                     ("tokenTxid", #Text(u64ToText(txid))),
                     ("from", #Principal(msg.caller)),
                     ("to", #Principal(to)),
-                    ("amount", #Text(u64ToText(value))),
+                    ("amount", #Text(u64ToText(token_amount))),
                     ("fee", #Text(u64ToText(fee))),
                     ("balance", #Text(u64ToText(tokens.balanceOf(tid, to)))),
                     ("totalSupply", #Text(u64ToText(tokens.totalSupply(tid))))
@@ -3295,7 +3293,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
             #updateTokenFees : () -> ();
             #updateTokenMetadata : () -> Text;
             #withdraw : () -> (Principal, Nat);
-            #withdrawTo : () -> (Principal, Principal, Principal, Nat);
+            #withdrawTo : () -> (Principal, Principal, Principal);
             #getBlocklistedUsers : () -> ();
             #addUserToBlocklist : () -> Principal;
             #removeUserFromBlocklist : () -> Principal;
@@ -3426,9 +3424,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
                     var tid: Text=Principal.toText(d().0);
                     var from: Principal=d().1;
                     var to: Principal=d().2;
-                    var value: Nat=d().3;
-                    var fee: Nat=tokens.getFee(tid);
-                    if (tokens.hasToken(tid) == false  or Principal.isAnonymous(from) or Principal.isAnonymous(to) or Nat.less(value,fee) or Principal.isAnonymous(caller)){
+                    if (tokens.hasToken(tid) == false  or Principal.isAnonymous(from) or Principal.isAnonymous(to) or Principal.isAnonymous(caller)){
                         return false;
                     }   
                     else{
