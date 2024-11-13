@@ -254,6 +254,10 @@ module {
             return ret;
         };
 
+        public func getTokenBalances(tokenId:Text, user: Principal): Nat {
+            return _balanceOf(tokenId, user);
+        };
+
         public func getBalancesAbove(user: Principal, above: Nat): [(Text, Nat)] {
             var ret: [(Text, Nat)] = [];
             label l for((k, v) in tokens.entries()) {
