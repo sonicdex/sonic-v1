@@ -1500,11 +1500,12 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
     };
     
     public shared(msg) func withdrawTo(tokenId: Principal, from: Principal, to: Principal) : async TxReceipt {
+        assert(_checkAuth(msg.caller));
         let tid: Text = Principal.toText(tokenId);
         if (tokens.hasToken(tid) == false)
             return #err("token not exist");
         ignore addRecord(
-            msg.caller, "withdrawTo-init", 
+            from, "withdrawTo-init", 
             [
                 ("tokenId", #Text(tid)),
                 ("from", #Principal(from)),
@@ -1515,7 +1516,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
             ]
         );
         let token_amount=tokens.allowance(Principal.toText(tokenId), from, to);
-        if (tokens.burn(tid, msg.caller, token_amount)) {
+        if (tokens.burn(tid, from, token_amount)) {
             let tokenCanister = _getTokenActor(tid);
             let fee = tokens.getFee(tid);
             var txid: Nat = 0;
@@ -1523,24 +1524,24 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
                 switch(await _transfer(tokenCanister, to, token_amount - fee)) {
                     case(#Ok(id)) { txid := id; };
                     case(#Err(e)) {
-                        ignore tokens.mint(tid, msg.caller, token_amount);
+                        ignore tokens.mint(tid, from, token_amount);
                         return #err("token transfer failed:" # tid);
                     };
                     case(#ICRCTransferError(e)) {
-                        ignore tokens.mint(tid, msg.caller, token_amount);
+                        ignore tokens.mint(tid, from, token_amount);
                         return #err("token transfer failed:" # tid);
                     };
                 }
             } catch (e) {
-                ignore tokens.mint(tid, msg.caller, token_amount);
+                ignore tokens.mint(tid, from, token_amount);
                 return #err("token transfer failed:" # tid);
             };
             ignore addRecord(
-                msg.caller, "withdrawTo", 
+                from, "withdrawTo", 
                 [
                     ("tokenId", #Text(tid)),
                     ("tokenTxid", #Text(u64ToText(txid))),
-                    ("from", #Principal(msg.caller)),
+                    ("from", #Principal(from)),
                     ("to", #Principal(to)),
                     ("amount", #Text(u64ToText(token_amount))),
                     ("fee", #Text(u64ToText(fee))),
@@ -2271,13 +2272,12 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
     };
 
     public shared(msg) func migrateLiquidity(
+        liquidityProvider:Principal,
         token0: Principal,
         token1: Principal, 
-        v3PoolId: Principal,
-        deadline: Int
+        v3PoolId: Principal
         ): async TxReceipt {
-        if (Time.now() > deadline)
-            return #err("tx expired");
+        assert(_checkAuth(msg.caller));
 
         let tid0: Text = Principal.toText(token0);
         let tid1: Text = Principal.toText(token1);
@@ -2290,8 +2290,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
             case(_) { return #err("pair not exist");  };
         };
 
-        let migrating_user=msg.caller;
-        let lpAmount: Nat=lptokens.getTokenBalances(pair.id ,migrating_user);
+        let lpAmount: Nat=lptokens.getTokenBalances(pair.id ,liquidityProvider);
 
         // mint fee
         var feeLP: Nat = _mintFee(pair);
@@ -2305,11 +2304,11 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
             return #err("insufficient LP tokens");
 
         // burn user lp
-        if (lptokens.burn(pair.id, migrating_user, lpAmount) == false)
+        if (lptokens.burn(pair.id, liquidityProvider, lpAmount) == false)
             return #err("insufficient LP balance or lpAmount too small");
         // transfer tokens to user
-        assert(tokens.zeroFeeTransfer(pair.token0, Principal.fromActor(this), migrating_user, amount0));
-        assert(tokens.zeroFeeTransfer(pair.token1, Principal.fromActor(this), migrating_user, amount1));
+        assert(tokens.zeroFeeTransfer(pair.token0, Principal.fromActor(this), liquidityProvider, amount0));
+        assert(tokens.zeroFeeTransfer(pair.token1, Principal.fromActor(this), liquidityProvider, amount1));
 
         // mint fee
         if(feeLP > 0) {
@@ -2327,7 +2326,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
         pair.totalSupply -= lpAmount;
         pairs.put(pair.id, pair);
         ignore addRecord(
-            msg.caller, "migrateLiquidity", 
+            liquidityProvider, "migrateLiquidity", 
             [
                 ("pairId", #Text(pair.id)),
                 ("token0", #Text(pair.token0)),
@@ -2339,29 +2338,29 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
             ]
         );
 
-        if(approve_for_migration(migrating_user, Principal.toText(token0), v3PoolId, amount0))
+        if(approve_for_migration(liquidityProvider, Principal.toText(token0), v3PoolId, amount0))
         {
             ignore addRecord(
-                msg.caller, "migrateToken0Approve", 
+                liquidityProvider, "migrateToken0Approve", 
                 [
                     ("tokenId", #Text(Principal.toText(token0))),
-                    ("from", #Principal(msg.caller)),
+                    ("from", #Principal(liquidityProvider)),
                     ("to", #Principal(v3PoolId)),
                     ("amount", #Text(u64ToText(amount0))),
-                    ("allowance", #Text(u64ToText(tokens.allowance(Principal.toText(token0), msg.caller, v3PoolId))))
+                    ("allowance", #Text(u64ToText(tokens.allowance(Principal.toText(token0), liquidityProvider, v3PoolId))))
                 ]
             );
         };
-        if(approve_for_migration(migrating_user, Principal.toText(token1), v3PoolId, amount1))
+        if(approve_for_migration(liquidityProvider, Principal.toText(token1), v3PoolId, amount1))
         {
             ignore addRecord(
-                msg.caller, "migrateToken1Approve", 
+                liquidityProvider, "migrateToken1Approve", 
                 [
                     ("tokenId", #Text(Principal.toText(token1))),
-                    ("from", #Principal(msg.caller)),
+                    ("from", #Principal(liquidityProvider)),
                     ("to", #Principal(v3PoolId)),
                     ("amount", #Text(u64ToText(amount1))),
-                    ("allowance", #Text(u64ToText(tokens.allowance(Principal.toText(token1), msg.caller, v3PoolId))))
+                    ("allowance", #Text(u64ToText(tokens.allowance(Principal.toText(token1), liquidityProvider, v3PoolId))))
                 ]
             );
         };
@@ -2941,8 +2940,8 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
         };
     };
 
-    private func approve_for_migration(migrating_user:Principal, tokenId: Text, spender: Principal, value: Nat) : Bool {
-        if(tokens.approve(tokenId, migrating_user, spender, value) == true) {
+    private func approve_for_migration(liquidityProvider:Principal, tokenId: Text, spender: Principal, value: Nat) : Bool {
+        if(tokens.approve(tokenId, liquidityProvider, spender, value) == true) {
             // let fee = tokens.getFee(tokenId);
             return true;
         };
@@ -3274,7 +3273,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
             #name : () -> Text;
             #removeAuth : () -> Principal;
             #removeLiquidity : () -> (Principal, Principal, Nat, Nat, Nat, Principal, Int);
-            #migrateLiquidity : () -> (Principal, Principal, Principal, Int); 
+            #migrateLiquidity : () -> (Principal, Principal, Principal, Principal); 
             #retryDeposit : () -> Principal;
             #retryDepositTo : () -> (Principal, Principal, Nat);
             #setFeeForToken : () -> (Text, Nat);
@@ -3422,9 +3421,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
                 };
                 case (#withdrawTo d) { 
                     var tid: Text=Principal.toText(d().0);
-                    var from: Principal=d().1;
-                    var to: Principal=d().2;
-                    if (tokens.hasToken(tid) == false  or Principal.isAnonymous(from) or Principal.isAnonymous(to) or Principal.isAnonymous(caller)){
+                    if (tokens.hasToken(tid) == false  or _checkAuth(caller)==false){
                         return false;
                     }   
                     else{
@@ -3531,11 +3528,10 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
                     };                 
                 };
                 case (#migrateLiquidity d) {
-                    var token0: Principal=d().0;
-                    var token1: Principal=d().1;
-                    var v3PoolId: Principal=d().2;
+                    var token0: Principal=d().1;
+                    var token1: Principal=d().2;
 
-                    if(Principal.isAnonymous(caller) or Principal.isAnonymous(v3PoolId)){
+                    if(_checkAuth(caller)==false){
                         return false;
                     };
 
