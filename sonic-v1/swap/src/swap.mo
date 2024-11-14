@@ -1499,8 +1499,8 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
         });
     };
     
-    public shared(msg) func withdrawTo(tokenId: Principal, from: Principal, to: Principal) : async TxReceipt {
-        assert(_checkAuth(msg.caller));
+    public shared(msg) func withdrawTo(tokenId: Principal, from: Principal) : async TxReceipt {
+
         let tid: Text = Principal.toText(tokenId);
         if (tokens.hasToken(tid) == false)
             return #err("token not exist");
@@ -1509,19 +1509,21 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
             [
                 ("tokenId", #Text(tid)),
                 ("from", #Principal(from)),
-                ("to", #Principal(to)),
+                ("to", #Principal(msg.caller)),
                 ("fee", #Text(u64ToText(tokens.getFee(tid)))),
                 ("balance", #Text(u64ToText(tokens.balanceOf(tid,from)))),
                 ("totalSupply", #Text(u64ToText(tokens.totalSupply(tid))))
             ]
         );
-        let token_amount=tokens.allowance(Principal.toText(tokenId), from, to);
+        let token_amount=tokens.allowance(Principal.toText(tokenId), from, msg.caller);
+        if (token_amount== 0)
+            return #err("token allowance not found");
         if (tokens.burn(tid, from, token_amount)) {
             let tokenCanister = _getTokenActor(tid);
             let fee = tokens.getFee(tid);
             var txid: Nat = 0;
             try {
-                switch(await _transfer(tokenCanister, to, token_amount - fee)) {
+                switch(await _transfer(tokenCanister, msg.caller, token_amount - fee)) {
                     case(#Ok(id)) { txid := id; };
                     case(#Err(e)) {
                         ignore tokens.mint(tid, from, token_amount);
@@ -1542,15 +1544,14 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
                     ("tokenId", #Text(tid)),
                     ("tokenTxid", #Text(u64ToText(txid))),
                     ("from", #Principal(from)),
-                    ("to", #Principal(to)),
+                    ("to", #Principal(msg.caller)),
                     ("amount", #Text(u64ToText(token_amount))),
                     ("fee", #Text(u64ToText(fee))),
-                    ("balance", #Text(u64ToText(tokens.balanceOf(tid, to)))),
+                    ("balance", #Text(u64ToText(tokens.balanceOf(tid, msg.caller)))),
                     ("totalSupply", #Text(u64ToText(tokens.totalSupply(tid))))
                 ]
             );
-            txcounter += 1;
-            return #ok(txcounter - 1);
+            return #ok(token_amount);
         } else {
             return #err("burn token failed:" # tid);
         };
@@ -3292,7 +3293,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
             #updateTokenFees : () -> ();
             #updateTokenMetadata : () -> Text;
             #withdraw : () -> (Principal, Nat);
-            #withdrawTo : () -> (Principal, Principal, Principal);
+            #withdrawTo : () -> (Principal, Principal);
             #getBlocklistedUsers : () -> ();
             #addUserToBlocklist : () -> Principal;
             #removeUserFromBlocklist : () -> Principal;
