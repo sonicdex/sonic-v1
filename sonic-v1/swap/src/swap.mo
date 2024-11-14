@@ -1551,7 +1551,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
                     ("totalSupply", #Text(u64ToText(tokens.totalSupply(tid))))
                 ]
             );
-            return #ok(token_amount);
+            return #ok(token_amount - fee);
         } else {
             return #err("burn token failed:" # tid);
         };
@@ -2942,8 +2942,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
     };
 
     private func approve_for_migration(liquidityProvider:Principal, tokenId: Text, spender: Principal, value: Nat) : Bool {
-        if(tokens.approve(tokenId, liquidityProvider, spender, value) == true) {
-            // let fee = tokens.getFee(tokenId);
+        if(tokens.zeroFeeApprove(tokenId, liquidityProvider, spender, value) == true) {
             return true;
         };
         return false;
