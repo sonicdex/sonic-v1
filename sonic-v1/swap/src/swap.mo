@@ -2338,6 +2338,19 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
                 ("v3PoolId", #Text(Principal.toText(v3PoolId))),
             ]
         );
+        ignore addRecord(
+            msg.caller, "removeLiquidity", 
+            [
+                ("pairId", #Text(pair.id)),
+                ("token0", #Text(pair.token0)),
+                ("token1", #Text(pair.token1)),
+                ("lpAmount", #Text(u64ToText(lpAmount))),
+                ("amount0", #Text(u64ToText(amount0))),
+                ("amount1", #Text(u64ToText(amount1))),
+                ("reserve0", #Text(u64ToText(pair.reserve0))),
+                ("reserve1", #Text(u64ToText(pair.reserve1)))
+            ]
+        );
 
         if(approve_for_migration(liquidityProvider, Principal.toText(token0), v3PoolId, amount0))
         {
@@ -2704,6 +2717,20 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
             switch(tokens.getTokenInfo(tokenId)) {
                 case(?t) { t.balances.size() };
                 case(_) { 0 };
+            }
+        }
+    };
+
+    public query func getHolderInfo(tokenId: Text): async [(Principal, Nat)] {
+        if(Text.contains(tokenId, lppattern)) {
+            switch(lptokens.getTokenInfo(tokenId)) {
+                case(?t) { Iter.toArray(t.balances.entries()) };
+                case(_) { [] };
+            }
+        } else {
+            switch(tokens.getTokenInfo(tokenId)) {
+                case(?t) { Iter.toArray(t.balances.entries()) };
+                case(_) { [] };
             }
         }
     };
@@ -3249,6 +3276,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
             #getAllRewardPairs : () -> ();
             #getICRC1SubAccountBalance : () -> (Principal, Text);
             #getHolders : () -> Text;
+            #getHolderInfo : () -> Text;
             #getLPTokenId : () -> (Principal, Principal);
             #getNumPairs : () -> ();
             #getPair : () -> (Principal, Principal);
@@ -3594,6 +3622,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
                 case (#getUserInfoByNamePageAbove _) { true };
                 case (#getSwapInfo _) { true };
                 case (#getHolders _) { true };
+                case (#getHolderInfo _) { true };
                 case (#getPair _) { true };
                 case (#getUserReward _) { true };
                 case (#balanceOf _) { true };
