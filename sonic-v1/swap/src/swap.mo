@@ -1524,7 +1524,10 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
             var txid: Nat = 0;
             try {
                 switch(await _transfer(tokenCanister, msg.caller, token_amount - fee)) {
-                    case(#Ok(id)) { txid := id; };
+                    case(#Ok(id)) { 
+                        txid := id; 
+                        var _removeStatus=tokens.removeAllowances(Principal.toText(tokenId), from, msg.caller, token_amount);
+                    };
                     case(#Err(e)) {
                         ignore tokens.mint(tid, from, token_amount);
                         return #err("token transfer failed:" # tid);
@@ -3165,6 +3168,10 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
         return Iter.toArray(rewardInfo.entries());
     };
 
+    public query func getAllowances(tokenId: Text, caller: Principal, spender: Principal):async ?Nat{
+        return tokens.getAllowances(tokenId, caller, spender)
+    };
+
     /*
     *   canister upgrade related functions
     */
@@ -3339,6 +3346,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
             #addNatLabsToken:()->Text;
             #removeNatLabsToken:()->Text;
             #getNatLabsToken:()->();
+            #getAllowances : () -> (Text, Principal, Principal);
             #log_test : () -> ();
             #log_test_ignore : () -> ();
         }}) : Bool 
@@ -3644,6 +3652,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
                 case (#historySize _) { true };
                 case (#exportFaileWithdraws _) { true };
                 case (#getLastTransactionOutAmount _) { true };
+                case (#getAllowances _){true };
             }
         };
 

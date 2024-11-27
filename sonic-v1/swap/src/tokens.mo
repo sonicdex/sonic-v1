@@ -497,6 +497,39 @@ module {
             }
         };
 
+        public func removeAllowances(tokenId: Text, caller: Principal, spender: Principal, value: Nat) : Bool {
+            var token = switch (tokens.get(tokenId)) {
+                case (?_token) { _token; };
+                case (_) { return false; };
+            };
+            switch(token.allowances.get(caller)) {
+                case (?allowances_caller) {
+                    allowances_caller.put(spender, value);
+                    token.allowances.put(caller, allowances_caller);
+                    tokens.put(tokenId, token);
+                    return true;
+                };
+                case (_) {
+                    return false;
+                };
+            }
+        };
+
+        public func getAllowances(tokenId: Text, caller: Principal, spender: Principal) : ?Nat {
+            var token = switch (tokens.get(tokenId)) {
+                case (?_token) { _token; };
+                case (_) { return ?0; };
+            };
+            switch(token.allowances.get(caller)) {
+                case (?allowances_caller) {
+                    return allowances_caller.get(spender);
+                };
+                case (_) {
+                    return ?0;
+                };
+            }
+        };
+
         public func balanceOf(tokenId: Text, who: Principal) : Nat {
             return _balanceOf(tokenId, who);
         };
