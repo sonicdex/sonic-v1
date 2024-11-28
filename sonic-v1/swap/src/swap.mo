@@ -2340,6 +2340,8 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
                 ("lpAmount", #Text(u64ToText(lpAmount))),
                 ("amount0", #Text(u64ToText(amount0))),
                 ("amount1", #Text(u64ToText(amount1))),
+                ("reserve0", #Text(u64ToText(pair.reserve0))),
+                ("reserve1", #Text(u64ToText(pair.reserve1))),
                 ("v3PoolId", #Text(Principal.toText(v3PoolId))),
             ]
         );
