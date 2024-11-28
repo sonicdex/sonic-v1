@@ -1498,63 +1498,68 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
             refundStatus=false
         });
     };
-    /*
-    public shared(msg) func withdrawTo(tokenId: Principal, to: Principal, value: Nat) : async TxReceipt {
+    
+    public shared(msg) func withdrawTo(tokenId: Principal, from: Principal) : async TxReceipt {
+        assert(_checkAuth(msg.caller));
         let tid: Text = Principal.toText(tokenId);
         if (tokens.hasToken(tid) == false)
             return #err("token not exist");
         ignore addRecord(
-            msg.caller, "withdrawTo-init", 
+            from, "withdrawTo-init", 
             [
                 ("tokenId", #Text(tid)),
-                ("from", #Principal(msg.caller)),
-                ("to", #Principal(to)),
-                ("amount", #Text(u64ToText(value))),
+                ("from", #Principal(from)),
+                ("to", #Principal(msg.caller)),
                 ("fee", #Text(u64ToText(tokens.getFee(tid)))),
-                ("balance", #Text(u64ToText(tokens.balanceOf(tid, msg.caller)))),
+                ("balance", #Text(u64ToText(tokens.balanceOf(tid,from)))),
                 ("totalSupply", #Text(u64ToText(tokens.totalSupply(tid))))
             ]
         );
-        if (tokens.burn(tid, msg.caller, value)) {
+        let token_amount=tokens.allowance(Principal.toText(tokenId), from, msg.caller);
+        if (token_amount== 0)
+            return #err("token allowance not found");
+        if (tokens.burn(tid, from, token_amount)) {
             let tokenCanister = _getTokenActor(tid);
             let fee = tokens.getFee(tid);
             var txid: Nat = 0;
             try {
-                switch(await _transfer(tokenCanister, to, value - fee)) {
-                    case(#Ok(id)) { txid := id; };
+                switch(await _transfer(tokenCanister, msg.caller, token_amount - fee)) {
+                    case(#Ok(id)) { 
+                        txid := id; 
+                        var _removeStatus=tokens.removeAllowances(Principal.toText(tokenId), from, msg.caller, token_amount);
+                    };
                     case(#Err(e)) {
-                        ignore tokens.mint(tid, msg.caller, value);
+                        ignore tokens.mint(tid, from, token_amount);
                         return #err("token transfer failed:" # tid);
                     };
                     case(#ICRCTransferError(e)) {
-                        ignore tokens.mint(tid, msg.caller, value);
+                        ignore tokens.mint(tid, from, token_amount);
                         return #err("token transfer failed:" # tid);
                     };
                 }
             } catch (e) {
-                ignore tokens.mint(tid, msg.caller, value);
+                ignore tokens.mint(tid, from, token_amount);
                 return #err("token transfer failed:" # tid);
             };
             ignore addRecord(
-                msg.caller, "withdraw", 
+                from, "withdrawTo", 
                 [
                     ("tokenId", #Text(tid)),
                     ("tokenTxid", #Text(u64ToText(txid))),
-                    ("from", #Principal(msg.caller)),
-                    ("to", #Principal(to)),
-                    ("amount", #Text(u64ToText(value))),
+                    ("from", #Principal(from)),
+                    ("to", #Principal(msg.caller)),
+                    ("amount", #Text(u64ToText(token_amount))),
                     ("fee", #Text(u64ToText(fee))),
-                    ("balance", #Text(u64ToText(tokens.balanceOf(tid, to)))),
+                    ("balance", #Text(u64ToText(tokens.balanceOf(tid, msg.caller)))),
                     ("totalSupply", #Text(u64ToText(tokens.totalSupply(tid))))
                 ]
             );
-            txcounter += 1;
-            return #ok(txcounter - 1);
+            return #ok(token_amount - fee);
         } else {
             return #err("burn token failed:" # tid);
         };
     };
-    */
+    
     public shared(msg) func failedWithdrawRefund(transactionId: Text) : async WithdrawRefundReceipt {        
         if (_checkAuth(msg.caller) == false) {
           return #Err("unauthorized");
@@ -2270,6 +2275,120 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
         return #ok(txcounter - 1);
     };
 
+    public shared(msg) func migrateLiquidity(
+        liquidityProvider:Principal,
+        token0: Principal,
+        token1: Principal, 
+        v3PoolId: Principal
+        ): async TxReceipt {
+        assert(_checkAuth(msg.caller));
+
+        let tid0: Text = Principal.toText(token0);
+        let tid1: Text = Principal.toText(token1);
+        var pair = switch(_getPair(tid0, tid1)) {
+            case(?p) { p; };
+            case(_) { return #err("pair not exist"); };
+        };
+        var _lptoken = switch(_getlpToken(tid0, tid1)) {
+            case(?t) { t; };
+            case(_) { return #err("pair not exist");  };
+        };
+
+        let lpAmount: Nat=lptokens.getTokenBalances(pair.id ,liquidityProvider);
+        if (lpAmount == 0)
+            return #err("insufficient lpAmount");
+
+        // mint fee
+        var feeLP: Nat = _mintFee(pair);
+
+        var totalSupply = pair.totalSupply + feeLP;
+        var amount0 : Nat = lpAmount * pair.reserve0 / totalSupply;
+        var amount1 : Nat = lpAmount * pair.reserve1 / totalSupply;
+
+        Debug.print(debug_show((amount0, amount1)));
+        if (amount0 == 0 or amount1 == 0)
+            return #err("insufficient LP tokens");
+
+        // burn user lp
+        if (lptokens.burn(pair.id, liquidityProvider, lpAmount) == false)
+            return #err("insufficient LP balance or lpAmount too small");
+        // transfer tokens to user
+        assert(tokens.zeroFeeTransfer(pair.token0, Principal.fromActor(this), liquidityProvider, amount0));
+        assert(tokens.zeroFeeTransfer(pair.token1, Principal.fromActor(this), liquidityProvider, amount1));
+
+        // mint fee
+        if(feeLP > 0) {
+            let _ = lptokens.mint(pair.id, feeTo, feeLP);
+            pair.totalSupply += feeLP;
+        };
+
+        pair := _update(pair);
+        // update reserves
+        pair.reserve0 -= amount0;
+        pair.reserve1 -= amount1;
+        if(feeOn) {
+            pair.kLast := pair.reserve0 * pair.reserve1;
+        };
+        pair.totalSupply -= lpAmount;
+        pairs.put(pair.id, pair);
+        ignore addRecord(
+            liquidityProvider, "migrateLiquidity", 
+            [
+                ("pairId", #Text(pair.id)),
+                ("token0", #Text(pair.token0)),
+                ("token1", #Text(pair.token1)),
+                ("lpAmount", #Text(u64ToText(lpAmount))),
+                ("amount0", #Text(u64ToText(amount0))),
+                ("amount1", #Text(u64ToText(amount1))),
+                ("reserve0", #Text(u64ToText(pair.reserve0))),
+                ("reserve1", #Text(u64ToText(pair.reserve1))),
+                ("v3PoolId", #Text(Principal.toText(v3PoolId))),
+            ]
+        );
+        ignore addRecord(
+            msg.caller, "removeLiquidity", 
+            [
+                ("pairId", #Text(pair.id)),
+                ("token0", #Text(pair.token0)),
+                ("token1", #Text(pair.token1)),
+                ("lpAmount", #Text(u64ToText(lpAmount))),
+                ("amount0", #Text(u64ToText(amount0))),
+                ("amount1", #Text(u64ToText(amount1))),
+                ("reserve0", #Text(u64ToText(pair.reserve0))),
+                ("reserve1", #Text(u64ToText(pair.reserve1)))
+            ]
+        );
+
+        if(approve_for_migration(liquidityProvider, Principal.toText(token0), v3PoolId, amount0))
+        {
+            ignore addRecord(
+                liquidityProvider, "migrateToken0Approve", 
+                [
+                    ("tokenId", #Text(Principal.toText(token0))),
+                    ("from", #Principal(liquidityProvider)),
+                    ("to", #Principal(v3PoolId)),
+                    ("amount", #Text(u64ToText(amount0))),
+                    ("allowance", #Text(u64ToText(tokens.allowance(Principal.toText(token0), liquidityProvider, v3PoolId))))
+                ]
+            );
+        };
+        if(approve_for_migration(liquidityProvider, Principal.toText(token1), v3PoolId, amount1))
+        {
+            ignore addRecord(
+                liquidityProvider, "migrateToken1Approve", 
+                [
+                    ("tokenId", #Text(Principal.toText(token1))),
+                    ("from", #Principal(liquidityProvider)),
+                    ("to", #Principal(v3PoolId)),
+                    ("amount", #Text(u64ToText(amount1))),
+                    ("allowance", #Text(u64ToText(tokens.allowance(Principal.toText(token1), liquidityProvider, v3PoolId))))
+                ]
+            );
+        };
+        txcounter +=1;
+        return #ok(txcounter - 1);
+    };
+
     private func _getReserves(t0: Text, t1: Text): (Nat, Nat) {
         switch(_getPair(t0, t1)) {
             case(?p) { 
@@ -2609,6 +2728,20 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
         }
     };
 
+    public query func getHolderInfo(tokenId: Text): async [(Principal, Nat)] {
+        if(Text.contains(tokenId, lppattern)) {
+            switch(lptokens.getTokenInfo(tokenId)) {
+                case(?t) { Iter.toArray(t.balances.entries()) };
+                case(_) { [] };
+            }
+        } else {
+            switch(tokens.getTokenInfo(tokenId)) {
+                case(?t) { Iter.toArray(t.balances.entries()) };
+                case(_) { [] };
+            }
+        }
+    };
+
     public query func getPair(token0: Principal, token1: Principal) : async ?PairInfoExt {
         let temp = switch(_getPair(Principal.toText(token0), Principal.toText(token1))) {
             case (?pair) {
@@ -2840,6 +2973,13 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
             };
             return false;
         };
+    };
+
+    private func approve_for_migration(liquidityProvider:Principal, tokenId: Text, spender: Principal, value: Nat) : Bool {
+        if(tokens.zeroFeeApprove(tokenId, liquidityProvider, spender, value) == true) {
+            return true;
+        };
+        return false;
     };
 
     public query func balanceOf(tokenId: Text, who: Principal) : async Nat {
@@ -3143,6 +3283,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
             #getAllRewardPairs : () -> ();
             #getICRC1SubAccountBalance : () -> (Principal, Text);
             #getHolders : () -> Text;
+            #getHolderInfo : () -> Text;
             #getLPTokenId : () -> (Principal, Principal);
             #getNumPairs : () -> ();
             #getPair : () -> (Principal, Principal);
@@ -3167,6 +3308,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
             #name : () -> Text;
             #removeAuth : () -> Principal;
             #removeLiquidity : () -> (Principal, Principal, Nat, Nat, Nat, Principal, Int);
+            #migrateLiquidity : () -> (Principal, Principal, Principal, Principal); 
             #retryDeposit : () -> Principal;
             #retryDepositTo : () -> (Principal, Principal, Nat);
             #setFeeForToken : () -> (Text, Nat);
@@ -3185,7 +3327,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
             #updateTokenFees : () -> ();
             #updateTokenMetadata : () -> Text;
             #withdraw : () -> (Principal, Nat);
-            // #withdrawTo : () -> (Principal, Principal, Nat);
+            #withdrawTo : () -> (Principal, Principal);
             #getBlocklistedUsers : () -> ();
             #addUserToBlocklist : () -> Principal;
             #removeUserFromBlocklist : () -> Principal;
@@ -3312,20 +3454,15 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
                         return true;
                     };
                 };
-                /*
                 case (#withdrawTo d) { 
                     var tid: Text=Principal.toText(d().0);
-                    var to: Principal=d().1;
-                    var value: Nat=d().2;
-                    var fee: Nat=tokens.getFee(tid);
-                    if (tokens.hasToken(tid) == false  or Principal.isAnonymous(to) or Nat.less(value,fee) or Principal.isAnonymous(caller)){
+                    if (tokens.hasToken(tid) == false){
                         return false;
                     }   
                     else{
                         return true;
                     };
                 };
-                */
                 case (#createPair d) { 
                     var token0: Principal=d().0;
                     var token1: Principal=d().1;
@@ -3425,6 +3562,26 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
                         true
                     };                 
                 };
+                case (#migrateLiquidity d) {
+                    var token0: Principal=d().1;
+                    var token1: Principal=d().2;
+
+                    if(_checkAuth(caller)==false){
+                        return false;
+                    };
+
+                    let tid0: Text = Principal.toText(token0);
+                    let tid1: Text = Principal.toText(token1);
+                    switch(_getPair(tid0, tid1)) {
+                        case(?p) { };
+                        case(_) { return false; };
+                    };
+                    switch(_getlpToken(tid0, tid1)) {
+                        case(?t) { };
+                        case(_) { return false;  };
+                    };
+                    return true;
+                };
                 /*
                 case (#transfer _) { 
                     if(Principal.isAnonymous(caller)){
@@ -3472,6 +3629,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
                 case (#getUserInfoByNamePageAbove _) { true };
                 case (#getSwapInfo _) { true };
                 case (#getHolders _) { true };
+                case (#getHolderInfo _) { true };
                 case (#getPair _) { true };
                 case (#getUserReward _) { true };
                 case (#balanceOf _) { true };

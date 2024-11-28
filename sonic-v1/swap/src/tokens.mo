@@ -254,6 +254,10 @@ module {
             return ret;
         };
 
+        public func getTokenBalances(tokenId:Text, user: Principal): Nat {
+            return _balanceOf(tokenId, user);
+        };
+
         public func getBalancesAbove(user: Principal, above: Nat): [(Text, Nat)] {
             var ret: [(Text, Nat)] = [];
             label l for((k, v) in tokens.entries()) {
@@ -463,6 +467,50 @@ module {
                     token.allowances.put(caller, temp);
                     tokens.put(tokenId, token);
                     return true;
+                };
+            }
+        };
+
+        public func zeroFeeApprove(tokenId: Text, caller: Principal, spender: Principal, value: Nat) : Bool {
+            var token = switch (tokens.get(tokenId)) {
+                case (?_token) { _token; };
+                case (_) { return false; };
+            };
+            var bal = _balanceOf(tokenId, caller);
+            if(bal < token.fee) {
+                return false;
+            };
+            switch(token.allowances.get(caller)) {
+                case (?allowances_caller) {
+                    allowances_caller.put(spender, value);
+                    token.allowances.put(caller, allowances_caller);
+                    tokens.put(tokenId, token);
+                    return true;
+                };
+                case (_) {
+                    var temp = HashMap.HashMap<Principal, Nat>(1, Principal.equal, Principal.hash);
+                    temp.put(spender, value);
+                    token.allowances.put(caller, temp);
+                    tokens.put(tokenId, token);
+                    return true;
+                };
+            }
+        };
+
+        public func removeAllowances(tokenId: Text, caller: Principal, spender: Principal, value: Nat) : Bool {
+            var token = switch (tokens.get(tokenId)) {
+                case (?_token) { _token; };
+                case (_) { return false; };
+            };
+            switch(token.allowances.get(caller)) {
+                case (?allowances_caller) {
+                    allowances_caller.put(spender, value);
+                    token.allowances.put(caller, allowances_caller);
+                    tokens.put(tokenId, token);
+                    return true;
+                };
+                case (_) {
+                    return false;
                 };
             }
         };
