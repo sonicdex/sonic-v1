@@ -2295,6 +2295,8 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
         };
 
         let lpAmount: Nat=lptokens.getTokenBalances(pair.id ,liquidityProvider);
+        if (lpAmount == 0)
+            return #err("insufficient lpAmount");
 
         // mint fee
         var feeLP: Nat = _mintFee(pair);
