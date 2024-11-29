@@ -504,7 +504,7 @@ module {
             };
             switch(token.allowances.get(caller)) {
                 case (?allowances_caller) {
-                    allowances_caller.put(spender, value);
+                    allowances_caller.put(spender, 0);
                     token.allowances.put(caller, allowances_caller);
                     tokens.put(tokenId, token);
                     return true;
