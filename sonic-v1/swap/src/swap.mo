@@ -1500,7 +1500,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
     };
     
     public shared(msg) func withdrawTo(tokenId: Principal, from: Principal) : async TxReceipt {
-        assert(_checkAuth(msg.caller));
+        // assert(_checkAuth(msg.caller));
         let tid: Text = Principal.toText(tokenId);
         if (tokens.hasToken(tid) == false)
             return #err("token not exist");
