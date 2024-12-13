@@ -328,11 +328,9 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
     private var tokenBlocklist = HashMap.HashMap<Principal, TokenBlockType>(1, Principal.equal, Principal.hash);
     private var natLabsToken = HashMap.HashMap<Text, Bool>(1, Text.equal, Text.hash);//created this to handle the natlab issue
     private var commitId:Text="";
-    private var wicp_xtc_migrationEnabled=true;
-    // let wicp = "utozz-siaaa-aaaam-qaaxq-cai"; //prod
-    // let icp = "ryjl3-tyaaa-aaaaa-aaaba-cai";  //prod
-    let wicp = "ubw3y-gqaaa-aaaah-ade5q-cai";    //dev
-    let icp = "nhtpb-tiaaa-aaaah-adkma-cai";     //dev
+    private var wicp_xtc_migrationEnabled=false;
+    let wicp = "utozz-siaaa-aaaam-qaaxq-cai"; //prod
+    let icp = "ryjl3-tyaaa-aaaaa-aaaba-cai";  //prod
 
     // admins
     private var auths = HashMap.HashMap<Principal, Bool>(1, Principal.equal, Principal.hash);
@@ -2568,9 +2566,19 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
         return #ok(1);
     };
 
+    public shared(msg) func setWICPMigration(wicp_xtc_migration:Bool) : async Bool {
+        assert(_checkAuth(msg.caller));
+        wicp_xtc_migrationEnabled:=wicp_xtc_migration;
+        return true;
+    };
+
     /*
     * public info query functions
     */
+    public query func getWICPMigration(): async Bool {
+        return wicp_xtc_migrationEnabled;
+    };
+
     public shared query(msg) func getLastTransactionOutAmount(): async SwapLastTransaction {
         switch(swapLastTransaction.get(msg.caller)){
             case(?trans){
@@ -2678,6 +2686,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
     public query func getUserLPBalances(user: Principal): async [(Text, Nat)] {
         return lptokens.getBalances(user);
     };
+
 
     public query func getUserLPBalancesAbove(user: Principal, above: Nat): async [(Text, Nat)] {
         return lptokens.getBalancesAbove(user, above);
@@ -3366,6 +3375,8 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
             #getNatLabsToken:()->();
             #log_test : () -> ();
             #log_test_ignore : () -> ();
+            #setWICPMigration : () -> Bool;
+            #getWICPMigration : () -> ();
         }}) : Bool 
         {
             if(_checkBlocklist(caller)){
@@ -3627,6 +3638,8 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
                     };                 
                 };
 
+                case (#setWICPMigration _)  { true };
+                case (#getWICPMigration _)  { true };
                 //query
                 case (#getAuthList  _) { true };
                 case (#getLPTokenId  _) { true };
