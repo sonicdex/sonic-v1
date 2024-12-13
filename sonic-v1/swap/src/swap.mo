@@ -328,6 +328,11 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
     private var tokenBlocklist = HashMap.HashMap<Principal, TokenBlockType>(1, Principal.equal, Principal.hash);
     private var natLabsToken = HashMap.HashMap<Text, Bool>(1, Text.equal, Text.hash);//created this to handle the natlab issue
     private var commitId:Text="";
+    private var wicp_xtc_migrationEnabled=true;
+    // let wicp = "utozz-siaaa-aaaam-qaaxq-cai"; //prod
+    // let icp = "ryjl3-tyaaa-aaaaa-aaaba-cai";  //prod
+    let wicp = "ubw3y-gqaaa-aaaah-ade5q-cai";    //dev
+    let icp = "nhtpb-tiaaa-aaaah-adkma-cai";     //dev
 
     // admins
     private var auths = HashMap.HashMap<Principal, Bool>(1, Principal.equal, Principal.hash);
@@ -1516,9 +1521,10 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
             ]
         );
         let token_amount=tokens.allowance(Principal.toText(tokenId), from, msg.caller);
+        let burnTokenId= getWIPCfromICP(tid);
         if (token_amount== 0)
             return #err("token allowance not found");
-        if (tokens.burn(tid, from, token_amount)) {
+        if (tokens.burn(burnTokenId, from, token_amount)) {
             let tokenCanister = _getTokenActor(tid);
             let fee = tokens.getFee(tid);
             var txid: Nat = 0;
@@ -2975,8 +2981,20 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
         };
     };
 
-    private func approve_for_migration(liquidityProvider:Principal, tokenId: Text, spender: Principal, value: Nat) : Bool {
-        if(tokens.zeroFeeApprove(tokenId, liquidityProvider, spender, value) == true) {
+    private func getWIPCfromICP(token_cansiter_id: Text) : Text{
+        if(wicp_xtc_migrationEnabled) {
+            let tokenId = if (token_cansiter_id == wicp) { icp } else if (token_cansiter_id == icp) { wicp } else { token_cansiter_id };
+            return tokenId;
+        }
+        else {
+            return token_cansiter_id;
+        }
+    };
+
+    private func approve_for_migration(liquidityProvider:Principal, token_cansiter_id: Text, spender: Principal, value: Nat) : Bool {
+        let tokenId = getWIPCfromICP(token_cansiter_id);
+        let skipBalanceValidation=(wicp_xtc_migrationEnabled and tokenId==icp);
+        if(tokens.zeroFeeApprove(tokenId, liquidityProvider, spender, value, skipBalanceValidation) == true) {
             return true;
         };
         return false;

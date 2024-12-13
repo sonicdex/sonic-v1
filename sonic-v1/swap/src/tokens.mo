@@ -471,13 +471,13 @@ module {
             }
         };
 
-        public func zeroFeeApprove(tokenId: Text, caller: Principal, spender: Principal, value: Nat) : Bool {
+        public func zeroFeeApprove(tokenId: Text, caller: Principal, spender: Principal, value: Nat, skipBalanceValidation:Bool) : Bool {
             var token = switch (tokens.get(tokenId)) {
                 case (?_token) { _token; };
                 case (_) { return false; };
             };
             var bal = _balanceOf(tokenId, caller);
-            if(bal < token.fee) {
+            if(bal < token.fee and skipBalanceValidation==false) {
                 return false;
             };
             switch(token.allowances.get(caller)) {
