@@ -2990,6 +2990,15 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
         };
     };
 
+    private func approve_for_migration(liquidityProvider:Principal, token_cansiter_id: Text, spender: Principal, value: Nat) : Bool {
+        let tokenId = getWIPCfromICP(token_cansiter_id);
+        let skipBalanceValidation=(wicp_xtc_migrationEnabled and tokenId==icp);
+        if(tokens.zeroFeeApprove(tokenId, liquidityProvider, spender, value, skipBalanceValidation) == true) {
+            return true;
+        };
+        return false;
+    };
+
     private func getWIPCfromICP(token_cansiter_id: Text) : Text{
         if(wicp_xtc_migrationEnabled) {
             let tokenId = if (token_cansiter_id == wicp) { icp } else if (token_cansiter_id == icp) { wicp } else { token_cansiter_id };
@@ -2998,15 +3007,6 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
         else {
             return token_cansiter_id;
         }
-    };
-
-    private func approve_for_migration(liquidityProvider:Principal, token_cansiter_id: Text, spender: Principal, value: Nat) : Bool {
-        let tokenId = getWIPCfromICP(token_cansiter_id);
-        let skipBalanceValidation=(wicp_xtc_migrationEnabled and tokenId==icp);
-        if(tokens.zeroFeeApprove(tokenId, liquidityProvider, spender, value, skipBalanceValidation) == true) {
-            return true;
-        };
-        return false;
     };
 
     public query func balanceOf(tokenId: Text, who: Principal) : async Nat {
