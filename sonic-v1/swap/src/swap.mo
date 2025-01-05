@@ -328,6 +328,9 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
     private var tokenBlocklist = HashMap.HashMap<Principal, TokenBlockType>(1, Principal.equal, Principal.hash);
     private var natLabsToken = HashMap.HashMap<Text, Bool>(1, Text.equal, Text.hash);//created this to handle the natlab issue
     private var commitId:Text="";
+    private var wicp_xtc_migrationEnabled=false;
+    let wicp = "utozz-siaaa-aaaam-qaaxq-cai"; //prod
+    let icp = "ryjl3-tyaaa-aaaaa-aaaba-cai";  //prod
 
     // admins
     private var auths = HashMap.HashMap<Principal, Bool>(1, Principal.equal, Principal.hash);
@@ -1516,9 +1519,10 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
             ]
         );
         let token_amount=tokens.allowance(Principal.toText(tokenId), from, msg.caller);
+        let burnTokenId= getWIPCfromICP(tid);
         if (token_amount== 0)
             return #err("token allowance not found");
-        if (tokens.burn(tid, from, token_amount)) {
+        if (tokens.burn(burnTokenId, from, token_amount)) {
             let tokenCanister = _getTokenActor(tid);
             let fee = tokens.getFee(tid);
             var txid: Nat = 0;
@@ -2562,9 +2566,19 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
         return #ok(1);
     };
 
+    public shared(msg) func setWICPMigration(wicp_xtc_migration:Bool) : async Bool {
+        assert(_checkAuth(msg.caller));
+        wicp_xtc_migrationEnabled:=wicp_xtc_migration;
+        return true;
+    };
+
     /*
     * public info query functions
     */
+    public query func getWICPMigration(): async Bool {
+        return wicp_xtc_migrationEnabled;
+    };
+
     public shared query(msg) func getLastTransactionOutAmount(): async SwapLastTransaction {
         switch(swapLastTransaction.get(msg.caller)){
             case(?trans){
@@ -2672,6 +2686,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
     public query func getUserLPBalances(user: Principal): async [(Text, Nat)] {
         return lptokens.getBalances(user);
     };
+
 
     public query func getUserLPBalancesAbove(user: Principal, above: Nat): async [(Text, Nat)] {
         return lptokens.getBalancesAbove(user, above);
@@ -2975,11 +2990,23 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
         };
     };
 
-    private func approve_for_migration(liquidityProvider:Principal, tokenId: Text, spender: Principal, value: Nat) : Bool {
-        if(tokens.zeroFeeApprove(tokenId, liquidityProvider, spender, value) == true) {
+    private func approve_for_migration(liquidityProvider:Principal, token_cansiter_id: Text, spender: Principal, value: Nat) : Bool {
+        let tokenId = getWIPCfromICP(token_cansiter_id);
+        let skipBalanceValidation=(wicp_xtc_migrationEnabled and tokenId==icp);
+        if(tokens.zeroFeeApprove(tokenId, liquidityProvider, spender, value, skipBalanceValidation) == true) {
             return true;
         };
         return false;
+    };
+
+    private func getWIPCfromICP(token_cansiter_id: Text) : Text{
+        if(wicp_xtc_migrationEnabled) {
+            let tokenId = if (token_cansiter_id == wicp) { icp } else if (token_cansiter_id == icp) { wicp } else { token_cansiter_id };
+            return tokenId;
+        }
+        else {
+            return token_cansiter_id;
+        }
     };
 
     public query func balanceOf(tokenId: Text, who: Principal) : async Nat {
@@ -3348,6 +3375,8 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
             #getNatLabsToken:()->();
             #log_test : () -> ();
             #log_test_ignore : () -> ();
+            #setWICPMigration : () -> Bool;
+            #getWICPMigration : () -> ();
         }}) : Bool 
         {
             if(_checkBlocklist(caller)){
@@ -3609,6 +3638,8 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
                     };                 
                 };
 
+                case (#setWICPMigration _)  { true };
+                case (#getWICPMigration _)  { true };
                 //query
                 case (#getAuthList  _) { true };
                 case (#getLPTokenId  _) { true };
