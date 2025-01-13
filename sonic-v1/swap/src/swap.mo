@@ -2529,10 +2529,18 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
         if (Time.now() > deadline)
             return #err("tx expired");
         
-        switch(getTokenBlockStatus(Principal.fromText(path[0]))){
-            case(#None(id)) { };
+        assert(path.size() == 2);
+
+        switch(getPairBlockStatus(Principal.fromText(path[0]), Principal.fromText(path[1]))){
+            case(#None(_)) { };
             case(_){
-                return #err("token is blocked "#path[0]);     
+                return #err("pair is blocked " # path[0] # ":" # path[1]);   
+            }
+        };
+        switch(getTokenBlockStatus(Principal.fromText(path[0]))){
+            case(#None(_)) { };
+            case(_){
+                return #err("token is blocked " # path[0]);     
             }
         };
         switch(getTokenBlockStatus(Principal.fromText(path[1]))){
@@ -3623,7 +3631,9 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
                     if(Principal.isAnonymous(caller) or amountIn<=0){
                         return false;
                     };
-                    
+                    if(path.size() != 2) {
+                        return false;
+                    };
                     return true;
                 };
                 case (#burn _) { 
