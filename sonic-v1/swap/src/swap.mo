@@ -3468,7 +3468,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
                 case (#addUserToBlocklist _) { _checkAuth(caller) };
                 case (#removeUserFromBlocklist _) { _checkAuth(caller) };
                 case (#getBlockedTokens _) { _checkAuth(caller) };
-                case (#getBlockedPairs _) { _checkAuth(caller) };
+                case (#getBlockedPairs _) { true };
                 case (#addTokenToBlocklist _) { _checkAuth(caller) };
                 case (#addTokenToBlocklistValidate _) { _checkAuth(caller) };
                 case (#addPairToBlocklist _) { _checkAuth(caller) };
@@ -3752,6 +3752,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
         blocklistedUserEntries := Iter.toArray(blocklistedUsers.entries());
         faileWithdrawEntries := Iter.toArray(faileWithdraws.entries());
         tokenBlocklistEntries := Iter.toArray(tokenBlocklist.entries());
+        pairBlocklistEntries := Iter.toArray(pairBlocklist.entries());
         natLabsTokenEntries := Iter.toArray(natLabsToken.entries());
     };
 
@@ -3769,6 +3770,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
         blocklistedUsers := HashMap.fromIter<Principal, Bool>(blocklistedUserEntries.vals(), 1, Principal.equal, Principal.hash);
         faileWithdraws := HashMap.fromIter<Text, WithdrawState>(faileWithdrawEntries.vals(), 1, Text.equal, Text.hash);
         tokenBlocklist := HashMap.fromIter<Principal, TokenBlockType>(tokenBlocklistEntries.vals(), 1, Principal.equal, Principal.hash);
+        pairBlocklist := HashMap.fromIter<Text, TokenBlockType>(pairBlocklistEntries.vals(), 1, Text.equal, Text.hash);
         natLabsToken := HashMap.fromIter<Text, Bool>(natLabsTokenEntries.vals(), 1, Text.equal, Text.hash);
         lppattern := #text ":";
         depositTransactionsEntries := [];
@@ -3782,6 +3784,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
         blocklistedUserEntries := [];
         faileWithdrawEntries := [];
         tokenBlocklistEntries := [];
+        pairBlocklistEntries := [];
         natLabsTokenEntries := [];
     };
 };
