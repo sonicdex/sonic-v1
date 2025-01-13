@@ -326,6 +326,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
     private var faileWithdraws = HashMap.HashMap<Text, WithdrawState>(1, Text.equal, Text.hash);   
     private var swapLastTransaction = HashMap.HashMap<Principal, SwapLastTransaction>(1, Principal.equal, Principal.hash);    
     private var tokenBlocklist = HashMap.HashMap<Principal, TokenBlockType>(1, Principal.equal, Principal.hash);
+    private var pairBlocklist = HashMap.HashMap<Text, TokenBlockType>(1, Text.equal, Text.hash);
     private var natLabsToken = HashMap.HashMap<Text, Bool>(1, Text.equal, Text.hash);//created this to handle the natlab issue
     private var commitId:Text="";
     private var wicp_xtc_migrationEnabled=false;
@@ -349,6 +350,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
     private stable var blocklistedUserEntries: [(Principal, Bool)] = [];
     private stable var faileWithdrawEntries: [(Text, WithdrawState)] = [];
     private stable var tokenBlocklistEntries: [(Principal, TokenBlockType)] = [];
+    private stable var pairBlocklistEntries: [(Text, TokenBlockType)] = [];
     private stable var natLabsTokenEntries:[(Text,Bool)] = [];
 
     // variables not used : added for future use
@@ -735,6 +737,10 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
         return Iter.toArray(tokenBlocklist.entries());
     };
 
+    public shared(msg) func getBlockedPairs(): async [(Text,TokenBlockType)] {
+        return Iter.toArray(pairBlocklist.entries());
+    };
+
     public shared(msg) func addTokenToBlocklistValidate(tokenId: Principal, blockType:TokenBlockType) : async ValidateFunctionReturnType {        
         let tid: Text = Principal.toText(tokenId);
         if (tokens.hasToken(tid) == false)
@@ -755,6 +761,14 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
         return true;
     };
 
+    public shared(msg) func addPairToBlocklist(token0: Principal, token1: Principal, blockType:TokenBlockType): async Bool {
+        assert(_checkAuth(msg.caller));  
+        let (t0, t1) = Utils.sortTokens(Principal.toText(token0), Principal.toText(token1));
+        let pair_str = t0 # ":" # t1;
+        pairBlocklist.put(pair_str, blockType);
+        return true;
+    };
+
     public shared(msg) func removeTokenFromBlocklistValidate(tokenId: Principal) : async ValidateFunctionReturnType {        
         let tid: Text = Principal.toText(tokenId);
         if (tokens.hasToken(tid) == false)
@@ -765,6 +779,14 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
     public shared(msg) func removeTokenFromBlocklist(tokenId: Principal): async Bool {
         assert(_checkAuth(msg.caller));
         tokenBlocklist.delete(tokenId);
+        return true;
+    };
+
+    public shared(msg) func removePairFromBlocklist(token0: Principal, token1: Principal): async Bool {
+        assert(_checkAuth(msg.caller));
+        let (t0, t1) = Utils.sortTokens(Principal.toText(token0), Principal.toText(token1));
+        let pair_str = t0 # ":" # t1;
+        pairBlocklist.delete(pair_str);
         return true;
     };
 
@@ -1706,6 +1728,21 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
             }
         }
     };
+
+    private func getPairBlockStatus(token0: Principal, token1: Principal): TokenBlockType{
+        
+        let (t0, t1) = Utils.sortTokens(Principal.toText(token0), Principal.toText(token1));
+        let pair_str = t0 # ":" # t1;
+        switch(pairBlocklist.get(pair_str)){
+            case(?d){
+                d;
+            };
+            case(_){
+                #None(true);
+            }
+        }
+    };
+    
 
     /**
     *   1. calculate amount0/amount1
@@ -3359,10 +3396,13 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
             #addUserToBlocklist : () -> Principal;
             #removeUserFromBlocklist : () -> Principal;
             #getBlockedTokens : () -> ();
+            #getBlockedPairs : () -> ();
             #addTokenToBlocklist : () -> (Principal, TokenBlockType);
             #addTokenToBlocklistValidate : () -> (Principal, TokenBlockType);
+            #addPairToBlocklist : () -> (Principal, Principal, TokenBlockType);
             #removeTokenFromBlocklist : () -> Principal;
             #removeTokenFromBlocklistValidate : () -> Principal;
+            #removePairFromBlocklist : () -> (Principal, Principal);
             #setCapV2CanisterId : () -> Text;
             #getCapDetails : () -> ();
             #setCapV1EnableStatus : () -> Bool;
@@ -3420,10 +3460,13 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
                 case (#addUserToBlocklist _) { _checkAuth(caller) };
                 case (#removeUserFromBlocklist _) { _checkAuth(caller) };
                 case (#getBlockedTokens _) { _checkAuth(caller) };
+                case (#getBlockedPairs _) { _checkAuth(caller) };
                 case (#addTokenToBlocklist _) { _checkAuth(caller) };
                 case (#addTokenToBlocklistValidate _) { _checkAuth(caller) };
+                case (#addPairToBlocklist _) { _checkAuth(caller) };
                 case (#removeTokenFromBlocklist _) { _checkAuth(caller) };
                 case (#removeTokenFromBlocklistValidate _) { _checkAuth(caller) };
+                case (#removePairFromBlocklist _) { _checkAuth(caller) };
                 case (#failedWithdrawRefund _) { _checkAuth(caller) };           
                 case (#addNatLabsToken _) { _checkAuth(caller) };
                 case (#removeNatLabsToken _) { _checkAuth(caller) };
