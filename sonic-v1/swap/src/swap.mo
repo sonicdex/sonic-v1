@@ -28,6 +28,7 @@ import Hex "./Hex";
 import Bool "mo:base/Bool";
 import Error "mo:base/Error";
 import Account "./Account";
+import SNSGovernance = "./SNSGovernance";
 
 shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : Text) = this {   
     type Errors = {
@@ -739,6 +740,12 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
 
     public shared(msg) func getBlockedPairs(): async [(Text,TokenBlockType)] {
         return Iter.toArray(pairBlocklist.entries());
+    };
+
+    public shared(msg) func manageWTNValidate(manageNeuron : SNSGovernance.ManageNeuron) : async ValidateFunctionReturnType {
+        // we only check argment validation
+        // delegate rest to the WTN governance canister
+        return #Ok("token not exist");
     };
 
     public shared(msg) func addTokenToBlocklistValidate(tokenId: Principal, blockType:TokenBlockType) : async ValidateFunctionReturnType {        
@@ -3406,6 +3413,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
             #getBlockedTokens : () -> ();
             #getBlockedPairs : () -> ();
             #addTokenToBlocklist : () -> (Principal, TokenBlockType);
+            #manageWTNValidate : () -> (SNSGovernance.ManageNeuron);
             #addTokenToBlocklistValidate : () -> (Principal, TokenBlockType);
             #addPairToBlocklist : () -> (Principal, Principal, TokenBlockType);
             #removeTokenFromBlocklist : () -> Principal;
@@ -3470,6 +3478,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
                 case (#getBlockedTokens _) { _checkAuth(caller) };
                 case (#getBlockedPairs _) { true };
                 case (#addTokenToBlocklist _) { _checkAuth(caller) };
+                case (#manageWTNValidate _) { true };
                 case (#addTokenToBlocklistValidate _) { _checkAuth(caller) };
                 case (#addPairToBlocklist _) { _checkAuth(caller) };
                 case (#removeTokenFromBlocklist _) { _checkAuth(caller) };
