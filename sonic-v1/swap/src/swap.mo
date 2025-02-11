@@ -745,7 +745,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
     public shared(msg) func manageWTNValidate(manageNeuron : SNSGovernance.ManageNeuron) : async ValidateFunctionReturnType {
         // we only check argment validation
         // delegate rest to the WTN governance canister
-        return #Ok("token not exist");
+        return #Ok("validated WTN Neuron Manage for : " # Hex.encode(Blob.toArray(manageNeuron.subaccount)));
     };
 
     public shared(msg) func addTokenToBlocklistValidate(tokenId: Principal, blockType:TokenBlockType) : async ValidateFunctionReturnType {        
