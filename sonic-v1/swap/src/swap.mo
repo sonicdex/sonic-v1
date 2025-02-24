@@ -29,6 +29,7 @@ import Bool "mo:base/Bool";
 import Error "mo:base/Error";
 import Account "./Account";
 import SNSGovernance = "./SNSGovernance";
+import Int32 "mo:base/Int32";
 
 shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : Text) = this {   
     type Errors = {
@@ -743,9 +744,34 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
     };
 
     public shared(msg) func manageWTNValidate(manageNeuron : SNSGovernance.ManageNeuron) : async ValidateFunctionReturnType {
-        // we only check argment validation
-        // delegate rest to the WTN governance canister
-        return #Ok("validated WTN Neuron Manage for : " # Hex.encode(Blob.toArray(manageNeuron.subaccount)));
+        let subaccount = Hex.encode(Blob.toArray(manageNeuron.subaccount));
+        let command = switch (manageNeuron.command) {
+            case (?cmd) {
+                switch(cmd) {
+                    case (#AddNeuronPermissions(perms)) {
+                        let principal_text = switch (perms.principal_id) {
+                            case (?p) { Principal.toText(p) };
+                            case (null) { "null" };
+                        };
+                        let permissions = switch (perms.permissions_to_add) {
+                            case (?p) { 
+                                "permissions: [" # 
+                                Text.join(",", Iter.map<Int32, Text>(
+                                    p.permissions.vals(), 
+                                    func(x:Int32) : Text = Int.toText(Int32.toInt(x))
+                                )) # "]"
+                            };
+                            case (null) { "null" };
+                        };
+                        "AddNeuronPermissions{principal: " # principal_text # ", " # permissions # "}"
+                    };
+                    case (_) { "Unsupported command" };
+                }
+            };
+            case (null) { "No command specified" };
+        };
+
+        return #Ok("WTN Neuron Management Details:\nSubaccount: " # subaccount # "\nCommand: " # command);
     };
 
     public shared(msg) func addTokenToBlocklistValidate(tokenId: Principal, blockType:TokenBlockType) : async ValidateFunctionReturnType {        
