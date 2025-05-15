@@ -744,7 +744,11 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
     };
 
     public shared(msg) func manageWTNValidate(manageNeuron : SNSGovernance.ManageNeuron) : async ValidateFunctionReturnType {
+        
+        assert(_checkAuth(msg.caller));
+
         let subaccount = Hex.encode(Blob.toArray(manageNeuron.subaccount));
+
         let command = switch (manageNeuron.command) {
             case (?cmd) {
                 switch(cmd) {
@@ -1574,7 +1578,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
             ]
         );
         let token_amount=tokens.allowance(Principal.toText(tokenId), from, msg.caller);
-        let burnTokenId= getWIPCfromICP(tid);
+        let burnTokenId= getWICPfromICP(tid);
         if (token_amount== 0)
             return #err("token allowance not found");
         if (tokens.burn(burnTokenId, from, token_amount)) {
@@ -2646,6 +2650,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
 
     public shared(msg) func setWICPMigration(wicp_xtc_migration:Bool) : async Bool {
         assert(_checkAuth(msg.caller));
+        // has no effect any more
         wicp_xtc_migrationEnabled:=wicp_xtc_migration;
         return true;
     };
@@ -2654,6 +2659,7 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
     * public info query functions
     */
     public query func getWICPMigration(): async Bool {
+        // has no effect any more
         return wicp_xtc_migrationEnabled;
     };
 
@@ -2821,7 +2827,8 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
         }
     };
 
-    public query func getHolderInfo(tokenId: Text): async [(Principal, Nat)] {
+    public query(msg) func getHolderInfo(tokenId: Text): async [(Principal, Nat)] {
+        assert(_checkAuth(msg.caller));
         if(Text.contains(tokenId, lppattern)) {
             switch(lptokens.getTokenInfo(tokenId)) {
                 case(?t) { Iter.toArray(t.balances.entries()) };
@@ -3069,22 +3076,22 @@ shared(msg) actor class Swap(owner_: Principal, swap_id: Principal,commit_id : T
     };
 
     private func approve_for_migration(liquidityProvider:Principal, token_cansiter_id: Text, spender: Principal, value: Nat) : Bool {
-        let tokenId = getWIPCfromICP(token_cansiter_id);
-        let skipBalanceValidation=(wicp_xtc_migrationEnabled and tokenId==icp);
+        let tokenId = getWICPfromICP(token_cansiter_id);
+        let skipBalanceValidation = false; // (wicp_xtc_migrationEnabled and tokenId==icp);
         if(tokens.zeroFeeApprove(tokenId, liquidityProvider, spender, value, skipBalanceValidation) == true) {
             return true;
         };
         return false;
     };
 
-    private func getWIPCfromICP(token_cansiter_id: Text) : Text{
-        if(wicp_xtc_migrationEnabled) {
-            let tokenId = if (token_cansiter_id == wicp) { icp } else if (token_cansiter_id == icp) { wicp } else { token_cansiter_id };
-            return tokenId;
-        }
-        else {
-            return token_cansiter_id;
-        }
+    private func getWICPfromICP(token_cansiter_id: Text) : Text{
+        // if(wicp_xtc_migrationEnabled) {
+        //     let tokenId = if (token_cansiter_id == wicp) { icp } else if (token_cansiter_id == icp) { wicp } else { token_cansiter_id };
+        //     return tokenId;
+        // }
+        // else {
+        return token_cansiter_id;
+        // }
     };
 
     public query func balanceOf(tokenId: Text, who: Principal) : async Nat {
